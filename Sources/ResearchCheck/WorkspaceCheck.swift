@@ -2,6 +2,18 @@ import Foundation
 import ResearchCore
 
 enum WorkspaceCheck {
+    static func decisions(_ expected:[String:[String:Any]],strategy:String,engine:StrategyEngine) throws {
+        var prior:Decision?
+        for day in expected.keys.sorted() {
+            let signal=try engine.decision(strategy,on:day,previousState:prior?.marketState ?? "UNKNOWN",previousSectors:prior?.sectorStates ?? [:])
+            guard let target=expected[day]?["weights"] as? [String:Double],signal.route==expected[day]?["route"] as? String,
+                  signal.selected==expected[day]?["selected"] as? [String],
+                  Set(target.keys)==Set(signal.weights.keys),target.allSatisfy({ abs(signal.weights[$0.key]!-$0.value)<=1e-12 }) else {
+                throw ResearchError("\(strategy) \(day) 选取或权重与独立 Python 不同")
+            }
+            prior=signal
+        }
+    }
     static func run(directory: URL, output: URL) throws {
         let data=try Data(contentsOf:directory.appendingPathComponent("market.json"))
         let m=try JSONDecoder().decode(MarketSnapshot.self,from:data)
@@ -22,8 +34,10 @@ enum WorkspaceCheck {
         let reference=expected["studies"] as! [String:[String:Any]], start=expected["start"] as! String, end=expected["end"] as! String
         for strategy in w.design.strategies {
             let exp=reference[strategy.id]!, curve=exp["curve"] as! [[Any]], orders=exp["orders"] as! [[Any]]
+            let scheduled=exp["decisions"] as? [String:[String:Any]] ?? [:]
+            try decisions(scheduled,strategy:strategy.id,engine:engine)
             var resume: ReplayReport?
-            let report=try engine.replay(strategy.id,snapshot:hash,start:start,end:end) { r,_ in if resume == nil { resume=r } }
+            let report=try engine.replay(strategy.id,snapshot:hash,start:start,end:end,checkpoint:{ r,_ in if resume == nil { resume=r } })
             let continued=try engine.replay(strategy.id,snapshot:hash,start:start,end:end,resume:resume)
             let enc=JSONEncoder(); enc.outputFormatting=[.sortedKeys]
             if try enc.encode(report) != enc.encode(continued) { problems.append("\(strategy.id) 恢复结果不一致") }
@@ -37,7 +51,7 @@ enum WorkspaceCheck {
                 let wrong=zip(report.curve,curve).first { a,b in abs(a.equity-(b[1] as! Double))>=0.005 }
                 problems.append("\(strategy.id) 逐日资金 \(matchedCurve) 成交 \(matchedFills)；首处分歧 \(wrong?.0.date ?? "无")")
             }
-            summary.append(["strategy":strategy.id,"sessions":report.curve.count,"fills":report.trades.count,"closed":report.cycles.count,"curveMatchesToCent":matchedCurve,"tradesMatch":matchedFills])
+            summary.append(["strategy":strategy.id,"sessions":report.curve.count,"fills":report.trades.count,"closed":report.cycles.count,"curveMatchesToCent":matchedCurve,"tradesMatch":matchedFills,"decisions":scheduled.count])
         }
         let evidence:[String:Any]=["snapshot":hash,"workspace":w.hash,"start":start,"end":end,"routeDates":signals.map { [$0["date"]!,$0["route"]!] },"studies":summary,"issues":problems]
         try JSONSerialization.data(withJSONObject:evidence,options:[.sortedKeys,.prettyPrinted]).write(to:output,options:.atomic)

@@ -1,0 +1,19 @@
+{
+  "chunks" : 8,
+  "entries" : 238,
+  "package" : "d96ed4dc09baf0865d34f0f47f318dffd958421bbf2e93b3ff7efd3caa8feda3",
+  "retainedOnRefusal" : [
+    "坏清单",
+    "坏分块",
+    "坏快照编号",
+    "来源断链"
+  ],
+  "rollbackChecked" : true,
+  "snapshot" : "936d5734e7655d73fbee9d0ffb13fcf5c9eeaa17b639e3dbf115a2f321c666d6",
+  "verifiedIntervals" : [
+    [
+      "2026-01-19",
+      "2026-11-17"
+    ]
+  ]
+}

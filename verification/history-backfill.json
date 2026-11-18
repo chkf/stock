@@ -1,0 +1,54 @@
+{
+  "candidate" : "c0f07041380171329248ea5570baec8c1b9bc2c64ff61fe7c45f977a90c458d4",
+  "coldBackfillChecked" : true,
+  "device" : "桌面 Swift 离线复算",
+  "firstBar" : "2024-10-08",
+  "oldPhone" : "3f2550917accedd86f45b17cf314a61c0deb5cf7f9b07169ccdc19857f4c14f0",
+  "pythonComparison" : [
+    "2025-11-03",
+    "2025-12-31"
+  ],
+  "resumedRequests" : 56,
+  "rollbackChecked" : true,
+  "source" : "腾讯未复权、封存基金行动 HTML、Windows Python 封存快照",
+  "studies" : [
+    {
+      "decisions" : 3,
+      "fills" : 17,
+      "sessions" : 43,
+      "strategy" : "BANK_ELSE_GB"
+    },
+    {
+      "decisions" : 3,
+      "fills" : 7,
+      "sessions" : 43,
+      "strategy" : "MOM20"
+    },
+    {
+      "decisions" : 3,
+      "fills" : 12,
+      "sessions" : 43,
+      "strategy" : "MV"
+    },
+    {
+      "decisions" : 3,
+      "fills" : 26,
+      "sessions" : 43,
+      "strategy" : "GB"
+    },
+    {
+      "decisions" : 3,
+      "fills" : 7,
+      "sessions" : 43,
+      "strategy" : "SECTOR_M"
+    }
+  ],
+  "through" : "2026-11-17",
+  "unchangedTail" : true,
+  "verifiedIntervals" : [
+    [
+      "2025-10-22",
+      "2026-11-17"
+    ]
+  ]
+}

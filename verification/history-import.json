@@ -1,0 +1,20 @@
+{
+  "chunks" : 6,
+  "entries" : 201,
+  "package" : "8def0ea06a1d06f979c12b1ec42b561f74cf7ec5ec7272a47b1ec9f276f5f1b6",
+  "retainedOnRefusal" : [
+    "坏清单",
+    "坏分块",
+    "坏快照编号",
+    "来源断链",
+    "哈希全部正确但目标缺预热"
+  ],
+  "rollbackChecked" : true,
+  "snapshot" : "b281cf9add010532b1642d39c263d1ca8eebaff327d8cd3f06f0b79f93dbfe4c",
+  "verifiedIntervals" : [
+    [
+      "2025-10-22",
+      "2026-11-17"
+    ]
+  ]
+}

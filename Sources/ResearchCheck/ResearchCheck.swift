@@ -12,6 +12,18 @@ import ResearchCore
     }
     private static func check() async throws {
         let args = Array(CommandLine.arguments.dropFirst())
+        if args.count==3 && args[0]=="--stage-simulator-archive" {
+            try await HistoryImportCheck.stageSimulator(package:URL(fileURLWithPath:args[1]),root:URL(fileURLWithPath:args[2]))
+            return
+        }
+        if (3...4).contains(args.count) && args[0]=="--history-import" {
+            try await HistoryImportCheck.run(package:URL(fileURLWithPath:args[1]),output:URL(fileURLWithPath:args[2]),invalid:args.count==4 ? URL(fileURLWithPath:args[3]):nil)
+            return
+        }
+        if (4...5).contains(args.count) && args[0]=="--history-example" {
+            try await HistoryCheck.run(example:URL(fileURLWithPath:args[1]),oldRoot:URL(fileURLWithPath:args[2]),output:URL(fileURLWithPath:args[3]),export:args.count==5 ? URL(fileURLWithPath:args[4]) : nil)
+            return
+        }
         if args.count == 3 && args[0] == "--workspace-offline" {
             try WorkspaceCheck.run(directory:URL(fileURLWithPath:args[1]),output:URL(fileURLWithPath:args[2]))
             return

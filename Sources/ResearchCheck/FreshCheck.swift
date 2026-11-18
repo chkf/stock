@@ -46,7 +46,7 @@ enum FreshCheck {
             let incrementalParityCases: Int
             let cases, incrementalResults: [ParityResult]
         }
-        let proof = Proof(platform: "桌面 Swift，共用本机计算及存储代码", date: date, snapshot: phone.hash, warmup: phone.usableFrom,
+        let proof = Proof(platform: "桌面 Swift，共用本机计算及存储代码", date: date, snapshot: phone.hash, warmup: phone.usableFrom ?? "无",
                           noImport: true, manualTestAccountReloaded: true, offlineReportReloaded: true, badUpdatePreservedPrior: true,
                           damagedEvidenceRejected: true, securities: market.securities.count, evidenceFilesChecked: market.sources.count,
                           sellableShares: sell.quantity, deferredShares: sell.deferred_quantity, incrementalParityCases: incremental.count, cases: results, incrementalResults:incremental)

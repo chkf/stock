@@ -1,5 +1,6 @@
 """Run the sealed Python accounting code on a copied public-market snapshot."""
 import gzip
+import argparse
 import hashlib
 import json
 from pathlib import Path
@@ -12,17 +13,17 @@ ROOT = IOS.parent
 SNAPSHOT = "936d5734e7655d73fbee9d0ffb13fcf5c9eeaa17b639e3dbf115a2f321c666d6"
 
 
-def generate():
+def generate(root=ROOT,dest=None,start="2026-01-19",end="2026-11-17"):
     sys.dont_write_bytecode = True
-    dest = IOS / ".build/replay-parity"
+    dest = dest or IOS / ".build/replay-parity"
     dest.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(dir=IOS / ".build") as temporary:
+    with tempfile.TemporaryDirectory(dir=dest) as temporary:
         copy = Path(temporary)
-        shutil.copytree(ROOT / "stock_research", copy / "stock_research", ignore=shutil.ignore_patterns("__pycache__"))
+        shutil.copytree(root / "stock_research", copy / "stock_research", ignore=shutil.ignore_patterns("__pycache__"))
         for folder, name in [("sector_selection_20261114", "sector_account"), ("sector_selection_20261114", "sector_history"),
                              ("bank_long_history_20261114", "history_support")]:
-            shutil.copy(ROOT / "research" / folder / (name+".py"), copy)
-        shutil.copy(ROOT / f"data/advice/market/snapshots/{SNAPSHOT}.json.gz", copy / "market.gz")
+            shutil.copy(root / "research" / folder / (name+".py"), copy)
+        shutil.copy(root / f"data/advice/market/snapshots/{SNAPSHOT}.json.gz", copy / "market.gz")
         raw = gzip.decompress((copy / "market.gz").read_bytes())
         assert hashlib.sha256(raw).hexdigest() == SNAPSHOT
         market = json.loads(raw)
@@ -44,7 +45,6 @@ def generate():
                 df[p] *= ratio
             inputs[s] = dict(group=x["group"], df=df, security=Security(**x["security"]), statuses=x["statuses"],
                              events=[{**e, "symbol":s} for e in x["events"]])
-        start, end = "2026-01-19", "2026-11-17"
         data = ledger.compile_market(inputs,start,end)
         panel = Panel(market)
         output = dict(snapshot=SNAPSHOT,start=start,end=end,studies={},signals=[])
@@ -63,16 +63,24 @@ def generate():
             for date in [data["before"], *data["dates"]]:
                 if date == data["before"] or panel.is_month_end(date):
                     previous = panel.decision(strategy,date,previous)
-                    policy[date] = dict(date=date,information_date=date,weights=previous["weights"],route=previous["route"],reason="scheduled")
+                    policy[date] = dict(date=date,information_date=date,weights=previous["weights"],route=previous["route"],
+                                        selected=previous["details"].get("selected", []),reason="scheduled")
             cfg = ledger.PortfolioConfig(mode="scenario",initial_cash=50_000.,state_routing=True,
                 trailing_drawdown=.2 if strategy in {"MOM20","BANK_ELSE_GB","SECTOR_M"} else None,
                 equity_protection=strategy=="SECTOR_M")
             result = ledger.run_portfolio(data,policy,cfg,start,end)
-            output["studies"][strategy] = dict(curve=[[r["date"],r["equity"]] for r in result["curve"]],
+            output["studies"][strategy] = dict(decisions=policy,curve=[[r["date"],r["equity"]] for r in result["curve"]],
                 orders=[[o["date"],o["symbol"],o["side"].upper(),o["quantity"],o["price"],o["costs"]["total"]] for o in result["orders"]])
         (dest/"market.json").write_bytes(raw)
         (dest/"expected.json").write_text(json.dumps(output,ensure_ascii=False,allow_nan=False),"utf-8")
         print(start,end,[(s,len(r["orders"])) for s,r in output["studies"].items()], sorted(seen))
 
 
-if __name__ == "__main__": generate()
+if __name__ == "__main__":
+    parser=argparse.ArgumentParser()
+    parser.add_argument("--root",type=Path,default=ROOT)
+    parser.add_argument("--output",type=Path)
+    parser.add_argument("--start",default="2026-01-19")
+    parser.add_argument("--end",default="2026-11-17")
+    args=parser.parse_args()
+    generate(args.root.resolve(),args.output,args.start,args.end)
