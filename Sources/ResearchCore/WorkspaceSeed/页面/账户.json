@@ -1,1 +1,9 @@
-{"title":"我的账户","tab":"账户","icon":"person.crop.circle","blocks":[{"type":"account"}]}
+{
+  "title":"我的账户","tab":"账户","icon":"person.crop.circle","blocks":[
+    {"type":"group","text":"已确认账户","blocks":[{"type":"accountBalance"},{"type":"nativeLink","target":"account.edit","text":"录入或更新账户"}]},
+    {"type":"group","text":"实际持仓","blocks":[{"type":"holdings"}]},
+    {"type":"nativeLink","target":"account.plan","text":"按账户计算参考份额"},
+    {"type":"nativeLink","target":"account.history","text":"查看已确认的账户记录"},
+    {"type":"nativeLink","target":"reports","text":"历史报告"}
+  ]
+}

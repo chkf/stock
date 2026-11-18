@@ -2,6 +2,14 @@
 #include "scipy/slsqp.h"
 #include <stdlib.h>
 
+extern void dsyrk_(char *, char *, int *, int *, double *, double *, int *, double *, double *, int *);
+void sr_gram_matrix(int n, int observations, double *centered, double *product) {
+    double one = 1, zero = 0;
+    dsyrk_("U", "T", &n, &observations, &one, centered, &observations, &zero, product, &n);
+    for (int j=0; j<n; ++j)
+        for (int i=0; i<j; ++i) product[i*n+j] = product[j*n+i];
+}
+
 /* scipy.optimize._minimize_slsqp, one equality constraint and box bounds.
    SLSQP and its NNLS subproblem are the SciPy 1.18.1 release sources. */
 int sr_minimum_variance(int n, const double *c, double *w) {

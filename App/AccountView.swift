@@ -38,7 +38,7 @@ struct AccountView: View {
     }
 }
 
-private struct AccountHistoryView: View {
+struct AccountHistoryView: View {
     @EnvironmentObject var model: AppModel
     @State private var versions = [PrivateLibrary.PersonalRecord]()
     var body: some View {
@@ -113,7 +113,7 @@ private struct PositionDraft: Identifiable {
     }
 }
 
-private struct AccountEditor: View {
+struct AccountEditor: View {
     @EnvironmentObject var model: AppModel
     @Environment(\.dismiss) private var dismiss
     @State private var day: String

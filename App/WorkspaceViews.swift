@@ -44,7 +44,12 @@ struct WorkspacePage: View {
         case "link": NavigationLink(b.text ?? model.workspace?.pages[b.target ?? ""]?.title ?? "打开") { WorkspacePage(id:b.target ?? "") }
         case "archiveLink": NavigationLink(b.text ?? "原始资料与报告") { LibraryView() }
         case "field":
-            TextField(b.text ?? b.key ?? "",text:Binding(get:{ model.fields[b.key ?? ""] ?? "" },set:{ model.fields[b.key ?? ""]=$0 }))
+            if b.key == "replayStart" { TextField(b.text ?? "",text:$model.replayStart).keyboardType(.numbersAndPunctuation) }
+            else if b.key == "replayEnd" { TextField(b.text ?? "",text:$model.replayEnd).keyboardType(.numbersAndPunctuation) }
+            else { TextField(b.text ?? b.key ?? "",text:Binding(get:{ model.fields[b.key ?? ""] ?? "" },set:{ model.fields[b.key ?? ""]=$0 })) }
+        case "command","accountBalance","holdings","watchRows","etfRows","job","nativeLink":
+            WorkspaceDataBlock(b:b)
+        case "studyChart": StudyChartBlock(title:b.text ?? "策略对照")
         case "button": Button(b.text ?? "运行") { model.runAction(b.target ?? "") }.disabled(model.busy)
         case "reload": Button(b.text ?? "重新载入工作区") { model.reloadWorkspace() }.disabled(model.busy)
         case "result":
@@ -98,6 +103,60 @@ struct WorkspaceControls: View {
                 if model.busy { ProgressView(model.progress) } else if !model.progress.isEmpty { Text(model.progress).font(.caption) }
             }
         }.navigationTitle("工作区").toolbar { ToolbarItem(placement:.confirmationAction) { Button("完成") { dismiss() } } }
+    }
+}
+
+private struct WorkspaceDataBlock: View {
+    @EnvironmentObject var model: AppModel
+    let b: ScreenBlock
+    var body: some View {
+        switch b.type {
+        case "command":
+            Button(b.text ?? "执行") {
+                switch b.target {
+                case "watch.add": model.editWatch(model.fields["symbol"] ?? "")
+                case "market.refresh": model.refresh()
+                case "study.run": model.runStudies()
+                case "job.cancel": model.cancel()
+                default: break
+                }
+            }.disabled((b.target != "job.cancel" && model.busy) || (b.target == "study.run" && model.market == nil) || (b.target == "watch.add" && (model.fields["symbol"] ?? "").isEmpty))
+        case "job":
+            if model.busy { Section { ProgressView(value:model.fraction) { Text(model.progress) }; Button("暂停") { model.cancel() } } }
+        case "accountBalance":
+            if let a=model.personal { LabeledContent("收盘日",value:a.as_of); LabeledContent("可用现金",value:String(format:"%.2f 元",a.cash)) }
+            else { Text("尚未录入真实账户。").foregroundStyle(.secondary) }
+        case "holdings":
+            if let a=model.personal {
+                if a.positions.isEmpty { Text("已确认空仓") }
+                ForEach(a.positions,id:\.symbol) { p in VStack(alignment:.leading) {
+                    Text(model.market?.securities[p.symbol]?.name ?? p.symbol)
+                    Text("\(p.symbol) · 持有 \(p.quantity) · 可卖 \(p.available)").font(.subheadline)
+                    if let day=p.entry_date { Text("自 \(day) 持有").font(.caption) }
+                    if let close=p.close { Text("补录收盘 \(close.formatted()) 元").font(.caption) }
+                } }
+            }
+        case "watchRows":
+            ForEach(model.watch) { w in NavigationLink { QuoteDetail(symbol:w.symbol) } label: { LabeledContent(w.name,value:w.symbol) }
+                    .swipeActions { Button("移除",role:.destructive) { model.editWatch(w.symbol,remove:true) } } }
+        case "etfRows":
+            if let m=model.market {
+                let q=model.fields["query"] ?? ""
+                ForEach(m.securities.keys.sorted().filter { q.isEmpty || $0.contains(q) || m.securities[$0]!.name.contains(q) },id:\.self) { s in
+                    NavigationLink { QuoteDetail(symbol:s) } label: { LabeledContent(m.securities[s]!.name,value:s) }
+                }
+            } else { Button("获取 ETF 行情") { model.refresh() }.disabled(model.busy) }
+        case "nativeLink":
+            switch b.target {
+            case "account.edit": NavigationLink(b.text ?? "录入账户") { AccountEditor(account:model.personal) }
+            case "account.history": NavigationLink(b.text ?? "账户记录") { AccountHistoryView() }
+            case "account.plan": NavigationLink(b.text ?? "参考份额") { StrategyView() }
+            case "reports": NavigationLink(b.text ?? "历史报告") { HistoryView() }
+            case "archive": NavigationLink(b.text ?? "原始资料") { LibraryView() }
+            default: EmptyView()
+            }
+        default: EmptyView()
+        }
     }
 }
 
@@ -170,7 +229,6 @@ extension AppModel {
 
 struct ReplayView: View {
     @EnvironmentObject var model: AppModel
-    @State private var dd=false
     var body: some View {
         List {
             Section("独立区间 · 每套初始 50,000 元") {
@@ -180,20 +238,28 @@ struct ReplayView: View {
                 if model.busy { ProgressView(value:model.fraction) { Text(model.progress) }; Button("暂停") { model.cancel() } }
                 Text("首次按上一交易日收盘选取，随后月末换仓，按策略检查保护退出。下一交易日以原始开盘价模拟成交，计入整手、涨跌停、分红、佣金和滑点。").font(.caption)
             }
+            StudyChartBlock(title:"同区间策略对照")
+            if model.market == nil { Text("请先在市场页获取行情。") }
+        }.navigationTitle("策略回测")
+    }
+}
+private struct StudyChartBlock: View {
+    @EnvironmentObject var model: AppModel
+    let title: String
+    @State private var dd=false
+    var body: some View {
             let reports=(model.workspace?.design.strategies ?? []).compactMap { s -> (StrategyFile,ReplayReport)? in
                 guard let r=model.studies[s.id], r.finished, r.start==model.replayStart, r.end==model.replayEnd else { return nil }; return (s,r)
             }
             if let first=reports.first {
                 let dates=first.1.curve.map(\.date)
-                Section("同区间策略对照") {
+                Section(title) {
                     Picker("指标",selection:$dd) { Text("净值").tag(false); Text("回撤").tag(true) }.pickerStyle(.segmented)
                     MarketPlot(dates:dates,lines:reports.enumerated().map { i,p in
                         PlotLine(title:p.0.short,color:studyColors[i%studyColors.count],values:p.1.curve.map { dd ? $0.drawdown : $0.equity/p.1.capital })
                     },isPercent:dd,identity:model.studyKey+first.1.start+first.1.end+String(dd))
                 }
             }
-            if model.market == nil { Text("请先在市场页获取行情。") }
-        }.navigationTitle("策略回测")
     }
 }
 struct OutcomeSection: View {

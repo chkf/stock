@@ -33,6 +33,25 @@ static JSValue min_variance(JSContext *ctx, JSValueConst self, int argc, JSValue
     return array;
 }
 void sws_free(char *text) { free(text); }
+static JSValue gram(JSContext *ctx, JSValueConst self, int argc, JSValueConst *argv) {
+    int32_t n, k;
+    if (argc != 3 || JS_ToInt32(ctx,&n,argv[0]) || JS_ToInt32(ctx,&k,argv[1]) || n<1 || n>28 || k<1 || k>6000)
+        return JS_ThrowTypeError(ctx,"gramMatrix expects 1..28 assets and 1..6000 observations");
+    double *x = calloc((size_t)n*k,sizeof(double));
+    if (!x) return JS_ThrowOutOfMemory(ctx);
+    for (uint32_t i=0; i<(uint32_t)(n*k); ++i) {
+        JSValue v = JS_GetPropertyUint32(ctx,argv[2],i);
+        int invalid = JS_ToFloat64(ctx,&x[i],v);
+        JS_FreeValue(ctx,v);
+        if (invalid || !isfinite(x[i])) { free(x); return JS_ThrowTypeError(ctx,"invalid observation"); }
+    }
+    double out[28*28];
+    sr_gram_matrix(n,k,x,out);
+    free(x);
+    JSValue a=JS_NewArray(ctx);
+    for (uint32_t i=0; i<(uint32_t)(n*n); ++i) JS_SetPropertyUint32(ctx,a,i,JS_NewFloat64(ctx,out[i]));
+    return a;
+}
 int sws_run(const char *program, const char *source_name, const char *input, int check_only, char **output) {
     *output = NULL;
     JSRuntime *rt = JS_NewRuntime();
@@ -45,6 +64,7 @@ int sws_run(const char *program, const char *source_name, const char *input, int
     if (!ctx) { JS_FreeRuntime(rt); return -1; }
     JSValue global = JS_GetGlobalObject(ctx);
     JS_SetPropertyStr(ctx, global, "minimumVariance", JS_NewCFunction(ctx, min_variance, "minimumVariance", 2));
+    JS_SetPropertyStr(ctx, global, "gramMatrix", JS_NewCFunction(ctx, gram, "gramMatrix", 3));
     JSValue value = JS_Eval(ctx, program, strlen(program), source_name, JS_EVAL_TYPE_GLOBAL);
     int ok = !JS_IsException(value);
     JS_FreeValue(ctx, value);

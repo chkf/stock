@@ -11,6 +11,16 @@ function mean(a) {
     for (const x of a) { const y=x-correction, next=sum+y; correction=(next-sum)-y; sum=next; }
     return sum/a.length;
 }
+// NumPy float64 pairwise reduction for contiguous vectors shorter than 128.
+function arraySum(a) {
+    if(a.length<8) return a.reduce((s,x)=>s+x,-0);
+    const acc=a.slice(0,8);
+    let j=8;
+    for(;j+7<a.length;j+=8) for(let i=0;i<8;i++) acc[i]+=a[j+i];
+    let sum=((acc[0]+acc[1])+(acc[2]+acc[3]))+((acc[4]+acc[5])+(acc[6]+acc[7]));
+    for(;j<a.length;j++) sum+=a[j];
+    return sum;
+}
 function panel(input) {
     const rows={};
     for (const s of Object.keys(input.securities).sort()) {
@@ -56,20 +66,20 @@ function variance(rows,d) {
     const symbols=Object.keys(rows).sort(), n=symbols.length;
     if(n<3) return;
     const centered=symbols.map(s=>{
-        const w=rows[s].close, r=w.slice(-126).map((v,i)=>v/w[125+i]-1), avg=mean(r);
+        const w=rows[s].close, r=w.slice(-126).map((v,i)=>v/w[125+i]-1), avg=arraySum(r)/r.length;
         return r.map(v=>v-avg);
     });
-    const matrix=Array(n*n).fill(0);
-    let trace=0;
+    const matrix=Array(n*n).fill(0), product=gramMatrix(n,126,centered.flat());
+    const diagonal=[];
     for(let i=0;i<n;i++){
         for(let j=0;j<=i;j++){
-            let sum=0; for(let k=0;k<126;k++) sum+=centered[i][k]*centered[j][k];
-            const c=i===j?sum/125+1e-10:0.5*sum/125;
+            const covariance=product[i*n+j]*(1/125), c=i===j?covariance+1e-10:0.5*covariance;
             matrix[i*n+j]=matrix[j*n+i]=c;
         }
-        trace+=matrix[i*n+i];
+        diagonal.push(matrix[i*n+i]);
     }
-    const w=minimumVariance(n,matrix.map(x=>x/(trace/n))).map(x=>Math.max(0,x));
-    const denom=Math.max(1,w.reduce((a,b)=>a+b,0));
+    const scale=arraySum(diagonal)/n;
+    const w=minimumVariance(n,matrix.map(x=>x/scale)).map(x=>Math.max(0,x));
+    const denom=Math.max(1,arraySum(w));
     symbols.forEach((s,i)=>{if(w[i]/denom>1e-10)d.weights[s]=w[i]/denom;});
 }

@@ -25,7 +25,8 @@ public struct WorkspaceVersion {
     private let files: [String: Data]
     private let library: String
     static let widgets = Set(["strategyPicker","decision","strength","outlook","marketUpdate","quotes","account","replay",
-                              "archiveLink","title","text","link","field","button","result","reload","row","stack","group","divider"])
+                              "archiveLink","title","text","link","field","button","result","reload","row","stack","group","divider",
+                              "command","accountBalance","holdings","watchRows","etfRows","studyChart","job","nativeLink"])
     static func validID(_ value: String) -> Bool {
         !value.isEmpty && value.count <= 80 && value.utf8.allSatisfy { (65...90).contains($0) || (97...122).contains($0) || (48...57).contains($0) || [45,95].contains($0) }
     }
@@ -81,6 +82,8 @@ public struct WorkspaceVersion {
                 case "link": return design.pages[block.target ?? ""] != nil
                 case "button","result": return design.actions[block.target ?? ""] != nil
                 case "field": return validID(block.key ?? "")
+                case "command": return ["watch.add","market.refresh","study.run","job.cancel"].contains(block.target ?? "")
+                case "nativeLink": return ["account.edit","account.history","account.plan","reports","archive"].contains(block.target ?? "")
                 default: return true
                 }
             }

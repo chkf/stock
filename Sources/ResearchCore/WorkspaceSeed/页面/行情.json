@@ -1,1 +1,10 @@
-{"title":"行情","icon":"waveform.path.ecg","blocks":[{"type":"quotes"}]}
+{
+  "title":"行情","icon":"waveform.path.ecg","blocks":[
+    {"type":"group","text":"我的自选","blocks":[
+      {"type":"row","blocks":[{"type":"field","key":"symbol","text":"输入证券代码"},{"type":"command","target":"watch.add","text":"添加"}]},
+      {"type":"watchRows"}
+    ]},
+    {"type":"job"},
+    {"type":"group","text":"28 只 ETF","blocks":[{"type":"field","key":"query","text":"查找 ETF 名称或代码"},{"type":"etfRows"}]}
+  ]
+}

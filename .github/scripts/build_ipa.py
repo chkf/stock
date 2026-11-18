@@ -15,7 +15,7 @@ import subprocess
 import sys
 import tempfile
 from uuid import UUID
-from zipfile import ZipFile
+from zipfile import ZIP_DEFLATED, ZipFile
 
 
 PROJECT = "StockResearch.xcodeproj"
@@ -114,7 +114,10 @@ def build(mode, work, output, cleanup):
         payload.mkdir()
         run("ditto", archive / "Products/Applications/StockResearch.app", payload / "StockResearch.app")
         ipa = work / "StockResearch-unsigned.ipa"
-        run("ditto", "-c", "-k", "--norsrc", "--keepParent", payload, ipa)
+        with ZipFile(ipa, "w", compression=ZIP_DEFLATED) as packed:
+            for entry in sorted(payload.rglob("*")):
+                if entry.is_file():
+                    packed.write(entry, entry.relative_to(work).as_posix())
     with ZipFile(ipa) as z:
         prefix = "Payload/StockResearch.app/"
         info = plistlib.loads(z.read(prefix + "Info.plist"))
@@ -123,8 +126,23 @@ def build(mode, work, output, cleanup):
         if (prefix + "embedded.mobileprovision" in z.namelist()) != signed:
             raise ValueError("导出 IPA 的描述文件与所选签名模式不一致")
         resources = {name.rsplit("/", 1)[-1] for name in z.namelist() if name.startswith(prefix) and ".bundle/" in name}
-        if not {"PublicRules.json", "Reference.json", "XSHG.txt", "workspace.json", "指标.js", "混合.js"}.issubset(resources):
-            raise ValueError("IPA 缺少工作区、交易日历或对账资源")
+        if not {"PublicRules.json", "Reference.json", "XSHG.txt"}.issubset(resources):
+            raise ValueError("IPA 缺少交易日历或对账资源")
+        seed = Path("Sources/ResearchCore/WorkspaceSeed")
+        archived = {}
+        marker = ".bundle/WorkspaceSeed/"
+        for member in z.infolist():
+            name = member.filename
+            if not member.flag_bits & 0x800:
+                try: name = name.encode("cp437").decode("utf-8")
+                except (UnicodeError, ValueError): pass
+            if name.startswith(prefix) and marker in name and not member.is_dir():
+                archived[name.split(marker,1)[1]] = member
+        for file in seed.rglob("*"):
+            if file.is_file():
+                key = file.relative_to(seed).as_posix()
+                if key not in archived or z.read(archived[key]) != file.read_bytes():
+                    raise ValueError("IPA 工作区文件校验失败：" + key)
         if not info.get("UIFileSharingEnabled") or not info.get("LSSupportsOpeningDocumentsInPlace"):
             raise ValueError("IPA 未启用文件 App 的就地编辑")
     if signed:
