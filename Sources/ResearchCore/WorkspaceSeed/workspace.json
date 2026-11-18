@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "title": "股票研究台",
+  "tabs": ["market", "quotes", "replay", "account", "library"],
+  "pages": {
+    "market": "页面/市场.json", "quotes": "页面/行情.json", "replay": "页面/回测.json",
+    "account": "页面/账户.json", "library": "页面/资料.json", "coverage": "页面/行情覆盖.json"
+  },
+  "library": "策略/指标.js",
+  "strategies": [
+    {"id":"BANK_ELSE_GB","title":"动量／协方差／银行，否则四类","short":"混合","file":"策略/混合.js","history":253},
+    {"id":"MOM20","title":"跨资产动量轮动","short":"动量","file":"策略/动量.js","history":253},
+    {"id":"MV","title":"协方差最小波动配置","short":"最小波动","file":"策略/协方差.js","history":253},
+    {"id":"GB","title":"四类固定配置","short":"四类","file":"策略/四类.js","history":253},
+    {"id":"SECTOR_M","title":"板块独立判断与轮动","short":"板块","file":"策略/板块.js","history":253}
+  ],
+  "actions": {"coverage":"功能/行情覆盖.js"}
+}

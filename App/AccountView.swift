@@ -27,6 +27,8 @@ struct AccountView: View {
             }
             Button(model.personal == nil ? "录入我的账户" : "更新并确认账户") { editing = true }
                 .disabled(model.vault == nil)
+            NavigationLink("按账户计算参考份额") { StrategyView() }
+            NavigationLink("历史报告") { HistoryView() }
             if model.personal != nil { NavigationLink("查看已确认的账户记录") { AccountHistoryView() } }
         }
         .navigationTitle("我的账户")

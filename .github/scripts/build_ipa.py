@@ -123,8 +123,10 @@ def build(mode, work, output, cleanup):
         if (prefix + "embedded.mobileprovision" in z.namelist()) != signed:
             raise ValueError("导出 IPA 的描述文件与所选签名模式不一致")
         resources = {name.rsplit("/", 1)[-1] for name in z.namelist() if name.startswith(prefix) and ".bundle/" in name}
-        if not {"PublicRules.json", "Reference.json", "XSHG.txt"}.issubset(resources):
-            raise ValueError("IPA 缺少策略规则、交易日历或对账资源")
+        if not {"PublicRules.json", "Reference.json", "XSHG.txt", "workspace.json", "指标.js", "混合.js"}.issubset(resources):
+            raise ValueError("IPA 缺少工作区、交易日历或对账资源")
+        if not info.get("UIFileSharingEnabled") or not info.get("LSSupportsOpeningDocumentsInPlace"):
+            raise ValueError("IPA 未启用文件 App 的就地编辑")
     if signed:
         options = plistlib.loads((work / "ExportOptions.plist").read_bytes())
         embedded = work / "verified/Payload/StockResearch.app/embedded.mobileprovision"

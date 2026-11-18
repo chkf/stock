@@ -2,6 +2,7 @@ name: 构建 iPhone IPA
 on:
   push:
     branches: [main]
+    tags: ['v*']
   workflow_dispatch:
     inputs:
       signing:
@@ -18,9 +19,12 @@ permissions:
 
 jobs:
   iphone:
-    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build ipa]')
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') || contains(github.event.head_commit.message, '[build ipa]')
     runs-on: macos-26
     timeout-minutes: 35
+    outputs:
+      artifact_id: ${{ steps.upload.outputs.artifact-id }}
+      digest: ${{ steps.upload.outputs.artifact-digest }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -41,9 +45,35 @@ jobs:
           IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
         run: python3 .github/scripts/build_ipa.py ad-hoc
       - name: 保存可下载的 IPA
+        id: upload
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           path: ${{ runner.temp }}/stockresearch-ipa/*.ipa
           archive: false
           if-no-files-found: error
           retention-days: 7
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: iphone
+    runs-on: ubuntu-24.04
+    permissions:
+      actions: read
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - name: 校验并发布安装包
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ARTIFACT_ID: ${{ needs.iphone.outputs.artifact_id }}
+          DIGEST: ${{ needs.iphone.outputs.digest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ipa="$RUNNER_TEMP/StockResearch-unsigned.ipa"
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" > "$ipa"
+          test "$(sha256sum "$ipa" | cut -d' ' -f1)" = "${DIGEST#sha256:}"
+          unzip -tq "$ipa"
+          gh release create "$GITHUB_REF_NAME" "$ipa" --verify-tag --latest --title "股票研究台 iPhone $GITHUB_REF_NAME" --notes-file "releases/$GITHUB_REF_NAME.md"

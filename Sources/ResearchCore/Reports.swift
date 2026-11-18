@@ -7,10 +7,12 @@ public struct SavedAdvice: Codable, Identifiable {
     public let capital: Double
     public let actualAccount: Bool?
     public let accountID: String?
+    public let workspaceID: String?
     public let result: Advice
-    public init(snapshot: String, requested: String, capital: Double, result: Advice, actualAccount: Bool = false, accountID: String? = nil) {
+    public init(snapshot: String, requested: String, capital: Double, result: Advice, actualAccount: Bool = false, accountID: String? = nil, workspaceID: String? = nil) {
         self.id = UUID(); self.created = Date(); self.snapshot = snapshot
         self.requested = requested; self.capital = capital; self.result = result; self.actualAccount = actualAccount; self.accountID = accountID
+        self.workspaceID = workspaceID
     }
 }
 

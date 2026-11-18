@@ -1,0 +1,1 @@
+{"title":"行情覆盖","icon":"checklist","blocks":[{"type":"text","text":"按已载入的行情，检查各证券可用的原始日线数量。"},{"type":"button","text":"计算覆盖情况","target":"coverage"},{"type":"result","target":"coverage"}]}

@@ -5,19 +5,11 @@ import SwiftUI
     @StateObject private var model = AppModel()
     var body: some Scene {
         WindowGroup {
-            TabView {
-                NavigationStack { StrategyView() }
-                    .tabItem { Label("策略", systemImage: "chart.line.uptrend.xyaxis") }
-                NavigationStack { AccountView() }
-                    .tabItem { Label("账户", systemImage: "person.crop.circle") }
-                NavigationStack { LibraryView() }
-                    .tabItem { Label("资料库", systemImage: "archivebox") }
-                NavigationStack { HistoryView() }
-                    .tabItem { Label("历史报告", systemImage: "clock") }
-            }
+            WorkspaceRoot()
             .environmentObject(model)
             .tint(Color(red: 0.04, green: 0.40, blue: 0.38))
             .task { await model.open() }
+            .task(id: model.studyKey) { await model.restoreStudies() }
             .alert("股票研究台", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
                 Button("知道了") { model.error = nil }
             } message: { Text(model.error ?? "") }
@@ -39,6 +31,25 @@ import SwiftUI
     @Published var error: String?
     @Published var names = [String: String]()
     @Published var sources = [String]()
+    @Published var archivedMarket: MarketSnapshot?
+    @Published var watch = [WatchedSecurity]()
+    @Published var preferArchive = false
+    @Published var selectedStrategy = "BANK_ELSE_GB"
+    @Published var workspace: WorkspaceVersion?
+    @Published var decision: Decision?
+    @Published var signalReason = "", next = "", today = ""
+    @Published var replayStart = "", replayEnd = ""
+    @Published var fields = [String:String](), widgetResults = [String:FunctionOutput]()
+    var store: WorkspaceStore? { vault.map { WorkspaceStore(root:$0.root.deletingLastPathComponent()) } }
+    var selectedFile: StrategyFile? { workspace?.design.strategies.first { $0.id == selectedStrategy } }
+    var studyKey: String { "\(marketID ?? "")|\(workspace?.hash ?? "")" }
+    var signalKey: String { studyKey+"|"+selectedStrategy }
+    @Published var studies: [String: ReplayReport] = [:]
+    var useArchive: Bool {
+        archivedMarket != nil && (preferArchive || handset == nil)
+    }
+    var market: MarketSnapshot? { useArchive ? archivedMarket : handset?.market }
+    var marketID: String? { useArchive ? archive?.manifest.snapshot.hash : handset?.hash }
     @Published private(set) var vault: PrivateLibrary?
     private var job: Task<Void, Never>?
 
@@ -47,6 +58,16 @@ import SwiftUI
             let library = try PrivateLibrary.applicationLibrary()
             vault = library
             var issues = [String]()
+            if let store {
+                do {
+                    self.workspace = try await Task.detached {
+                        try store.installIfNeeded()
+                        return try store.active() ?? store.activate()
+                    }.value
+                    normalizeSelection()
+                } catch { issues.append(error.localizedDescription) }
+            }
+            do { watch = try await library.watchlist() } catch { issues.append(error.localizedDescription) }
             do { personal = try await library.personalAccount() } catch { issues.append(error.localizedDescription) }
             do { handset = try await library.phoneMarket() } catch { issues.append(error.localizedDescription) }
             do {
@@ -60,12 +81,13 @@ import SwiftUI
     private func display(_ active: Archive?) async throws {
         if let active {
             let market = try await Task.detached(priority: .userInitiated) { try active.loadMarket() }.value
+            archivedMarket = market
             names = market.securities.mapValues(\.name)
             sources = market.sources.keys.sorted()
         }
         archive = active
     }
-    private func start(_ title: String, _ work: @escaping () async throws -> Void) {
+    func start(_ title: String, _ work: @escaping () async throws -> Void) {
         guard !busy else { return }
         busy = true; progress = title; fraction = 0
         job = Task {
@@ -86,6 +108,46 @@ import SwiftUI
         }
     }
     func cancel() { job?.cancel() }
+    func normalizeSelection() {
+        guard let config = workspace?.design else { return }
+        if !config.strategies.contains(where: { $0.id == selectedStrategy }) { selectedStrategy = config.strategies[0].id }
+    }
+    func reloadWorkspace(rollback: Bool = false) {
+        guard let store else { return }
+        let m = market
+        start("检查工作区文件") {
+            let new = try await Task.detached {
+                if rollback { return try store.rollback() }
+                return try store.activate { candidate in
+                    if let m {
+                        let engine = try StrategyEngine(market:m,sessions:Sessions(),workspace:candidate)
+                        for s in candidate.design.strategies { _ = try engine.decision(s.id,on:m.as_of) }
+                    }
+                }
+            }.value
+            self.workspace = new; self.widgetResults = [:]; self.normalizeSelection()
+            self.progress = "已启用 "+String(new.hash.prefix(12))
+        }
+    }
+    func updateDecision() async {
+        decision = nil; signalReason = ""
+        guard let m = market, let w = workspace else { return }
+        let id = selectedStrategy
+        do {
+            let cal = try Sessions()
+            today = try cal.completed()
+            let d = try await Task.detached { try StrategyEngine(market:m,sessions:cal,workspace:w).decision(id,on:m.as_of) }.value
+            try Task.checkCancellation()
+            next = try cal.next(m.as_of); decision = d
+        } catch is CancellationError {} catch { if !Task.isCancelled { signalReason = error.localizedDescription } }
+    }
+    func editWatch(_ symbol: String, remove: Bool = false) {
+        guard let vault else { return }
+        start(remove ? "移出自选" : "获取自选日线") {
+            if remove { try await vault.removeWatch(symbol) } else { try await vault.updateWatch(symbol) }
+            self.watch = try await vault.watchlist()
+        }
+    }
     func saveAccount(_ account: Account) async throws {
         guard let vault else { throw ResearchError("本机资料库未打开") }
         try await vault.savePersonal(account)
@@ -101,7 +163,7 @@ import SwiftUI
         }
     }
     func calculate(strategy: String, date: String?, capital: Double, phone: Bool, actual: Bool) {
-        guard let vault else { return }
+        guard let vault, let workspace else { return }
         let archive = self.archive
         start("正在本机重算") {
             let report = try await Task.detached(priority: .userInitiated) {
@@ -120,9 +182,9 @@ import SwiftUI
                     }
                     account = personal
                 } else { account = Account(date: min(market.as_of, requested), cash: capital) }
-                let advice = try StrategyEngine(market: market, sessions: sessions).advice(strategy, requested: requested, account: account)
+                let advice = try StrategyEngine(market: market, sessions: sessions, workspace: workspace).advice(strategy, requested: requested, account: account)
                 return SavedAdvice(snapshot: hash, requested: requested, capital: account.cash, result: advice, actualAccount: actual,
-                                   accountID: actual ? try AccountInput.identity(account) : nil)
+                                   accountID: actual ? try AccountInput.identity(account) : nil, workspaceID: workspace.hash)
             }.value
             try Task.checkCancellation()
             try await vault.saveReport(report)
@@ -153,7 +215,7 @@ import SwiftUI
 
 struct StrategyView: View {
     @EnvironmentObject var model: AppModel
-    @State private var strategy = "MOM20"
+    @State private var strategy = MarketStrategy.hybrid.rawValue
     @State private var date = ""
     @State private var capital = "50000"
     @State private var current = true
@@ -182,8 +244,7 @@ struct StrategyView: View {
                 }
                 Section("独立方案") {
                     Picker("策略", selection: $strategy) {
-                        Text("跨资产动量轮动 · MOM20").tag("MOM20")
-                        Text("四类固定配置 · GB").tag("GB")
+                        ForEach(model.workspace?.design.strategies ?? []) { item in Text(item.title).tag(item.id) }
                     }
                     Toggle("使用最近完整交易日", isOn: $current)
                     if !current {
@@ -206,13 +267,10 @@ struct StrategyView: View {
                 if let r = model.latest {
                     Section("最近一次复算") { NavigationLink { ReportView(report: r) } label: { ReportRow(report: r) } }
                 }
-                Section("移植进度") {
-                    Text("BANK_ELSE_GB、MV 和 SECTOR_M 尚未开放计算。")
-                }
             }
             if model.busy { Section { ProgressView(value: model.fraction) { Text(model.progress) }; Button("取消", role: .cancel) { model.cancel() } } }
         }
-        .navigationTitle("策略研究台")
+        .navigationTitle("账户份额测算")
         .onAppear { if date.isEmpty { date = snapshotDay ?? "" } }
         .onChange(of: snapshotDay) { day in date = day ?? "" }
     }
@@ -267,6 +325,7 @@ struct ReportView: View {
             }
             Section("来源") {
                 Text(report.snapshot).font(.caption.monospaced()).textSelection(.enabled)
+                if let v = report.workspaceID { Text("策略版本 "+v).font(.caption.monospaced()).textSelection(.enabled) }
                 Text("按已完成收盘价估算。未记入实际成交。")
             }
         }.navigationTitle("复算结果")

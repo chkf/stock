@@ -29,6 +29,78 @@
         "plan": {
           "actual_trades_recorded": false,
           "equity": 50000.0,
+          "estimated_costs": 39.94,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 14.98,
+                "order_quantities": [
+                  54500
+                ],
+                "slippage": 24.96,
+                "stamp_tax": 0.0,
+                "total": 39.94,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 54500,
+              "quantity": 54500,
+              "reference_price": 0.916,
+              "reference_value": 49922.0,
+              "requested_quantity": 54500,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            }
+          ],
+          "projected_cash": 38.06,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "512800.SH": 54500
+          }
+        },
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "快照收盘",
+      "requested": "2026-11-17",
+      "strategy": "BANK_ELSE_GB"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
           "estimated_costs": 39.81,
           "initial_cash": 50000.0,
           "orders": [
@@ -132,6 +204,502 @@
       "name": "快照收盘",
       "requested": "2026-11-17",
       "strategy": "MOM20"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 115.31,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 7.07,
+                "stamp_tax": 0.0,
+                "total": 12.07,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 141.371,
+              "reference_value": 14137.1,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 6.79,
+                "stamp_tax": 0.0,
+                "total": 11.79,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 135.769,
+              "reference_value": 13576.9,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511260.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  3100
+                ],
+                "slippage": 1.42,
+                "stamp_tax": 0.0,
+                "total": 6.42,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 3100,
+              "quantity": 3100,
+              "reference_price": 0.916,
+              "reference_value": 2839.6,
+              "requested_quantity": 3100,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 0.9,
+                "stamp_tax": 0.0,
+                "total": 5.9,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 1.999,
+              "reference_value": 1799.1,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 0.82,
+                "stamp_tax": 0.0,
+                "total": 5.82,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 1.816,
+              "reference_value": 1634.4,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "159936.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.51,
+                "stamp_tax": 0.0,
+                "total": 5.51,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 2.573,
+              "reference_value": 1029.2,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.53,
+                "stamp_tax": 0.0,
+                "total": 5.53,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 2.112,
+              "reference_value": 1056.0,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.46,
+                "stamp_tax": 0.0,
+                "total": 5.46,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 1.833,
+              "reference_value": 916.5,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.44,
+                "stamp_tax": 0.0,
+                "total": 5.44,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 1.745,
+              "reference_value": 872.5,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.34,
+                "stamp_tax": 0.0,
+                "total": 5.34,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 200,
+              "quantity": 200,
+              "reference_price": 3.416,
+              "reference_value": 683.2,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "510880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.21,
+                "stamp_tax": 0.0,
+                "total": 5.21,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 4.222,
+              "reference_value": 422.2,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "159919.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  800
+                ],
+                "slippage": 0.28,
+                "stamp_tax": 0.0,
+                "total": 5.28,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 800,
+              "quantity": 800,
+              "reference_price": 0.71,
+              "reference_value": 568.0,
+              "requested_quantity": 800,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.14,
+                "stamp_tax": 0.0,
+                "total": 5.14,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 200,
+              "quantity": 200,
+              "reference_price": 1.374,
+              "reference_value": 274.8,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "159920.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.1,
+                "stamp_tax": 0.0,
+                "total": 5.1,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 200,
+              "quantity": 200,
+              "reference_price": 1.04,
+              "reference_value": 208.0,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  300
+                ],
+                "slippage": 0.1,
+                "stamp_tax": 0.0,
+                "total": 5.1,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 300,
+              "quantity": 300,
+              "reference_price": 0.666,
+              "reference_value": 199.8,
+              "requested_quantity": 300,
+              "side": "BUY",
+              "symbol": "515790.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.08,
+                "stamp_tax": 0.0,
+                "total": 5.08,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 0.38,
+              "reference_value": 152.0,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.04,
+                "stamp_tax": 0.0,
+                "total": 5.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.759,
+              "reference_value": 75.9,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "512480.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.04,
+                "stamp_tax": 0.0,
+                "total": 5.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.754,
+              "reference_value": 75.4,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "512070.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.04,
+                "stamp_tax": 0.0,
+                "total": 5.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.793,
+              "reference_value": 79.3,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "159939.SZ"
+            }
+          ],
+          "projected_cash": 9284.79,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 200,
+            "159919.SZ": 100,
+            "159920.SZ": 200,
+            "159928.SZ": 800,
+            "159936.SZ": 900,
+            "159939.SZ": 100,
+            "159945.SZ": 0,
+            "159980.SZ": 900,
+            "159981.SZ": 500,
+            "159985.SZ": 500,
+            "510880.SH": 200,
+            "511010.SH": 100,
+            "511260.SH": 100,
+            "512010.SH": 400,
+            "512070.SH": 100,
+            "512200.SH": 0,
+            "512480.SH": 100,
+            "512800.SH": 3100,
+            "513030.SH": 500,
+            "513100.SH": 0,
+            "513500.SH": 400,
+            "515790.SH": 300,
+            "518880.SH": 0,
+            "588000.SH": 0
+          }
+        },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "快照收盘",
+      "requested": "2026-11-17",
+      "strategy": "MV"
     },
     {
       "account": {
@@ -786,6 +1354,411 @@
     },
     {
       "account": {
+        "as_of": "2026-11-17",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 80.04,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  18100
+                ],
+                "slippage": 8.29,
+                "stamp_tax": 0.0,
+                "total": 13.29,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 18100,
+              "quantity": 18100,
+              "reference_price": 0.916,
+              "reference_value": 16579.6,
+              "requested_quantity": 18100,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1500
+                ],
+                "slippage": 1.37,
+                "stamp_tax": 0.0,
+                "total": 6.37,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1500,
+              "quantity": 1500,
+              "reference_price": 1.833,
+              "reference_value": 2749.5,
+              "requested_quantity": 1500,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1200
+                ],
+                "slippage": 1.3,
+                "stamp_tax": 0.0,
+                "total": 6.3,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1200,
+              "quantity": 1200,
+              "reference_price": 2.166,
+              "reference_value": 2599.2,
+              "requested_quantity": 1200,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1000
+                ],
+                "slippage": 1.29,
+                "stamp_tax": 0.0,
+                "total": 6.29,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1000,
+              "quantity": 1000,
+              "reference_price": 2.573,
+              "reference_value": 2573.0,
+              "requested_quantity": 1000,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  2000
+                ],
+                "slippage": 1.04,
+                "stamp_tax": 0.0,
+                "total": 6.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 2000,
+              "quantity": 2000,
+              "reference_price": 1.04,
+              "reference_value": 2080.0,
+              "requested_quantity": 2000,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  2900
+                ],
+                "slippage": 1.03,
+                "stamp_tax": 0.0,
+                "total": 6.03,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 2900,
+              "quantity": 2900,
+              "reference_price": 0.71,
+              "reference_value": 2059.0,
+              "requested_quantity": 2900,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1500
+                ],
+                "slippage": 0.99,
+                "stamp_tax": 0.0,
+                "total": 5.99,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1500,
+              "quantity": 1500,
+              "reference_price": 1.322,
+              "reference_value": 1983.0,
+              "requested_quantity": 1500,
+              "side": "BUY",
+              "symbol": "159945.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1000
+                ],
+                "slippage": 1.0,
+                "stamp_tax": 0.0,
+                "total": 6.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1000,
+              "quantity": 1000,
+              "reference_price": 1.999,
+              "reference_value": 1999.0,
+              "requested_quantity": 1000,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1100
+                ],
+                "slippage": 0.96,
+                "stamp_tax": 0.0,
+                "total": 5.96,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1100,
+              "quantity": 1100,
+              "reference_price": 1.745,
+              "reference_value": 1919.5,
+              "requested_quantity": 1100,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 0.95,
+                "stamp_tax": 0.0,
+                "total": 5.95,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 2.112,
+              "reference_value": 1900.8,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  5400
+                ],
+                "slippage": 1.03,
+                "stamp_tax": 0.0,
+                "total": 6.03,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 5400,
+              "quantity": 5400,
+              "reference_price": 0.38,
+              "reference_value": 2052.0,
+              "requested_quantity": 5400,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.79,
+                "stamp_tax": 0.0,
+                "total": 5.79,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 200,
+              "quantity": 200,
+              "reference_price": 7.897,
+              "reference_value": 1579.4,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "518880.SH"
+            }
+          ],
+          "projected_cash": 9845.96,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 2000,
+            "159928.SZ": 2900,
+            "159945.SZ": 1500,
+            "159980.SZ": 1000,
+            "159981.SZ": 1100,
+            "159985.SZ": 900,
+            "511010.SH": 0,
+            "511260.SH": 0,
+            "512010.SH": 5400,
+            "512800.SH": 18100,
+            "513030.SH": 1500,
+            "513100.SH": 1200,
+            "513500.SH": 1000,
+            "518880.SH": 200
+          }
+        },
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "快照收盘",
+      "requested": "2026-11-17",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-10-30",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-10-30",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.5,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.16666666666666666,
+          "up60": 0.2222222222222222
+        },
+        "next": "2026-11-02",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 39.94,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 14.98,
+                "order_quantities": [
+                  55900
+                ],
+                "slippage": 24.96,
+                "stamp_tax": 0.0,
+                "total": 39.94,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 55900,
+              "quantity": 55900,
+              "reference_price": 0.893,
+              "reference_value": 49918.7,
+              "requested_quantity": 55900,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            }
+          ],
+          "projected_cash": 41.36,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "512800.SH": 55900
+          }
+        },
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "月末",
+      "requested": "2026-10-30",
+      "strategy": "BANK_ELSE_GB"
+    },
+    {
+      "account": {
         "as_of": "2026-10-30",
         "cash": 50000.0,
         "confirmed": false,
@@ -915,6 +1888,460 @@
       "name": "月末",
       "requested": "2026-10-30",
       "strategy": "MOM20"
+    },
+    {
+      "account": {
+        "as_of": "2026-10-30",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-10-30",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.5,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.16666666666666666,
+          "up60": 0.2222222222222222
+        },
+        "next": "2026-11-02",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 105.21,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 7.06,
+                "stamp_tax": 0.0,
+                "total": 12.06,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 141.123,
+              "reference_value": 14112.3,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 6.77,
+                "stamp_tax": 0.0,
+                "total": 11.77,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 135.327,
+              "reference_value": 13532.7,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511260.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  3400
+                ],
+                "slippage": 1.52,
+                "stamp_tax": 0.0,
+                "total": 6.52,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 3400,
+              "quantity": 3400,
+              "reference_price": 0.893,
+              "reference_value": 3036.2,
+              "requested_quantity": 3400,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 0.8,
+                "stamp_tax": 0.0,
+                "total": 5.8,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 1.783,
+              "reference_value": 1604.7,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "159936.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  700
+                ],
+                "slippage": 0.74,
+                "stamp_tax": 0.0,
+                "total": 5.74,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 700,
+              "quantity": 700,
+              "reference_price": 2.1,
+              "reference_value": 1470.0,
+              "requested_quantity": 700,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.66,
+                "stamp_tax": 0.0,
+                "total": 5.66,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 2.657,
+              "reference_value": 1328.5,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.54,
+                "stamp_tax": 0.0,
+                "total": 5.54,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 2.153,
+              "reference_value": 1076.5,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  600
+                ],
+                "slippage": 0.54,
+                "stamp_tax": 0.0,
+                "total": 5.54,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 600,
+              "quantity": 600,
+              "reference_price": 1.789,
+              "reference_value": 1073.4,
+              "requested_quantity": 600,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.39,
+                "stamp_tax": 0.0,
+                "total": 5.39,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 1.938,
+              "reference_value": 775.2,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.17,
+                "stamp_tax": 0.0,
+                "total": 5.17,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 3.46,
+              "reference_value": 346.0,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "510880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 0.3,
+                "stamp_tax": 0.0,
+                "total": 5.3,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 0.676,
+              "reference_value": 608.4,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.21,
+                "stamp_tax": 0.0,
+                "total": 5.21,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 4.237,
+              "reference_value": 423.7,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "159919.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.27,
+                "stamp_tax": 0.0,
+                "total": 5.27,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 1.358,
+              "reference_value": 543.2,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159920.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  300
+                ],
+                "slippage": 0.1,
+                "stamp_tax": 0.0,
+                "total": 5.1,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 300,
+              "quantity": 300,
+              "reference_price": 0.669,
+              "reference_value": 200.7,
+              "requested_quantity": 300,
+              "side": "BUY",
+              "symbol": "515790.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  300
+                ],
+                "slippage": 0.06,
+                "stamp_tax": 0.0,
+                "total": 5.06,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 300,
+              "quantity": 300,
+              "reference_price": 0.377,
+              "reference_value": 113.1,
+              "requested_quantity": 300,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.04,
+                "stamp_tax": 0.0,
+                "total": 5.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.72,
+              "reference_value": 72.0,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "512480.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.04,
+                "stamp_tax": 0.0,
+                "total": 5.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.795,
+              "reference_value": 79.5,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "159939.SZ"
+            }
+          ],
+          "projected_cash": 9498.69,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 0,
+            "159919.SZ": 100,
+            "159920.SZ": 400,
+            "159928.SZ": 900,
+            "159936.SZ": 900,
+            "159939.SZ": 100,
+            "159945.SZ": 0,
+            "159980.SZ": 700,
+            "159981.SZ": 400,
+            "159985.SZ": 500,
+            "510880.SH": 100,
+            "511010.SH": 100,
+            "511260.SH": 100,
+            "512010.SH": 300,
+            "512070.SH": 0,
+            "512200.SH": 0,
+            "512480.SH": 100,
+            "512800.SH": 3400,
+            "513030.SH": 600,
+            "513100.SH": 0,
+            "513500.SH": 500,
+            "515790.SH": 300,
+            "518880.SH": 0,
+            "588000.SH": 0
+          }
+        },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.0017179076062591048,
+          "159919.SZ": 0.011826639510411291,
+          "159920.SZ": 0.01090421654876823,
+          "159928.SZ": 0.012416636858051113,
+          "159936.SZ": 0.03464127542785628,
+          "159939.SZ": 0.0020634949240619822,
+          "159945.SZ": 0.00027157018324757776,
+          "159980.SZ": 0.03329339110041943,
+          "159981.SZ": 0.01896642309478293,
+          "159985.SZ": 0.022754296933857988,
+          "510880.SH": 0.013532931948436102,
+          "511010.SH": 0.35,
+          "511260.SH": 0.3499999999999999,
+          "512010.SH": 0.0028457908220286283,
+          "512070.SH": 0.0010074984615307612,
+          "512200.SH": 0.00022753696420914455,
+          "512480.SH": 0.0028031539781649246,
+          "512800.SH": 0.06088361000116179,
+          "513030.SH": 0.022075801943616077,
+          "513100.SH": 0.00018592818034952928,
+          "513500.SH": 0.02830717798319828,
+          "515790.SH": 0.005136432402694577,
+          "518880.SH": 0.012136812773224048,
+          "588000.SH": 0.002001472353670315
+        }
+      },
+      "name": "月末",
+      "requested": "2026-10-30",
+      "strategy": "MV"
     },
     {
       "account": {
@@ -1569,6 +2996,344 @@
     },
     {
       "account": {
+        "as_of": "2026-10-30",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-10-30",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.5,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.16666666666666666,
+          "up60": 0.2222222222222222
+        },
+        "next": "2026-11-02",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 67.33,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  11600
+                ],
+                "slippage": 8.28,
+                "stamp_tax": 0.0,
+                "total": 13.28,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 11600,
+              "quantity": 11600,
+              "reference_price": 1.427,
+              "reference_value": 16553.2,
+              "requested_quantity": 11600,
+              "side": "BUY",
+              "symbol": "159945.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  18600
+                ],
+                "slippage": 8.3,
+                "stamp_tax": 0.0,
+                "total": 13.3,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 18600,
+              "quantity": 18600,
+              "reference_price": 0.893,
+              "reference_value": 16609.8,
+              "requested_quantity": 18600,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  11000
+                ],
+                "slippage": 2.07,
+                "stamp_tax": 0.0,
+                "total": 7.07,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 11000,
+              "quantity": 11000,
+              "reference_price": 0.377,
+              "reference_value": 4147.0,
+              "requested_quantity": 11000,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 1.01,
+                "stamp_tax": 0.0,
+                "total": 6.01,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 2.239,
+              "reference_value": 2015.1,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  700
+                ],
+                "slippage": 0.93,
+                "stamp_tax": 0.0,
+                "total": 5.93,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 700,
+              "quantity": 700,
+              "reference_price": 2.657,
+              "reference_value": 1859.9,
+              "requested_quantity": 700,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.42,
+                "stamp_tax": 0.0,
+                "total": 5.42,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 2.1,
+              "reference_value": 840.0,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.48,
+                "stamp_tax": 0.0,
+                "total": 5.48,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 1.938,
+              "reference_value": 969.0,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.43,
+                "stamp_tax": 0.0,
+                "total": 5.43,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 2.153,
+              "reference_value": 861.2,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.41,
+                "stamp_tax": 0.0,
+                "total": 5.41,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 8.115,
+              "reference_value": 811.5,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "518880.SH"
+            }
+          ],
+          "projected_cash": 5265.97,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159945.SZ": 11600,
+            "159980.SZ": 400,
+            "159981.SZ": 500,
+            "159985.SZ": 400,
+            "511010.SH": 0,
+            "511260.SH": 0,
+            "512010.SH": 11000,
+            "512800.SH": 18600,
+            "513100.SH": 900,
+            "513500.SH": 700,
+            "518880.SH": 100
+          }
+        },
+        "route": "GROUP",
+        "scores": {
+          "159945.SZ": 0.24086956521739133,
+          "512800.SH": 0.08637469586374702
+        },
+        "selected": [
+          "159945.SZ",
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159945.SZ": 0.3333333333333333,
+          "159980.SZ": 0.020833333333333336,
+          "159981.SZ": 0.020833333333333336,
+          "159985.SZ": 0.020833333333333336,
+          "511010.SH": 0.04166666666666667,
+          "511260.SH": 0.04166666666666667,
+          "512010.SH": 0.08333333333333334,
+          "512800.SH": 0.3333333333333333,
+          "513100.SH": 0.04166666666666667,
+          "513500.SH": 0.04166666666666667,
+          "518880.SH": 0.020833333333333336
+        }
+      },
+      "name": "月末",
+      "requested": "2026-10-30",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2024-02-08",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2024-02-08",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.7777777777777778,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.16666666666666666,
+          "up60": 0.2222222222222222
+        },
+        "next": "2024-02-19",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 39.97,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 14.99,
+                "order_quantities": [
+                  44600
+                ],
+                "slippage": 24.98,
+                "stamp_tax": 0.0,
+                "total": 39.97,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 44600,
+              "quantity": 44600,
+              "reference_price": 1.12,
+              "reference_value": 49952.0,
+              "requested_quantity": 44600,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            }
+          ],
+          "projected_cash": 8.03,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "512800.SH": 44600
+          }
+        },
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "春节前收盘",
+      "requested": "2024-02-08",
+      "strategy": "BANK_ELSE_GB"
+    },
+    {
+      "account": {
         "as_of": "2024-02-08",
         "cash": 50000.0,
         "confirmed": false,
@@ -1698,6 +3463,456 @@
       "name": "春节前收盘",
       "requested": "2024-02-08",
       "strategy": "MOM20"
+    },
+    {
+      "account": {
+        "as_of": "2024-02-08",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2024-02-08",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.7777777777777778,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.16666666666666666,
+          "up60": 0.2222222222222222
+        },
+        "next": "2024-02-19",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 104.61,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 6.3,
+                "stamp_tax": 0.0,
+                "total": 11.3,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 125.9,
+              "reference_value": 12590.0,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511260.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 6.71,
+                "stamp_tax": 0.0,
+                "total": 11.71,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 134.2,
+              "reference_value": 13420.0,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 2.1,
+                "stamp_tax": 0.0,
+                "total": 7.1,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 900,
+              "quantity": 900,
+              "reference_price": 4.662,
+              "reference_value": 4195.8,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "518880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1900
+                ],
+                "slippage": 1.44,
+                "stamp_tax": 0.0,
+                "total": 6.44,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1900,
+              "quantity": 1900,
+              "reference_price": 1.518,
+              "reference_value": 2884.2,
+              "requested_quantity": 1900,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1200
+                ],
+                "slippage": 0.67,
+                "stamp_tax": 0.0,
+                "total": 5.67,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1200,
+              "quantity": 1200,
+              "reference_price": 1.12,
+              "reference_value": 1344.0,
+              "requested_quantity": 1200,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.6,
+                "stamp_tax": 0.0,
+                "total": 5.6,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 3.005,
+              "reference_value": 1202.0,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "510880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  500
+                ],
+                "slippage": 0.44,
+                "stamp_tax": 0.0,
+                "total": 5.44,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 500,
+              "quantity": 500,
+              "reference_price": 1.745,
+              "reference_value": 872.5,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.39,
+                "stamp_tax": 0.0,
+                "total": 5.39,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 1.973,
+              "reference_value": 789.2,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  300
+                ],
+                "slippage": 0.19,
+                "stamp_tax": 0.0,
+                "total": 5.19,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 300,
+              "quantity": 300,
+              "reference_price": 1.281,
+              "reference_value": 384.3,
+              "requested_quantity": 300,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1200
+                ],
+                "slippage": 0.22,
+                "stamp_tax": 0.0,
+                "total": 5.22,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1200,
+              "quantity": 1200,
+              "reference_price": 0.368,
+              "reference_value": 441.6,
+              "requested_quantity": 1200,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.18,
+                "stamp_tax": 0.0,
+                "total": 5.18,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 400,
+              "quantity": 400,
+              "reference_price": 0.904,
+              "reference_value": 361.6,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.08,
+                "stamp_tax": 0.0,
+                "total": 5.08,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 1.643,
+              "reference_value": 164.3,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.07,
+                "stamp_tax": 0.0,
+                "total": 5.07,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 1.308,
+              "reference_value": 130.8,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.08,
+                "stamp_tax": 0.0,
+                "total": 5.08,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 200,
+              "quantity": 200,
+              "reference_price": 0.825,
+              "reference_value": 165.0,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.08,
+                "stamp_tax": 0.0,
+                "total": 5.08,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 1.529,
+              "reference_value": 152.9,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "159936.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.04,
+                "stamp_tax": 0.0,
+                "total": 5.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.801,
+              "reference_value": 80.1,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "515790.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 0.02,
+                "stamp_tax": 0.0,
+                "total": 5.02,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 100,
+              "quantity": 100,
+              "reference_price": 0.482,
+              "reference_value": 48.2,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "512200.SH"
+            }
+          ],
+          "projected_cash": 10668.89,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 400,
+            "159919.SZ": 0,
+            "159928.SZ": 200,
+            "159936.SZ": 100,
+            "159945.SZ": 0,
+            "159952.SZ": 0,
+            "159980.SZ": 1900,
+            "159981.SZ": 100,
+            "159985.SZ": 400,
+            "510880.SH": 400,
+            "511010.SH": 100,
+            "511260.SH": 100,
+            "512010.SH": 1200,
+            "512070.SH": 0,
+            "512200.SH": 100,
+            "512800.SH": 1200,
+            "513030.SH": 300,
+            "513100.SH": 100,
+            "513500.SH": 500,
+            "515790.SH": 100,
+            "518880.SH": 900,
+            "588000.SH": 0
+          }
+        },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.007844606930134447,
+          "159919.SZ": 0.006835518026368471,
+          "159928.SZ": 0.004734971572881905,
+          "159936.SZ": 0.0037966360947127415,
+          "159945.SZ": 0.0015945867748033715,
+          "159952.SZ": 0.001364550427728736,
+          "159980.SZ": 0.05981943380159684,
+          "159981.SZ": 0.006175991368204982,
+          "159985.SZ": 0.016640070362535602,
+          "510880.SH": 0.025411653047040614,
+          "511010.SH": 0.3499999999999999,
+          "511260.SH": 0.35,
+          "512010.SH": 0.009225206856213303,
+          "512070.SH": 0.000467550735741783,
+          "512200.SH": 0.0010701688563767582,
+          "512800.SH": 0.028898410315726812,
+          "513030.SH": 0.009451668148839344,
+          "513100.SH": 0.0048017105947839945,
+          "513500.SH": 0.02090707895005336,
+          "515790.SH": 0.0024097157040626795,
+          "518880.SH": 0.08719908906103187,
+          "588000.SH": 0.001351382371162385
+        }
+      },
+      "name": "春节前收盘",
+      "requested": "2024-02-08",
+      "strategy": "MV"
     },
     {
       "account": {
@@ -2352,6 +4567,175 @@
     },
     {
       "account": {
+        "as_of": "2024-02-08",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2024-02-08",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.7777777777777778,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.16666666666666666,
+          "up60": 0.2222222222222222
+        },
+        "next": "2024-02-19",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 39.93,
+          "initial_cash": 50000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  13000
+                ],
+                "slippage": 8.33,
+                "stamp_tax": 0.0,
+                "total": 13.33,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 13000,
+              "quantity": 13000,
+              "reference_price": 1.281,
+              "reference_value": 16653.0,
+              "requested_quantity": 13000,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  12700
+                ],
+                "slippage": 8.31,
+                "stamp_tax": 0.0,
+                "total": 13.31,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 12700,
+              "quantity": 12700,
+              "reference_price": 1.308,
+              "reference_value": 16611.6,
+              "requested_quantity": 12700,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  9500
+                ],
+                "slippage": 8.29,
+                "stamp_tax": 0.0,
+                "total": 13.29,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 9500,
+              "quantity": 9500,
+              "reference_price": 1.745,
+              "reference_value": 16577.5,
+              "requested_quantity": 9500,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            }
+          ],
+          "projected_cash": 117.97,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "513030.SH": 13000,
+            "513100.SH": 12700,
+            "513500.SH": 9500
+          }
+        },
+        "route": "GROUP",
+        "scores": {
+          "159945.SZ": 0.13863404689092773,
+          "513030.SH": 0.1396797153024909,
+          "513100.SH": 0.5174013921113692,
+          "513500.SH": 0.3392171910974675
+        },
+        "selected": [
+          "513100.SH",
+          "513500.SH",
+          "513030.SH"
+        ],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "513030.SH": 0.3333333333333333,
+          "513100.SH": 0.3333333333333333,
+          "513500.SH": 0.3333333333333333
+        }
+      },
+      "name": "春节前收盘",
+      "requested": "2024-02-08",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2005-01-04",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2005-01-04",
+      "expected": {
+        "action": "HOLD",
+        "breadth": {
+          "count": 0,
+          "threshold": 0.6
+        },
+        "next": "2005-01-05",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 0.0,
+          "initial_cash": 50000.0,
+          "orders": [],
+          "projected_cash": 50000.0,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {}
+        },
+        "route": "CASH",
+        "scores": {},
+        "selected": [],
+        "state": "UNKNOWN",
+        "status": "ready",
+        "weights": {}
+      },
+      "name": "上市暖机",
+      "requested": "2005-01-04",
+      "strategy": "BANK_ELSE_GB"
+    },
+    {
+      "account": {
         "as_of": "2005-01-04",
         "cash": 50000.0,
         "confirmed": false,
@@ -2423,6 +4807,48 @@
           "projected_cash_conditional_on_sales": true,
           "requested_quantities": {}
         },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "UNKNOWN",
+        "status": "ready",
+        "weights": {}
+      },
+      "name": "上市暖机",
+      "requested": "2005-01-04",
+      "strategy": "MV"
+    },
+    {
+      "account": {
+        "as_of": "2005-01-04",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2005-01-04",
+      "expected": {
+        "action": "HOLD",
+        "breadth": {
+          "count": 0,
+          "threshold": 0.6
+        },
+        "next": "2005-01-05",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 0.0,
+          "initial_cash": 50000.0,
+          "orders": [],
+          "projected_cash": 50000.0,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {}
+        },
         "route": "GB",
         "scores": {},
         "selected": [],
@@ -2433,6 +4859,98 @@
       "name": "上市暖机",
       "requested": "2005-01-04",
       "strategy": "GB"
+    },
+    {
+      "account": {
+        "as_of": "2005-01-04",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2005-01-04",
+      "expected": {
+        "action": "HOLD",
+        "breadth": {
+          "count": 0,
+          "threshold": 0.6
+        },
+        "next": "2005-01-05",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 50000.0,
+          "estimated_costs": 0.0,
+          "initial_cash": 50000.0,
+          "orders": [],
+          "projected_cash": 50000.0,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {}
+        },
+        "route": "GROUP",
+        "scores": {},
+        "selected": [],
+        "state": "UNKNOWN",
+        "status": "ready",
+        "weights": {}
+      },
+      "name": "上市暖机",
+      "requested": "2005-01-04",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 1.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "HOLD",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 1.0,
+          "estimated_costs": 0.0,
+          "initial_cash": 1.0,
+          "orders": [],
+          "projected_cash": 1.0,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "512800.SH": 0
+          }
+        },
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "一手不足",
+      "requested": "2026-11-17",
+      "strategy": "BANK_ELSE_GB"
     },
     {
       "account": {
@@ -2542,6 +5060,102 @@
             "159928.SZ": 0,
             "159936.SZ": 0,
             "159939.SZ": 0,
+            "159945.SZ": 0,
+            "159980.SZ": 0,
+            "159981.SZ": 0,
+            "159985.SZ": 0,
+            "510880.SH": 0,
+            "511010.SH": 0,
+            "511260.SH": 0,
+            "512010.SH": 0,
+            "512070.SH": 0,
+            "512200.SH": 0,
+            "512480.SH": 0,
+            "512800.SH": 0,
+            "513030.SH": 0,
+            "513100.SH": 0,
+            "513500.SH": 0,
+            "515790.SH": 0,
+            "518880.SH": 0,
+            "588000.SH": 0
+          }
+        },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "一手不足",
+      "requested": "2026-11-17",
+      "strategy": "MV"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 1.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "HOLD",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 1.0,
+          "estimated_costs": 0.0,
+          "initial_cash": 1.0,
+          "orders": [],
+          "projected_cash": 1.0,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 0,
+            "159919.SZ": 0,
+            "159920.SZ": 0,
+            "159928.SZ": 0,
+            "159936.SZ": 0,
+            "159939.SZ": 0,
             "159944.SZ": 0,
             "159945.SZ": 0,
             "159952.SZ": 0,
@@ -2605,6 +5219,184 @@
       "name": "一手不足",
       "requested": "2026-11-17",
       "strategy": "GB"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 1.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "HOLD",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 1.0,
+          "estimated_costs": 0.0,
+          "initial_cash": 1.0,
+          "orders": [],
+          "projected_cash": 1.0,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 0,
+            "159928.SZ": 0,
+            "159945.SZ": 0,
+            "159980.SZ": 0,
+            "159981.SZ": 0,
+            "159985.SZ": 0,
+            "511010.SH": 0,
+            "511260.SH": 0,
+            "512010.SH": 0,
+            "512800.SH": 0,
+            "513030.SH": 0,
+            "513100.SH": 0,
+            "513500.SH": 0,
+            "518880.SH": 0
+          }
+        },
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "一手不足",
+      "requested": "2026-11-17",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 10.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [
+          {
+            "available": 8300,
+            "quantity": 10000,
+            "symbol": "159919.SZ"
+          }
+        ],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 42230.0,
+          "estimated_costs": 56.03,
+          "initial_cash": 10.0,
+          "orders": [
+            {
+              "costs": {
+                "commission": 10.51,
+                "order_quantities": [
+                  8300
+                ],
+                "slippage": 17.52,
+                "stamp_tax": 0.0,
+                "total": 28.03,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 1700,
+              "quantity": 8300,
+              "reference_price": 4.222,
+              "reference_value": 35042.6,
+              "requested_quantity": 10000,
+              "side": "SELL",
+              "symbol": "159919.SZ"
+            },
+            {
+              "conditional_quantity": 38200,
+              "costs": {
+                "commission": 10.5,
+                "order_quantities": [
+                  38200
+                ],
+                "slippage": 17.5,
+                "stamp_tax": 0.0,
+                "total": 28.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 7900,
+              "funded_quantity": 0,
+              "quantity": 38200,
+              "reference_price": 0.916,
+              "reference_value": 34991.2,
+              "requested_quantity": 46100,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            }
+          ],
+          "projected_cash": 5.37,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159919.SZ": 0,
+            "512800.SH": 46100
+          }
+        },
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "待卖出到账",
+      "requested": "2026-11-17",
+      "strategy": "BANK_ELSE_GB"
     },
     {
       "account": {
@@ -2763,6 +5555,467 @@
       "name": "待卖出到账",
       "requested": "2026-11-17",
       "strategy": "MOM20"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 10.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [
+          {
+            "available": 8300,
+            "quantity": 10000,
+            "symbol": "159919.SZ"
+          }
+        ],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 42230.0,
+          "estimated_costs": 85.51,
+          "initial_cash": 10.0,
+          "orders": [
+            {
+              "costs": {
+                "commission": 10.51,
+                "order_quantities": [
+                  8300
+                ],
+                "slippage": 17.52,
+                "stamp_tax": 0.0,
+                "total": 28.03,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 1600,
+              "quantity": 8300,
+              "reference_price": 4.222,
+              "reference_value": 35042.6,
+              "requested_quantity": 9900,
+              "side": "SELL",
+              "symbol": "159919.SZ"
+            },
+            {
+              "conditional_quantity": 100,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 7.07,
+                "stamp_tax": 0.0,
+                "total": 12.07,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 100,
+              "reference_price": 141.371,
+              "reference_value": 14137.1,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511010.SH"
+            },
+            {
+              "conditional_quantity": 100,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  100
+                ],
+                "slippage": 6.79,
+                "stamp_tax": 0.0,
+                "total": 11.79,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 100,
+              "reference_price": 135.769,
+              "reference_value": 13576.9,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "511260.SH"
+            },
+            {
+              "conditional_quantity": 2600,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  2600
+                ],
+                "slippage": 1.19,
+                "stamp_tax": 0.0,
+                "total": 6.19,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 2600,
+              "reference_price": 0.916,
+              "reference_value": 2381.6,
+              "requested_quantity": 2600,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 800,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  800
+                ],
+                "slippage": 0.8,
+                "stamp_tax": 0.0,
+                "total": 5.8,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 800,
+              "reference_price": 1.999,
+              "reference_value": 1599.2,
+              "requested_quantity": 800,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 700,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  700
+                ],
+                "slippage": 0.64,
+                "stamp_tax": 0.0,
+                "total": 5.64,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 700,
+              "reference_price": 1.816,
+              "reference_value": 1271.2,
+              "requested_quantity": 700,
+              "side": "BUY",
+              "symbol": "159936.SZ"
+            },
+            {
+              "conditional_quantity": 300,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  300
+                ],
+                "slippage": 0.39,
+                "stamp_tax": 0.0,
+                "total": 5.39,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 300,
+              "reference_price": 2.573,
+              "reference_value": 771.9,
+              "requested_quantity": 300,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 400,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  400
+                ],
+                "slippage": 0.42,
+                "stamp_tax": 0.0,
+                "total": 5.42,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 400,
+              "reference_price": 2.112,
+              "reference_value": 844.8,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 200,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.18,
+                "stamp_tax": 0.0,
+                "total": 5.18,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 300,
+              "funded_quantity": 0,
+              "quantity": 200,
+              "reference_price": 1.833,
+              "reference_value": 366.6,
+              "requested_quantity": 500,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 400,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 1.745,
+              "reference_value": 0.0,
+              "requested_quantity": 400,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 200,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 3.416,
+              "reference_value": 0.0,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "510880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 700,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 0.71,
+              "reference_value": 0.0,
+              "requested_quantity": 700,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 200,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 1.374,
+              "reference_value": 0.0,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "159920.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 200,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 1.04,
+              "reference_value": 0.0,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 200,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 0.666,
+              "reference_value": 0.0,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "515790.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 300,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 0.38,
+              "reference_value": 0.0,
+              "requested_quantity": 300,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 100,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 0.759,
+              "reference_value": 0.0,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "512480.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 100,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 0.754,
+              "reference_value": 0.0,
+              "requested_quantity": 100,
+              "side": "BUY",
+              "symbol": "512070.SH"
+            }
+          ],
+          "projected_cash": 17.79,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 200,
+            "159919.SZ": 100,
+            "159920.SZ": 200,
+            "159928.SZ": 700,
+            "159936.SZ": 700,
+            "159939.SZ": 0,
+            "159945.SZ": 0,
+            "159980.SZ": 800,
+            "159981.SZ": 400,
+            "159985.SZ": 400,
+            "510880.SH": 200,
+            "511010.SH": 100,
+            "511260.SH": 100,
+            "512010.SH": 300,
+            "512070.SH": 100,
+            "512200.SH": 0,
+            "512480.SH": 100,
+            "512800.SH": 2600,
+            "513030.SH": 500,
+            "513100.SH": 0,
+            "513500.SH": 300,
+            "515790.SH": 200,
+            "518880.SH": 0,
+            "588000.SH": 0
+          }
+        },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "待卖出到账",
+      "requested": "2026-11-17",
+      "strategy": "MV"
     },
     {
       "account": {
@@ -3422,6 +6675,410 @@
     {
       "account": {
         "as_of": "2026-11-17",
+        "cash": 10.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [
+          {
+            "available": 8300,
+            "quantity": 10000,
+            "symbol": "159919.SZ"
+          }
+        ],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 42230.0,
+          "estimated_costs": 105.09,
+          "initial_cash": 10.0,
+          "orders": [
+            {
+              "costs": {
+                "commission": 10.51,
+                "order_quantities": [
+                  8300
+                ],
+                "slippage": 17.52,
+                "stamp_tax": 0.0,
+                "total": 28.03,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 1700,
+              "quantity": 8300,
+              "reference_price": 4.222,
+              "reference_value": 35042.6,
+              "requested_quantity": 10000,
+              "side": "SELL",
+              "symbol": "159919.SZ"
+            },
+            {
+              "conditional_quantity": 15300,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  15300
+                ],
+                "slippage": 7.01,
+                "stamp_tax": 0.0,
+                "total": 12.01,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 15300,
+              "reference_price": 0.916,
+              "reference_value": 14014.8,
+              "requested_quantity": 15300,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 1200,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1200
+                ],
+                "slippage": 1.1,
+                "stamp_tax": 0.0,
+                "total": 6.1,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 1200,
+              "reference_price": 1.833,
+              "reference_value": 2199.6,
+              "requested_quantity": 1200,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 1000,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1000
+                ],
+                "slippage": 1.08,
+                "stamp_tax": 0.0,
+                "total": 6.08,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 1000,
+              "reference_price": 2.166,
+              "reference_value": 2166.0,
+              "requested_quantity": 1000,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            },
+            {
+              "conditional_quantity": 900,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  900
+                ],
+                "slippage": 1.16,
+                "stamp_tax": 0.0,
+                "total": 6.16,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 900,
+              "reference_price": 2.573,
+              "reference_value": 2315.7,
+              "requested_quantity": 900,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 1600,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1600
+                ],
+                "slippage": 0.83,
+                "stamp_tax": 0.0,
+                "total": 5.83,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 1600,
+              "reference_price": 1.04,
+              "reference_value": 1664.0,
+              "requested_quantity": 1600,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 2400,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  2400
+                ],
+                "slippage": 0.85,
+                "stamp_tax": 0.0,
+                "total": 5.85,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 2400,
+              "reference_price": 0.71,
+              "reference_value": 1704.0,
+              "requested_quantity": 2400,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 1300,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1300
+                ],
+                "slippage": 0.86,
+                "stamp_tax": 0.0,
+                "total": 5.86,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 1300,
+              "reference_price": 1.322,
+              "reference_value": 1718.6,
+              "requested_quantity": 1300,
+              "side": "BUY",
+              "symbol": "159945.SZ"
+            },
+            {
+              "conditional_quantity": 800,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  800
+                ],
+                "slippage": 0.8,
+                "stamp_tax": 0.0,
+                "total": 5.8,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 800,
+              "reference_price": 1.999,
+              "reference_value": 1599.2,
+              "requested_quantity": 800,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 1000,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  1000
+                ],
+                "slippage": 0.87,
+                "stamp_tax": 0.0,
+                "total": 5.87,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 1000,
+              "reference_price": 1.745,
+              "reference_value": 1745.0,
+              "requested_quantity": 1000,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 800,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  800
+                ],
+                "slippage": 0.84,
+                "stamp_tax": 0.0,
+                "total": 5.84,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 800,
+              "reference_price": 2.112,
+              "reference_value": 1689.6,
+              "requested_quantity": 800,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 4600,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  4600
+                ],
+                "slippage": 0.87,
+                "stamp_tax": 0.0,
+                "total": 5.87,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 4600,
+              "reference_price": 0.38,
+              "reference_value": 1748.0,
+              "requested_quantity": 4600,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 200,
+              "costs": {
+                "commission": 5.0,
+                "order_quantities": [
+                  200
+                ],
+                "slippage": 0.79,
+                "stamp_tax": 0.0,
+                "total": 5.79,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 0,
+              "quantity": 200,
+              "reference_price": 7.897,
+              "reference_value": 1579.4,
+              "requested_quantity": 200,
+              "side": "BUY",
+              "symbol": "518880.SH"
+            }
+          ],
+          "projected_cash": 803.61,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 1600,
+            "159919.SZ": 0,
+            "159928.SZ": 2400,
+            "159945.SZ": 1300,
+            "159980.SZ": 800,
+            "159981.SZ": 1000,
+            "159985.SZ": 800,
+            "511010.SH": 0,
+            "511260.SH": 0,
+            "512010.SH": 4600,
+            "512800.SH": 15300,
+            "513030.SH": 1200,
+            "513100.SH": 1000,
+            "513500.SH": 900,
+            "518880.SH": 200
+          }
+        },
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "待卖出到账",
+      "requested": "2026-11-17",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 3000.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [
+          {
+            "available": 100,
+            "quantity": 100,
+            "symbol": "600519.SH"
+          }
+        ],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "600519.SH 缺少本次收盘价；请刷新或按账户日期补录",
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "缺持仓报价",
+      "requested": "2026-11-17",
+      "strategy": "BANK_ELSE_GB"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
         "cash": 3000.0,
         "confirmed": true,
         "fees": {
@@ -3512,6 +7169,74 @@
         },
         "next": "2026-11-18",
         "reason": "600519.SH 缺少本次收盘价；请刷新或按账户日期补录",
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "缺持仓报价",
+      "requested": "2026-11-17",
+      "strategy": "MV"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 3000.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [
+          {
+            "available": 100,
+            "quantity": 100,
+            "symbol": "600519.SH"
+          }
+        ],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "600519.SH 缺少本次收盘价；请刷新或按账户日期补录",
         "route": "GB",
         "scores": {},
         "selected": [],
@@ -3554,6 +7279,107 @@
     },
     {
       "account": {
+        "as_of": "2026-11-17",
+        "cash": 3000.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [
+          {
+            "available": 100,
+            "quantity": 100,
+            "symbol": "600519.SH"
+          }
+        ],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "600519.SH 缺少本次收盘价；请刷新或按账户日期补录",
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "缺持仓报价",
+      "requested": "2026-11-17",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-16",
+        "cash": 50000.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "请更新或确认本日账户；当前现金/可卖份额仍是 2026-11-16",
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "账户未确认到本日",
+      "requested": "2026-11-17",
+      "strategy": "BANK_ELSE_GB"
+    },
+    {
+      "account": {
         "as_of": "2026-11-16",
         "cash": 50000.0,
         "confirmed": true,
@@ -3633,6 +7459,68 @@
         },
         "next": "2026-11-18",
         "reason": "请更新或确认本日账户；当前现金/可卖份额仍是 2026-11-16",
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "账户未确认到本日",
+      "requested": "2026-11-17",
+      "strategy": "MV"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-16",
+        "cash": 50000.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "请更新或确认本日账户；当前现金/可卖份额仍是 2026-11-16",
         "route": "GB",
         "scores": {},
         "selected": [],
@@ -3672,6 +7560,101 @@
       "name": "账户未确认到本日",
       "requested": "2026-11-17",
       "strategy": "GB"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-16",
+        "cash": 50000.0,
+        "confirmed": true,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "请更新或确认本日账户；当前现金/可卖份额仍是 2026-11-16",
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "账户未确认到本日",
+      "requested": "2026-11-17",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "行情滞后：这些目标只对应历史日期，不生成当前操作数量",
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "行情过期",
+      "requested": "2026-11-18",
+      "strategy": "BANK_ELSE_GB"
     },
     {
       "account": {
@@ -3754,6 +7737,68 @@
         },
         "next": "2026-11-18",
         "reason": "行情滞后：这些目标只对应历史日期，不生成当前操作数量",
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "行情过期",
+      "requested": "2026-11-18",
+      "strategy": "MV"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "行情滞后：这些目标只对应历史日期，不生成当前操作数量",
         "route": "GB",
         "scores": {},
         "selected": [],
@@ -3793,6 +7838,243 @@
       "name": "行情过期",
       "requested": "2026-11-18",
       "strategy": "GB"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 50000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "UNKNOWN",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "reason": "行情滞后：这些目标只对应历史日期，不生成当前操作数量",
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "blocked",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "行情过期",
+      "requested": "2026-11-18",
+      "strategy": "SECTOR_M"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 100000000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 100000000.0,
+          "estimated_costs": 79936.02,
+          "initial_cash": 100000000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 29976.01,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  83000
+                ],
+                "slippage": 49960.01,
+                "stamp_tax": 0.0,
+                "total": 79936.02,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 87300,
+              "funded_quantity": 109083000,
+              "quantity": 109083000,
+              "reference_price": 0.916,
+              "reference_value": 99920028.0,
+              "requested_quantity": 109170300,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            }
+          ],
+          "projected_cash": 35.98,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "512800.SH": 109170300
+          }
+        },
+        "route": "BANK",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "512800.SH": 1.0
+        }
+      },
+      "name": "大额分单",
+      "requested": "2026-11-17",
+      "strategy": "BANK_ELSE_GB"
     },
     {
       "account": {
@@ -3995,6 +8277,617 @@
       "name": "大额分单",
       "requested": "2026-11-17",
       "strategy": "MOM20"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 100000000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 100000000.0,
+          "estimated_costs": 79936.01,
+          "initial_cash": 100000000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 10496.8,
+                "order_quantities": [
+                  247500
+                ],
+                "slippage": 17494.66,
+                "stamp_tax": 0.0,
+                "total": 27991.46,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 247500,
+              "quantity": 247500,
+              "reference_price": 141.371,
+              "reference_value": 34989322.5,
+              "requested_quantity": 247500,
+              "side": "BUY",
+              "symbol": "511010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 10496.3,
+                "order_quantities": [
+                  257700
+                ],
+                "slippage": 17493.84,
+                "stamp_tax": 0.0,
+                "total": 27990.14,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 257700,
+              "quantity": 257700,
+              "reference_price": 135.769,
+              "reference_value": 34987671.3,
+              "requested_quantity": 257700,
+              "side": "BUY",
+              "symbol": "511260.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1748.61,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  363200
+                ],
+                "slippage": 2914.35,
+                "stamp_tax": 0.0,
+                "total": 4662.96,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 6363200,
+              "quantity": 6363200,
+              "reference_price": 0.916,
+              "reference_value": 5828691.2,
+              "requested_quantity": 6363200,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1143.39,
+                "order_quantities": [
+                  1000000,
+                  906600
+                ],
+                "slippage": 1905.65,
+                "stamp_tax": 0.0,
+                "total": 3049.04,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1906600,
+              "quantity": 1906600,
+              "reference_price": 1.999,
+              "reference_value": 3811293.4,
+              "requested_quantity": 1906600,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1009.95,
+                "order_quantities": [
+                  1000000,
+                  853800
+                ],
+                "slippage": 1683.25,
+                "stamp_tax": 0.0,
+                "total": 2693.2,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1853800,
+              "quantity": 1853800,
+              "reference_price": 1.816,
+              "reference_value": 3366500.8,
+              "requested_quantity": 1853800,
+              "side": "BUY",
+              "symbol": "159936.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 691.24,
+                "order_quantities": [
+                  895500
+                ],
+                "slippage": 1152.06,
+                "stamp_tax": 0.0,
+                "total": 1843.3,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 895500,
+              "quantity": 895500,
+              "reference_price": 2.573,
+              "reference_value": 2304121.5,
+              "requested_quantity": 895500,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 659.26,
+                "order_quantities": [
+                  1000000,
+                  40500
+                ],
+                "slippage": 1098.77,
+                "stamp_tax": 0.0,
+                "total": 1758.03,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1040500,
+              "quantity": 1040500,
+              "reference_price": 2.112,
+              "reference_value": 2197536.0,
+              "requested_quantity": 1040500,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 652.4,
+                "order_quantities": [
+                  1000000,
+                  186400
+                ],
+                "slippage": 1087.34,
+                "stamp_tax": 0.0,
+                "total": 1739.74,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1186400,
+              "quantity": 1186400,
+              "reference_price": 1.833,
+              "reference_value": 2174671.2,
+              "requested_quantity": 1186400,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 573.23,
+                "order_quantities": [
+                  1000000,
+                  95000
+                ],
+                "slippage": 955.39,
+                "stamp_tax": 0.0,
+                "total": 1528.62,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1095000,
+              "quantity": 1095000,
+              "reference_price": 1.745,
+              "reference_value": 1910775.0,
+              "requested_quantity": 1095000,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 508.92,
+                "order_quantities": [
+                  496600
+                ],
+                "slippage": 848.19,
+                "stamp_tax": 0.0,
+                "total": 1357.11,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 496600,
+              "quantity": 496600,
+              "reference_price": 3.416,
+              "reference_value": 1696385.6,
+              "requested_quantity": 496600,
+              "side": "BUY",
+              "symbol": "510880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 437.86,
+                "order_quantities": [
+                  345700
+                ],
+                "slippage": 729.77,
+                "stamp_tax": 0.0,
+                "total": 1167.63,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 345700,
+              "quantity": 345700,
+              "reference_price": 4.222,
+              "reference_value": 1459545.4,
+              "requested_quantity": 345700,
+              "side": "BUY",
+              "symbol": "159919.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 355.37,
+                "order_quantities": [
+                  1000000,
+                  668400
+                ],
+                "slippage": 592.28,
+                "stamp_tax": 0.0,
+                "total": 947.65,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1668400,
+              "quantity": 1668400,
+              "reference_price": 0.71,
+              "reference_value": 1184564.0,
+              "requested_quantity": 1668400,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 252.78,
+                "order_quantities": [
+                  106700
+                ],
+                "slippage": 421.3,
+                "stamp_tax": 0.0,
+                "total": 674.08,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 106700,
+              "quantity": 106700,
+              "reference_price": 7.897,
+              "reference_value": 842609.9,
+              "requested_quantity": 106700,
+              "side": "BUY",
+              "symbol": "518880.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 228.98,
+                "order_quantities": [
+                  555500
+                ],
+                "slippage": 381.63,
+                "stamp_tax": 0.0,
+                "total": 610.61,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 555500,
+              "quantity": 555500,
+              "reference_price": 1.374,
+              "reference_value": 763257.0,
+              "requested_quantity": 555500,
+              "side": "BUY",
+              "symbol": "159920.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 182.99,
+                "order_quantities": [
+                  586500
+                ],
+                "slippage": 304.98,
+                "stamp_tax": 0.0,
+                "total": 487.97,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 586500,
+              "quantity": 586500,
+              "reference_price": 1.04,
+              "reference_value": 609960.0,
+              "requested_quantity": 586500,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 129.69,
+                "order_quantities": [
+                  649100
+                ],
+                "slippage": 216.15,
+                "stamp_tax": 0.0,
+                "total": 345.84,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 649100,
+              "quantity": 649100,
+              "reference_price": 0.666,
+              "reference_value": 432300.6,
+              "requested_quantity": 649100,
+              "side": "BUY",
+              "symbol": "515790.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 98.52,
+                "order_quantities": [
+                  864200
+                ],
+                "slippage": 164.2,
+                "stamp_tax": 0.0,
+                "total": 262.72,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 864200,
+              "quantity": 864200,
+              "reference_price": 0.38,
+              "reference_value": 328396.0,
+              "requested_quantity": 864200,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 72.86,
+                "order_quantities": [
+                  320000
+                ],
+                "slippage": 121.44,
+                "stamp_tax": 0.0,
+                "total": 194.3,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 320000,
+              "quantity": 320000,
+              "reference_price": 0.759,
+              "reference_value": 242880.0,
+              "requested_quantity": 320000,
+              "side": "BUY",
+              "symbol": "512480.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 67.09,
+                "order_quantities": [
+                  296600
+                ],
+                "slippage": 111.82,
+                "stamp_tax": 0.0,
+                "total": 178.91,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 296600,
+              "quantity": 296600,
+              "reference_price": 0.754,
+              "reference_value": 223636.4,
+              "requested_quantity": 296600,
+              "side": "BUY",
+              "symbol": "512070.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 55.95,
+                "order_quantities": [
+                  235200
+                ],
+                "slippage": 93.26,
+                "stamp_tax": 0.0,
+                "total": 149.21,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 235200,
+              "quantity": 235200,
+              "reference_price": 0.793,
+              "reference_value": 186513.6,
+              "requested_quantity": 235200,
+              "side": "BUY",
+              "symbol": "159939.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 53.77,
+                "order_quantities": [
+                  138500
+                ],
+                "slippage": 89.61,
+                "stamp_tax": 0.0,
+                "total": 143.38,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 138500,
+              "quantity": 138500,
+              "reference_price": 1.294,
+              "reference_value": 179219.0,
+              "requested_quantity": 138500,
+              "side": "BUY",
+              "symbol": "588000.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 41.8,
+                "order_quantities": [
+                  105400
+                ],
+                "slippage": 69.67,
+                "stamp_tax": 0.0,
+                "total": 111.47,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 105400,
+              "quantity": 105400,
+              "reference_price": 1.322,
+              "reference_value": 139338.8,
+              "requested_quantity": 105400,
+              "side": "BUY",
+              "symbol": "159945.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 18.24,
+                "order_quantities": [
+                  56200
+                ],
+                "slippage": 30.4,
+                "stamp_tax": 0.0,
+                "total": 48.64,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 5500,
+              "funded_quantity": 56200,
+              "quantity": 56200,
+              "reference_price": 1.082,
+              "reference_value": 60808.4,
+              "requested_quantity": 61700,
+              "side": "BUY",
+              "symbol": "512200.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 0.0,
+                "order_quantities": [],
+                "slippage": 0.0,
+                "stamp_tax": 0.0,
+                "total": 0.0,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 22600,
+              "funded_quantity": 0,
+              "quantity": 0,
+              "reference_price": 2.166,
+              "reference_value": 0.0,
+              "requested_quantity": 22600,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            }
+          ],
+          "projected_cash": 66.39,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 586500,
+            "159919.SZ": 345700,
+            "159920.SZ": 555500,
+            "159928.SZ": 1668400,
+            "159936.SZ": 1853800,
+            "159939.SZ": 235200,
+            "159945.SZ": 105400,
+            "159980.SZ": 1906600,
+            "159981.SZ": 1095000,
+            "159985.SZ": 1040500,
+            "510880.SH": 496600,
+            "511010.SH": 247500,
+            "511260.SH": 257700,
+            "512010.SH": 864200,
+            "512070.SH": 296600,
+            "512200.SH": 61700,
+            "512480.SH": 320000,
+            "512800.SH": 6363200,
+            "513030.SH": 1186400,
+            "513100.SH": 22600,
+            "513500.SH": 895500,
+            "515790.SH": 649100,
+            "518880.SH": 106700,
+            "588000.SH": 138500
+          }
+        },
+        "route": "MV",
+        "scores": {},
+        "selected": [],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.006100088904475386,
+          "159919.SZ": 0.014597224046124622,
+          "159920.SZ": 0.007632995046381938,
+          "159928.SZ": 0.011845701947310612,
+          "159936.SZ": 0.03366526822757263,
+          "159939.SZ": 0.0018658645689828353,
+          "159945.SZ": 0.001394587428669079,
+          "159980.SZ": 0.038113610943529566,
+          "159981.SZ": 0.019107751914177587,
+          "159985.SZ": 0.02197699986499837,
+          "510880.SH": 0.016966969813843335,
+          "511010.SH": 0.35,
+          "511260.SH": 0.35,
+          "512010.SH": 0.00328415535289559,
+          "512070.SH": 0.002236488749550005,
+          "512200.SH": 0.0006680107645267167,
+          "512480.SH": 0.002429057881801609,
+          "512800.SH": 0.058287064837208864,
+          "513030.SH": 0.021748507938616286,
+          "513100.SH": 0.0004909445864063481,
+          "513500.SH": 0.023042982924854728,
+          "515790.SH": 0.004323305708716618,
+          "518880.SH": 0.008429167898347968,
+          "588000.SH": 0.0017932506510092408
+        }
+      },
+      "name": "大额分单",
+      "requested": "2026-11-17",
+      "strategy": "MV"
     },
     {
       "account": {
@@ -4726,6 +9619,451 @@
       "name": "大额分单",
       "requested": "2026-11-17",
       "strategy": "GB"
+    },
+    {
+      "account": {
+        "as_of": "2026-11-17",
+        "cash": 100000000.0,
+        "confirmed": false,
+        "fees": {
+          "commission_rate": 0.0003,
+          "minimum_commission": 5.0,
+          "slippage_rate": 0.0005
+        },
+        "positions": [],
+        "schema": "advice-account-v1"
+      },
+      "date": "2026-11-17",
+      "expected": {
+        "action": "ADJUST",
+        "breadth": {
+          "count": 18,
+          "down200": 0.6111111111111112,
+          "down60": 0.6666666666666666,
+          "threshold": 0.6,
+          "up200": 0.1111111111111111,
+          "up60": 0.16666666666666666
+        },
+        "next": "2026-11-18",
+        "plan": {
+          "actual_trades_recorded": false,
+          "equity": 100000000.0,
+          "estimated_costs": 79938.92,
+          "initial_cash": 100000000.0,
+          "orders": [
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 10000.0,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  390100
+                ],
+                "slippage": 16666.67,
+                "stamp_tax": 0.0,
+                "total": 26666.67,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 36390100,
+              "quantity": 36390100,
+              "reference_price": 0.916,
+              "reference_value": 33333331.6,
+              "requested_quantity": 36390100,
+              "side": "BUY",
+              "symbol": "512800.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 2498.03,
+                "order_quantities": [
+                  58900
+                ],
+                "slippage": 4163.38,
+                "stamp_tax": 0.0,
+                "total": 6661.41,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 58900,
+              "quantity": 58900,
+              "reference_price": 141.371,
+              "reference_value": 8326751.9,
+              "requested_quantity": 58900,
+              "side": "BUY",
+              "symbol": "511010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 2496.79,
+                "order_quantities": [
+                  61300
+                ],
+                "slippage": 4161.32,
+                "stamp_tax": 0.0,
+                "total": 6658.11,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 61300,
+              "quantity": 61300,
+              "reference_price": 135.769,
+              "reference_value": 8322639.7,
+              "requested_quantity": 61300,
+              "side": "BUY",
+              "symbol": "511260.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1666.64,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  30800
+                ],
+                "slippage": 2777.73,
+                "stamp_tax": 0.0,
+                "total": 4444.37,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 3030800,
+              "quantity": 3030800,
+              "reference_price": 1.833,
+              "reference_value": 5555456.4,
+              "requested_quantity": 3030800,
+              "side": "BUY",
+              "symbol": "513030.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1666.61,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  564800
+                ],
+                "slippage": 2777.68,
+                "stamp_tax": 0.0,
+                "total": 4444.29,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 2564800,
+              "quantity": 2564800,
+              "reference_price": 2.166,
+              "reference_value": 5555356.8,
+              "requested_quantity": 2564800,
+              "side": "BUY",
+              "symbol": "513100.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1666.61,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  159100
+                ],
+                "slippage": 2777.68,
+                "stamp_tax": 0.0,
+                "total": 4444.29,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 2159100,
+              "quantity": 2159100,
+              "reference_price": 2.573,
+              "reference_value": 5555364.3,
+              "requested_quantity": 2159100,
+              "side": "BUY",
+              "symbol": "513500.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1253.0,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  6400
+                ],
+                "slippage": 2083.33,
+                "stamp_tax": 0.0,
+                "total": 3336.33,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 4006400,
+              "quantity": 4006400,
+              "reference_price": 1.04,
+              "reference_value": 4166656.0,
+              "requested_quantity": 4006400,
+              "side": "BUY",
+              "symbol": "159611.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1249.99,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  868500
+                ],
+                "slippage": 2083.32,
+                "stamp_tax": 0.0,
+                "total": 3333.31,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 5868500,
+              "quantity": 5868500,
+              "reference_price": 0.71,
+              "reference_value": 4166635.0,
+              "requested_quantity": 5868500,
+              "side": "BUY",
+              "symbol": "159928.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1249.96,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  151700
+                ],
+                "slippage": 2083.27,
+                "stamp_tax": 0.0,
+                "total": 3333.23,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 3151700,
+              "quantity": 3151700,
+              "reference_price": 1.322,
+              "reference_value": 4166547.4,
+              "requested_quantity": 3151700,
+              "side": "BUY",
+              "symbol": "159945.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1249.95,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  84300
+                ],
+                "slippage": 2083.26,
+                "stamp_tax": 0.0,
+                "total": 3333.21,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 2084300,
+              "quantity": 2084300,
+              "reference_price": 1.999,
+              "reference_value": 4166515.7,
+              "requested_quantity": 2084300,
+              "side": "BUY",
+              "symbol": "159980.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1249.96,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  387700
+                ],
+                "slippage": 2083.27,
+                "stamp_tax": 0.0,
+                "total": 3333.23,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 2387700,
+              "quantity": 2387700,
+              "reference_price": 1.745,
+              "reference_value": 4166536.5,
+              "requested_quantity": 2387700,
+              "side": "BUY",
+              "symbol": "159981.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1249.97,
+                "order_quantities": [
+                  1000000,
+                  972800
+                ],
+                "slippage": 2083.28,
+                "stamp_tax": 0.0,
+                "total": 3333.25,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 1972800,
+              "quantity": 1972800,
+              "reference_price": 2.112,
+              "reference_value": 4166553.6,
+              "requested_quantity": 1972800,
+              "side": "BUY",
+              "symbol": "159985.SZ"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1250.0,
+                "order_quantities": [
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  1000000,
+                  964900
+                ],
+                "slippage": 2083.33,
+                "stamp_tax": 0.0,
+                "total": 3333.33,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 0,
+              "funded_quantity": 10964900,
+              "quantity": 10964900,
+              "reference_price": 0.38,
+              "reference_value": 4166662.0,
+              "requested_quantity": 10964900,
+              "side": "BUY",
+              "symbol": "512010.SH"
+            },
+            {
+              "conditional_quantity": 0,
+              "costs": {
+                "commission": 1231.46,
+                "order_quantities": [
+                  519800
+                ],
+                "slippage": 2052.43,
+                "stamp_tax": 0.0,
+                "total": 3283.89,
+                "transfer_fee": 0.0
+              },
+              "deferred_quantity": 7800,
+              "funded_quantity": 519800,
+              "quantity": 519800,
+              "reference_price": 7.897,
+              "reference_value": 4104860.6,
+              "requested_quantity": 527600,
+              "side": "BUY",
+              "symbol": "518880.SH"
+            }
+          ],
+          "projected_cash": 193.58,
+          "projected_cash_conditional_on_sales": true,
+          "requested_quantities": {
+            "159611.SZ": 4006400,
+            "159928.SZ": 5868500,
+            "159945.SZ": 3151700,
+            "159980.SZ": 2084300,
+            "159981.SZ": 2387700,
+            "159985.SZ": 1972800,
+            "511010.SH": 58900,
+            "511260.SH": 61300,
+            "512010.SH": 10964900,
+            "512800.SH": 36390100,
+            "513030.SH": 3030800,
+            "513100.SH": 2564800,
+            "513500.SH": 2159100,
+            "518880.SH": 527600
+          }
+        },
+        "route": "GROUP",
+        "scores": {
+          "512800.SH": 0.1130012150668287
+        },
+        "selected": [
+          "512800.SH"
+        ],
+        "state": "BEAR",
+        "status": "ready",
+        "weights": {
+          "159611.SZ": 0.04166666666666667,
+          "159928.SZ": 0.04166666666666667,
+          "159945.SZ": 0.04166666666666667,
+          "159980.SZ": 0.04166666666666667,
+          "159981.SZ": 0.04166666666666667,
+          "159985.SZ": 0.04166666666666667,
+          "511010.SH": 0.08333333333333334,
+          "511260.SH": 0.08333333333333334,
+          "512010.SH": 0.04166666666666667,
+          "512800.SH": 0.3333333333333333,
+          "513030.SH": 0.05555555555555556,
+          "513100.SH": 0.05555555555555556,
+          "513500.SH": 0.05555555555555556,
+          "518880.SH": 0.04166666666666667
+        }
+      },
+      "name": "大额分单",
+      "requested": "2026-11-17",
+      "strategy": "SECTOR_M"
     }
   ],
   "snapshot": "936d5734e7655d73fbee9d0ffb13fcf5c9eeaa17b639e3dbf115a2f321c666d6",

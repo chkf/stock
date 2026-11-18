@@ -51,8 +51,8 @@ extension StrategyEngine {
         let plan = try Planning.make(market: market, date: date, next: sessions.next(date), account: account, weights: d.weights)
         var highs = [String: Double]()
         let positions = account.positions.filter { $0.quantity > 0 }
-        if d.route == "MOM" {
-            for p in positions where market.securities[p.symbol] != nil {
+        if d.protection?.isEmpty == false || ["MOM", "BANK", "GROUP"].contains(d.route) {
+            for p in positions where protected(d, p.symbol) {
                 guard let px = market.securities[p.symbol]?.bars[date]?.close else { throw ResearchError("缺持仓保护行情") }
                 highs[p.symbol] = px
             }
@@ -86,8 +86,8 @@ extension StrategyEngine {
         var selected = false
         for d in days {
             state.highs = state.highs.filter { held[$0.key] != nil }
-            if state.decision.route == "MOM" {
-                for p in positions {
+            if state.decision.protection?.isEmpty == false || ["MOM", "BANK", "GROUP"].contains(state.decision.route) {
+                for p in positions where protected(state.decision, p.symbol) {
                     guard let sec = market.securities[p.symbol] else { continue }
                     if newSymbols.contains(p.symbol) && (p.entry_date ?? "") > d { continue }
                     guard let close = sec.bars[d]?.close else { throw ResearchError("\(p.symbol) 缺少持仓保护所需的行情") }
@@ -101,8 +101,9 @@ extension StrategyEngine {
                     }
                     high = max(high, close)
                     state.highs[p.symbol] = high
-                    if close <= 0.8 * high + 1e-10 && state.locks[p.symbol] == nil {
-                        let event = ExitLock(symbol: p.symbol, date: d, high: high, close: close, threshold: 0.8 * high)
+                    let limit = (1 - (state.decision.exitDrawdown ?? 0.2)) * high
+                    if close <= limit + 1e-10 && state.locks[p.symbol] == nil {
+                        let event = ExitLock(symbol: p.symbol, date: d, high: high, close: close, threshold: limit)
                         state.locks[p.symbol] = event
                         state.events.append(event)
                         state.quantities[p.symbol] = 0
@@ -111,7 +112,15 @@ extension StrategyEngine {
             }
             if !repeatDay, try sessions.monthEnd(d) {
                 state.locks = state.locks.filter { held[$0.key] != nil || d <= $0.value.date }
-                state.decision = try decision(old.decision.strategy, on: d, previousState: state.decision.marketState)
+                let prior = state.decision
+                state.decision = try decision(old.decision.strategy, on: d, previousState: prior.marketState,
+                                              previousSectors: prior.sectorStates ?? [:])
+                if prior.route != state.decision.route && ["MOM", "BANK"].contains(state.decision.route) {
+                    state.highs = [:]
+                    for p in positions where !newSymbols.contains(p.symbol) || (p.entry_date ?? "") <= d {
+                        state.highs[p.symbol] = market.securities[p.symbol]?.bars[d]?.close
+                    }
+                }
                 state.selection = d
                 selected = true
             }

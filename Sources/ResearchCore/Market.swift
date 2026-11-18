@@ -5,6 +5,7 @@ public struct MarketEvent: Codable {
     public let date: String
     public let cash_per_share, share_factor: Double?
     public let record_date, source, payment_date: String?
+    public var available_date, rounding: String?
 }
 public struct MarketSecurity: Codable {
     public let name, group: String
@@ -12,6 +13,11 @@ public struct MarketSecurity: Codable {
     public var signal_close: [String: Double]
     public var events: [MarketEvent]
     public var provider_events: [ProviderEvent]?
+    public var statuses: [String: MarketStatus]?
+}
+public struct MarketStatus: Codable {
+    public let state: String?
+    public let upper_limit, lower_limit: Double?
 }
 public struct ExtraQuote: Codable { public let date: String; public let close: Double }
 public struct MarketSnapshot: Codable {
@@ -82,81 +88,3 @@ public struct Sessions {
     }
 }
 
-public struct Decision: Codable {
-    public let strategy, route, marketState, date: String
-    public let selected: [String]
-    public let weights, scores, breadth: [String: Double]
-}
-
-public struct StrategyEngine {
-    public let market: MarketSnapshot
-    public let sessions: Sessions
-    public init(market: MarketSnapshot, sessions: Sessions) {
-        self.market = market
-        self.sessions = sessions
-    }
-
-    public func decision(_ strategy: String, on date: String, previousState: String = "UNKNOWN") throws -> Decision {
-        guard date <= market.as_of else { throw ResearchError("行情滞后，停止生成当前份额") }
-        guard ["MOM20", "GB"].contains(strategy) else { throw ResearchError("该策略尚未完成等价移植") }
-        let pos = try sessions.index(date)
-        var scores = [String: Double](), groups = [String: [String]]()
-        var votes = ["up60": 0, "down60": 0, "up200": 0, "down200": 0]
-        var voters = 0
-        for symbol in market.securities.keys.sorted() {
-            let sec = market.securities[symbol]!
-            guard pos >= 251 else { continue }
-            let window = sessions.days[(pos - 251)...pos].compactMap { sec.signal_close[$0] }
-            guard window.count == 252 else { continue }
-            guard window.allSatisfy({ $0.isFinite && $0 > 0 }) else { throw ResearchError("\(symbol) 信号价无效") }
-            let group = sec.group.hasPrefix("domestic") ? "domestic_equity" : sec.group
-            groups[group, default: []].append(symbol)
-            let price = window[251]
-            if pos >= 252, let old = sec.signal_close[sessions.days[pos - 252]], old.isFinite, old > 0,
-               price > window[251 - 126] { scores[symbol] = price / old - 1 }
-            if group == "domestic_equity" {
-                voters += 1
-                for n in [60, 200] {
-                    let ma = mean(window[(252 - n)..<252])
-                    let previous = mean(window[(232 - n)..<232])
-                    let slope = ma / previous - 1
-                    if price > ma && slope > 0 { votes["up\(n)", default: 0] += 1 }
-                    if price < ma && slope < 0 { votes["down\(n)", default: 0] += 1 }
-                }
-            }
-        }
-        var breadth = ["count": Double(voters), "threshold": 0.6]
-        var state = previousState
-        if voters > 0 {
-            for (k, v) in votes { breadth[k] = Double(v) / Double(voters) }
-            if breadth["down60"]! >= 0.6 || breadth["down200"]! >= 0.6 { state = "BEAR" }
-            else if breadth["up60"]! >= 0.6 && breadth["up200"]! >= 0.6 { state = "BULL" }
-            else { state = "TRANSITION" }
-        }
-        if strategy == "GB" {
-            var weights = [String: Double]()
-            for group in ["domestic_equity", "overseas_equity", "commodity", "bond"] {
-                let members = groups[group] ?? []
-                for s in members { weights[s] = 0.25 / Double(members.count) }
-            }
-            return Decision(strategy: strategy, route: "GB", marketState: state, date: date,
-                            selected: [], weights: weights, scores: [:], breadth: breadth)
-        }
-        let selected = Array(scores.keys.sorted {
-            scores[$0] == scores[$1] ? $0 < $1 : scores[$0]! > scores[$1]!
-        }.prefix(3))
-        return Decision(strategy: strategy, route: "MOM", marketState: state, date: date, selected: selected,
-                        weights: Dictionary(uniqueKeysWithValues: selected.map { ($0, 1.0 / 3) }),
-                        scores: scores, breadth: breadth)
-    }
-
-    private func mean(_ values: ArraySlice<Double>) -> Double {
-        var sum = 0.0, correction = 0.0
-        for x in values {
-            let y = x - correction, next = sum + y
-            correction = (next - sum) - y
-            sum = next
-        }
-        return sum / Double(values.count)
-    }
-}

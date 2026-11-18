@@ -19,7 +19,20 @@ public actor PrivateLibrary {
     public static func applicationLibrary() throws -> PrivateLibrary {
         let support = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask,
                                                   appropriateFor: nil, create: true)
-        return PrivateLibrary(root: support.appendingPathComponent("StockResearch", isDirectory: true))
+        let documents = try FileManager.default.url(for: .documentDirectory,in: .userDomainMask,appropriateFor: nil,create: true)
+        return try openWorkspace(documents: documents, previous: support.appendingPathComponent("StockResearch",isDirectory: true))
+    }
+    public static func openWorkspace(documents: URL, previous: URL) throws -> PrivateLibrary {
+        let fm = FileManager.default
+        let target = documents.appendingPathComponent("研究工作区",isDirectory: true)
+        let data = target.appendingPathComponent("数据",isDirectory: true)
+        try fm.createDirectory(at: target,withIntermediateDirectories: true)
+        // Both directories are on the application's data volume. Rename preserves every generation and receipt.
+        if fm.fileExists(atPath: previous.path) {
+            guard !fm.fileExists(atPath: data.path) else { throw ResearchError("旧资料和工作区数据同时存在。已保留两份，请在文件中给现有「数据」改名后重新打开。") }
+            try fm.moveItem(at: previous,to: data)
+        } else { try fm.createDirectory(at: data,withIntermediateDirectories: true) }
+        return PrivateLibrary(root: data)
     }
 
     private func mkdir(_ url: URL) throws {

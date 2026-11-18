@@ -18,18 +18,22 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": null,
           "cash_per_share": 0.0661,
           "date": "2025-03-31",
           "payment_date": "2025-04-01",
           "record_date": "2025-03-28",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_159919.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.0728,
           "date": "2025-12-08",
           "payment_date": "2025-12-09",
           "record_date": "2025-12-05",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_159919.html"
         }
@@ -234,18 +238,22 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": null,
           "cash_per_share": 0.142,
           "date": "2025-01-21",
           "payment_date": "2025-01-24",
           "record_date": "2025-01-20",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_510880.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.143,
           "date": "2026-01-21",
           "payment_date": "2026-01-26",
           "record_date": "2026-01-20",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_510880.html"
         }
@@ -404,42 +412,52 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": null,
           "cash_per_share": 1.45,
           "date": "2025-09-23",
           "payment_date": "2025-09-26",
           "record_date": "2025-09-22",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.6542,
           "date": "2025-12-26",
           "payment_date": "2025-12-31",
           "record_date": "2025-12-25",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.5715,
           "date": "2026-03-25",
           "payment_date": "2026-03-30",
           "record_date": "2026-03-24",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.8144,
           "date": "2026-06-25",
           "payment_date": "2026-06-30",
           "record_date": "2026-06-24",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.6204,
           "date": "2026-09-18",
           "payment_date": "2026-09-23",
           "record_date": "2026-09-17",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
         }
@@ -514,42 +532,52 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": null,
           "cash_per_share": 1.3599999999999999,
           "date": "2025-09-23",
           "payment_date": "2025-09-26",
           "record_date": "2025-09-22",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-09-18/511260_20250918_HDYX.pdf"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.833,
           "date": "2025-12-26",
           "payment_date": "2025-12-31",
           "record_date": "2025-12-25",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-12-23/511260_20251223_ZED8.pdf"
         },
         {
+          "available_date": null,
           "cash_per_share": 0.6711,
           "date": "2026-03-25",
           "payment_date": "2026-03-30",
           "record_date": "2026-03-24",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://fundf10.eastmoney.com/fhsp_511260.html"
         },
         {
+          "available_date": null,
           "cash_per_share": 1.2686,
           "date": "2026-06-25",
           "payment_date": "2026-06-30",
           "record_date": "2026-06-24",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2026-06-22/511260_20260622_BWI3.pdf"
         },
         {
+          "available_date": null,
           "cash_per_share": 1.2747,
           "date": "2026-09-18",
           "payment_date": "2026-09-23",
           "record_date": "2026-09-17",
+          "rounding": null,
           "share_factor": 1.0,
           "source": "https://pdf.dfcfw.com/pdf/H2_AN202609141829377960_1.pdf"
         }
@@ -670,10 +698,12 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": "2026-07-03",
           "cash_per_share": 0.0,
           "date": "2026-07-03",
           "payment_date": null,
           "record_date": "2026-07-02",
+          "rounding": null,
           "share_factor": 2.0,
           "source": "https://notice.10jqka.com.cn/api/pdf/47db8b358e7de123.pdf"
         }
@@ -718,10 +748,12 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": "2025-07-07",
           "cash_per_share": 0.0,
           "date": "2025-07-07",
           "payment_date": null,
           "record_date": "2025-07-04",
+          "rounding": null,
           "share_factor": 2.0,
           "source": "https://static.cninfo.com.cn/finalpage/2025-07-01/1224043454.PDF"
         }
@@ -811,18 +843,22 @@
       "band": 0.1,
       "events": [
         {
+          "available_date": "2026-02-03",
           "cash_per_share": 0.0,
           "date": "2026-02-03",
           "payment_date": null,
           "record_date": "2026-02-02",
+          "rounding": null,
           "share_factor": 3.0,
           "source": "https://pdf.dfcfw.com/pdf/H2_AN202602031819506989_1.pdf"
         },
         {
+          "available_date": "2026-07-06",
           "cash_per_share": 0.0,
           "date": "2026-07-06",
           "payment_date": null,
           "record_date": "2026-07-03",
+          "rounding": null,
           "share_factor": 2.0,
           "source": "https://vip.stock.finance.sina.com.cn/fund/go.php/vAkFundInfo_JJGKXX/q/5353201.phtml"
         }
