@@ -4,6 +4,11 @@ public struct SecurityCoverage {
     public let symbol:String
     public let firstBar,lastBar,firstSignal,lastSignal,listed:String?
     public let missingDays:Int
+    public let gaps:[GapInterval]
+}
+public struct GapInterval {
+    public let state:HistoryDayState,start:String,evidence:String?
+    public fileprivate(set) var end:String,days:Int
 }
 public struct StudyWindow: Equatable { public let start,end:String }
 
@@ -44,9 +49,11 @@ public struct HistoryCoverage {
         guard b>=a else { throw ResearchError("行情请求范围倒置") }
         self.from=first; through=market.as_of; calendar=sessions
         let days=Array(sessions.days[a...b]), n=days.count
-        let lookback=strategies.map { s in ["GB","MV"].contains(s.id) && s.history==253 ? 252 : s.history }.max()!
+        let requiredDays=strategies.map { s in ["GB","MV"].contains(s.id) && s.history==253 ? 252 : s.history }
+        let lookback=requiredDays.max()!, thresholds=Array(Set(requiredDays))
         warmup=lookback
-        var counts=Array(repeating:0,count:n), domestic=counts
+        let empty=Array(repeating:0,count:n)
+        var counts=Dictionary(uniqueKeysWithValues:thresholds.map{($0,empty)}), domestic=counts
         var dayProblem=[HistoryIssue?](repeating:nil,count:n), dirty=[HistoryIssue?](repeating:nil,count:n)
         var diagnostics=[HistoryIssue](), descriptions=[SecurityCoverage]()
         for s in market.securities.keys.sorted() {
@@ -62,7 +69,7 @@ public struct HistoryCoverage {
                     flag(d,"原价","两源 OHLC 相差 0.001 元，缺定价复核原件")
                 }
             }
-            for (d,events) in eventDays {
+            for (d,events) in eventDays where first<=d && d<=market.as_of {
                 if events.count>1 { flag(d,"公司行动","同日多项事件缺少已核执行次序"); continue }
                 let e=events[0], cash=e.cash_per_share ?? 0, split=e.share_factor ?? 1
                 if e.supported==false { flag(d,"公司行动","原事件标明不支持执行，缺独立复核后的可执行事件"); continue }
@@ -91,16 +98,39 @@ public struct HistoryCoverage {
                     flag(e.date,"事件清单","原始快照与审核事件不符")
                 }
             }
+            for clue in sec.provider_events ?? [] where first<=clue.date && clue.date<rules.anchor && clue.date<=market.as_of {
+                if let listing,clue.date<listing { continue }
+                let reviewed=review?.spans.contains { $0.from<=clue.date && clue.date<=$0.through } ?? false
+                if reviewed && !sec.events.contains(where:{ Self.matchesProvider(clue,reviewed:$0) }) {
+                    flag(clue.date,"供应商行动","展示记录尚缺公告核定的除权、登记、到账或可卖安排")
+                }
+            }
             if let review, let known=review.earliestObserved, let firstBar, known<firstBar, known>=first {
                 flag(known,"原价","已知更早原始记录，当前数据被截短")
             }
             var streak=0, missing=0, previousPrice:Double?, previousSignal:Double?, lastIssue:HistoryIssue?, lastIndex = -lookback-1
+            var gaps=[GapInterval](),lastGap = -2
             for (i,d) in days.enumerated() {
                 let bar=sec.bars[d], signal=sec.signal_close[d], g=review?.gaps[d], pre=listing.map { d<$0 } ?? false
                 var issue=eventIssues[d]
                 func problem(_ field:String,_ why:String) { if issue==nil { issue=HistoryIssue(symbol:s,date:d,field:field,reason:why) } }
                 if let bar, !bar.valid { problem("原价","OHLC 或成交量无效") }
                 if pre && (bar != nil || signal != nil) { problem("上市","上市公告前存在行情或信号") }
+                if bar==nil {
+                    let state:HistoryDayState
+                    let evidence:String?
+                    if pre { state = .beforeListing; evidence=review?.listing?.evidence }
+                    else if let g { state=g.state; evidence=g.evidence }
+                    else if Self.noTrade(s,d,market,rules) {
+                        state=sec.statuses?[d]?.state=="no_trades_confirmed" ? .noTrades:.halted
+                        evidence=sec.statuses?[d]?.source ?? member.halts[d] ?? "基金管理人折算实施公告"
+                    } else { state=firstBar.map { d>=$0 } == true || listing != nil ? .missing:.unknown; evidence=nil }
+                    if !pre { missing+=1 }
+                    if lastGap==i-1,let last=gaps.last,last.state==state,last.evidence==evidence {
+                        gaps[gaps.count-1].end=d; gaps[gaps.count-1].days+=1
+                    } else { gaps.append(.init(state:state,start:d,evidence:evidence,end:d,days:1)) }
+                    lastGap=i
+                }
                 if !pre {
                     let nonTrading=Self.noTrade(s,d,market,rules)
                     if let notice=SplitNotice.published.first(where:{ $0.symbol==s && $0.ex==d }),
@@ -108,7 +138,6 @@ public struct HistoryCoverage {
                     if g?.state == .missing || g?.state == .unknown { problem("原价",g!.state.rawValue+" 缺可核验的处理依据") }
                     if let bar, nonTrading && bar.volume>0 { problem("成交量","真实成交与已核停牌或无成交冲突") }
                     if bar==nil && !nonTrading {
-                        missing+=1
                         problem("原价",firstBar.map { d<$0 } ?? true ? "UNKNOWN 缺上市依据或更早原价" : "SOURCE_MISSING 缺原价或正式停牌证据")
                     }
                     let covered=review?.spans.contains { $0.from<=d && d<=$0.through } ?? false
@@ -142,18 +171,24 @@ public struct HistoryCoverage {
                     lastIssue=issue; lastIndex=i; streak=0
                 } else { streak = pre ? 0 : streak+1 }
                 if i-lastIndex<lookback, let lastIssue, dirty[i]==nil { dirty[i]=lastIssue }
-                if streak>=lookback { counts[i]+=1; if sec.group.hasPrefix("domestic") { domestic[i]+=1 } }
+                for length in thresholds where streak>=length {
+                    counts[length]![i]+=1
+                    if sec.group.hasPrefix("domestic") { domestic[length]![i]+=1 }
+                }
             }
-            descriptions.append(.init(symbol:s,firstBar:firstBar,lastBar:sec.bars.keys.max(),firstSignal:sec.signal_close.keys.min(),lastSignal:sec.signal_close.keys.max(),listed:listing,missingDays:missing))
+            descriptions.append(.init(symbol:s,firstBar:firstBar,lastBar:sec.bars.keys.max(),firstSignal:sec.signal_close.keys.min(),lastSignal:sec.signal_close.keys.max(),listed:listing,missingDays:missing,gaps:gaps))
         }
         var result=[StudyWindow](), sample=[String:Int](), failed=[String:HistoryIssue](), open:String?
-        let needMV=strategies.contains { $0.id=="MV" }, needDomestic=strategies.contains { $0.id=="BANK_ELSE_GB" }
         for (i,d) in days.enumerated() {
-            let eligible=i==0 ? 0 : counts[i-1]
+            let eligible=i==0 ? 0 : counts[lookback]![i-1]
             sample[d]=eligible
             var issue=dayProblem[i] ?? (i>0 ? dirty[i-1] : nil)
-            if issue==nil && (eligible<(needMV ? 3 : 1) || (needDomestic && (i==0 || domestic[i-1]==0))) {
-                issue = .init(symbol:"样本池",date:d,field:"预热",reason:"前一交易日仅 \(eligible) 只满足连续 \(lookback) 日，尚无足够合格样本")
+            if d<"2006-07-01" { issue = .init(symbol:"交易规则",date:d,field:"执行口径",reason:"早于原版支持的交易规则范围") }
+            for (strategy,length) in zip(strategies,requiredDays) where issue==nil {
+                let available=i==0 ? 0 : counts[length]![i-1]
+                if available<(strategy.id=="MV" ? 3:1) || (strategy.id=="BANK_ELSE_GB" && (i==0 || domestic[length]![i-1]==0)) {
+                    issue = .init(symbol:strategy.id,date:d,field:"预热",reason:"前一交易日仅 \(available) 只满足连续 \(length) 日，策略尚无足够合格样本")
+                }
             }
             if let issue {
                 failed[d]=issue
@@ -170,7 +205,12 @@ public struct HistoryCoverage {
     static func sameTerms(_ a:MarketEvent,_ b:MarketEvent) -> Bool {
         sameEvent(a,b) && a.available_date==b.available_date && a.rounding==b.rounding && a.exact_factor==b.exact_factor &&
         a.share_timing==b.share_timing && a.settlement==b.settlement &&
-        a.supported==b.supported && a.date_needs_reconciliation==b.date_needs_reconciliation
+        (a.supported != false)==(b.supported != false) && (a.date_needs_reconciliation==true)==(b.date_needs_reconciliation==true)
+    }
+    static func matchesProvider(_ clue:ProviderEvent,reviewed:MarketEvent) -> Bool {
+        if clue.share_factor==1 { return reviewed.date==clue.date && (reviewed.share_factor ?? 1)==1 && abs((reviewed.cash_per_share ?? 0)-clue.cash_per_share)<1e-10 }
+        // Four displayed decimals identify a clue. Settlement always uses the separately audited exact factor.
+        return (reviewed.date==clue.date || reviewed.record_date==clue.date) && abs((reviewed.share_factor ?? 1)-clue.share_factor)<=0.000051
     }
     static func forActivation(_ market:MarketSnapshot,calendar:Sessions) throws -> HistoryCoverage {
         guard !market.sources.isEmpty,market.as_of <= (try calendar.completed()) else { throw ResearchError("待启用行情缺来源或截止日尚未收盘") }
@@ -179,6 +219,15 @@ public struct HistoryCoverage {
         let chosen=all.filter { target?.strategies?.contains($0.id) ?? true }
         if let ids=target?.strategies,Set(chosen.map(\.id)) != Set(ids) { throw ResearchError("回测目标含未知策略") }
         let c=try Self(market:market,sessions:calendar,strategies:chosen)
+        let rules=try PublicRules.load()
+        for (s,sec) in market.securities {
+            guard sec.bars.keys.allSatisfy({ (try? calendar.index($0)) != nil && $0<=market.as_of }),
+                  sec.signal_close.keys.allSatisfy({ (try? calendar.index($0)) != nil && $0<=market.as_of }) else { throw ResearchError("\(s) 原价或信号日期超出快照或交易日历") }
+            let member=rules.members[s]!
+            if let actual=sec.bars[rules.anchor]?.close, actual != member.anchorClose { throw ResearchError("\(s) \(rules.anchor) 原价与冻结锚点不同") }
+            if let actual=sec.signal_close[rules.anchor],abs(actual-member.anchorSignal)>max(1e-10,abs(member.anchorSignal)*1e-9) { throw ResearchError("\(s) \(rules.anchor) 信号与冻结锚点不同") }
+            if let actual=sec.bars[rules.reviewedThrough]?.close, actual != member.reviewedClose { throw ResearchError("\(s) \(rules.reviewedThrough) 原价与核定收盘不同") }
+        }
         if let target,let why=c.problem(start:target.start,end:target.end) { throw ResearchError(why) }
         guard !c.windows.isEmpty else { throw ResearchError(c.issues.first?.message ?? "目标行情没有完成预热的可回测区间") }
         return c

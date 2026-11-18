@@ -1,0 +1,5 @@
+[
+  {"symbol":"159919.SZ","record":"2019-01-11","ex":"2019-01-11","available":"2019-01-14","factor":"1.110680861","rounding":"ceil","halted":true,"atClose":true,"originals":["159919-2019.pdf"],"shares":[101,203],"allocation":[112,226]},
+  {"symbol":"512200.SH","record":"2024-08-09","ex":"2024-08-12","available":"2024-08-12","factor":"0.35806260","rounding":"ceil","halted":false,"atClose":false,"originals":["512200-plan.pdf","512200-result.pdf"],"shares":[101,203],"allocation":[36,73]},
+  {"symbol":"512010.SH","record":"2021-06-24","ex":"2021-06-25","available":"2021-06-28","factor":"4","halted":true,"atClose":false,"originals":["512010-plan.pdf","512010-result.pdf"],"shares":[101,203],"allocation":[404,812]}
+]

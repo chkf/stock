@@ -10,6 +10,7 @@ public struct ProviderEvent: Codable, Hashable {
     let cash_per_share, share_factor: Double
     let supported: Bool
     let date_needs_reconciliation: Bool?
+    var payment_date:String?
     var needsReview: Bool { date_needs_reconciliation ?? false }
     public static func == (a: Self, b: Self) -> Bool {
         a.date == b.date && a.record_date == b.record_date && a.cash_per_share == b.cash_per_share &&
@@ -41,6 +42,13 @@ struct PublicRules: Decodable {
 }
 
 enum PublicFeed {
+    static func checkedHTTP(status:Int?,responseURL:URL?,requested:URL,bytes:Data) throws -> Data {
+        guard status==200,responseURL?.scheme=="https",responseURL?.host==requested.host,responseURL?.path==requested.path,
+              !bytes.isEmpty,bytes.count<=8*1024*1024 else {
+            throw HistoryHTTPFailure(status:status,responseURL:responseURL,bytes:bytes,errorDescription:"HTTP \(status.map(String.init) ?? "未知")，行情响应地址、长度或状态无效")
+        }
+        return bytes
+    }
     static func ticker(_ symbol: String) -> String { String(symbol.suffix(2)).lowercased() + String(symbol.prefix(6)) }
     static func quoteURL(_ symbol: String, _ from: String, _ through: String) -> URL {
         var u = URLComponents(string: "https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get")!
@@ -51,11 +59,16 @@ enum PublicFeed {
 
     static func quotes(_ bytes: Data, symbol: String, from: String, through: String) throws -> [String: Bar] {
         let root = try JSONSerialization.jsonObject(with: bytes) as? [String: Any]
+        if let code=root?["code"] as? NSNumber, code.intValue != 0 { throw ResearchError("\(symbol) 行情接口返回错误 \(code)") }
         guard let data = root?["data"] as? [String: Any], let quote = data[ticker(symbol)] as? [String: Any],
               let rows = quote["day"] as? [[Any]] else { throw ResearchError("\(symbol) 原始行情字段缺失") }
-        var bars = [String: Bar]()
-        for row in rows where row.count >= 6 {
-            guard let d = row[0] as? String, d >= from, d <= through else { continue }
+        if let qt=quote["qt"] as? [String:Any], let identity=qt[ticker(symbol)] as? [Any], identity.count>=3,
+           String(describing:identity[2]) != String(symbol.prefix(6)) { throw ResearchError("\(symbol) 响应内证券身份冲突") }
+        var bars = [String: Bar](), advancedBeyondEnd=false
+        for row in rows {
+            guard row.count>=6, let d=row[0] as? String, AccountInput.validDate(d) else { throw ResearchError("\(symbol) 日线缺字段或日期无效") }
+            if d>through { advancedBeyondEnd=true; continue }
+            if d<from { continue }
             let v = row[1...5].compactMap { Double(String(describing: $0)) }
             guard v.count == 5, v.allSatisfy(\.isFinite), v.prefix(4).allSatisfy({ $0 > 0 }), v[4] >= 0,
                   bars[d] == nil, v[2] + 1e-8 >= max(v[0], v[1], v[3]), v[3] - 1e-8 <= min(v[0], v[1], v[2]) else {
@@ -63,6 +76,7 @@ enum PublicFeed {
             }
             bars[d] = .init(open: v[0], close: v[1], high: v[2], low: v[3], volume: v[4])
         }
+        if bars.isEmpty && advancedBeyondEnd { throw ResearchError("\(symbol) \(from) 至 \(through) 分页未前进，源忽略了日期边界") }
         return bars
     }
 
@@ -108,7 +122,8 @@ enum PublicFeed {
                       let n = Double(match), n.isFinite, split ? n > 0 : n >= 0 else { throw ResearchError("\(symbol) 行动日期或金额无效") }
                 events.append(.init(date: d, record_date: split ? nil : cells[1], cash_per_share: split ? 0 : n / 10,
                                     share_factor: split ? n : 1, supported: !split || n.rounded() == n,
-                                    date_needs_reconciliation: split ? true : nil))
+                                    date_needs_reconciliation: split ? true : nil,
+                                    payment_date: !split && AccountInput.validDate(cells[4]) ? cells[4] : nil))
             }
         }
         guard Set(events).count == events.count else { throw ResearchError("\(symbol) 公司行动出现重复条目") }
@@ -124,17 +139,25 @@ enum PublicFeed {
         return events.sorted { $0.date < $1.date }
     }
     static func validateHistory(_ events: [ProviderEvent], old: [ProviderEvent], through date: String, symbol: String) throws {
-        guard events.filter({ $0.date <= date }) == old.filter({ $0.date <= date }) else {
+        let a=events.filter { $0.date<=date }, b=old.filter { $0.date<=date }
+        let official:Set<String>=["2025-09-23","2025-12-26","2026-06-25","2026-09-18"]
+        guard a.count==b.count, zip(a,b).allSatisfy({ x,y in
+            if x==y { return x.payment_date==nil || y.payment_date==nil || x.payment_date==y.payment_date || (symbol=="511260.SH" && official.contains(x.date)) }
+            return symbol=="511260.SH" && official.contains(x.date) && x.date==y.date && x.cash_per_share==y.cash_per_share &&
+                x.share_factor==1 && y.share_factor==1 && x.supported==y.supported && x.needsReview==y.needsReview
+        }) else {
             throw ResearchError("\(symbol) 历史公司行动有修订或页面缺行，旧资料保留")
         }
     }
     static func validateBand(_ bar: Bar, reference: Double, band: Double, symbol: String, date: String) throws {
-        func tick(_ x: Double) -> Double {
-            var d = Decimal(string: String(x), locale: Locale(identifier: "en_US_POSIX"))!, rounded = Decimal()
+        func tick(_ x: Double) throws -> Double {
+            guard x.isFinite,var d=Decimal(string:String(x),locale:Locale(identifier:"en_US_POSIX")) else { throw ResearchError("\(symbol) \(date) 参考价无法表示") }
+            var rounded=Decimal()
             NSDecimalRound(&rounded, &d, 3, .plain)
-            return Double(NSDecimalNumber(decimal: rounded).stringValue)!
+            guard let value=Double(NSDecimalNumber(decimal:rounded).stringValue),value.isFinite else { throw ResearchError("\(symbol) \(date) 涨跌停价格无法表示") }
+            return value
         }
-        let upper = tick(reference * (1 + band)), lower = tick(reference * (1 - band))
+        let upper=try tick(reference*(1+band)),lower=try tick(reference*(1-band))
         guard upper > lower, lower > 0, bar.high <= upper + 0.001, bar.low >= lower - 0.001 else {
             throw ResearchError("\(symbol) \(date) OHLC 超出原版历史交易范围，需要核对事件")
         }

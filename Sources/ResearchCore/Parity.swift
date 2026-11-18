@@ -36,7 +36,8 @@ public enum Parity {
     }
 
     public static func run(phone: PhoneSnapshot, workspace:WorkspaceVersion? = nil, progress: (Int, Int) throws -> Void = { _, _ in }) throws -> [ParityResult] {
-        try run(market: phone.market, originalHash: nil, from: phone.usableFrom, workspace:workspace, progress: progress)
+        guard let first=phone.usableFrom else { throw ResearchError("本机行情没有满足预热的可核对区间") }
+        return try run(market: phone.market, originalHash: nil, from:first, workspace:workspace, progress: progress)
     }
 
     private static func run(market: MarketSnapshot, originalHash: String?, from: String?,workspace: WorkspaceVersion?,

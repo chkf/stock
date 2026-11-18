@@ -146,6 +146,7 @@ def main():
     parser.add_argument("--root", type=Path, default=TOOLS.parents[1])
     parser.add_argument("--out", type=Path, default=TOOLS.parent / ".build/packages")
     parser.add_argument("--profile", choices=["snapshot", "project"], default="snapshot")
+    parser.add_argument("--market-only", action="store_true", help="只打包已形成的 advice-market-v1 行情、指针及其逐件来源")
     parser.add_argument("--package", type=Path)
     parser.add_argument("--chart-root", type=Path, help="已移动的外部交付图目录，仅按原研究指定的文件名和证据匹配")
     parser.add_argument("--host", default=None, help="电脑的局域网 IPv4 地址")
@@ -153,7 +154,7 @@ def main():
     args = parser.parse_args()
     if args.action == "verify" and not args.package:
         parser.error("verify 需要 --package")
-    folder = args.package.resolve() if args.package else build(args.root, args.out, args.profile, chart_root=args.chart_root)
+    folder = args.package.resolve() if args.package else build(args.root, args.out, args.profile, chart_root=args.chart_root, market_only=args.market_only)
     manifest = verify(folder)
     print(f"清单 {folder.name}\n文件 {manifest['fileCount']} · 字节 {manifest['totalBytes']} · 快照 {manifest['snapshot']['hash']}")
     if args.action != "serve":

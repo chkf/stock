@@ -94,6 +94,27 @@ final class HistoryTests:XCTestCase {
             let resumed=try engine.replay("EVENT",snapshot:"current",start:days[3],end:days.last!,resume:partial)
             XCTAssertEqual(try enc.encode(r),try enc.encode(resumed))
             XCTAssertThrowsError(try engine.replay("EVENT",snapshot:"new-generation",start:days[3],end:days.last!,resume:partial))
+            let liquidation=try custom(symbol:s,record:cal.days[i-3],exitSignal:cal.days[i-1])
+            let queued=try StrategyEngine(market:m,sessions:cal,workspace:liquidation).replay("EVENT",snapshot:"pending",start:days[3],end:days.last!)
+            let saleAtFirstOpen=try XCTUnwrap(queued.trades.first { $0.side=="SELL" })
+            XCTAssertEqual(saleAtFirstOpen.date,n.available,n.symbol)
+            XCTAssertEqual(saleAtFirstOpen.quantity,after.shares,n.symbol)
+        }
+    }
+    func testIndependentNoticeOriginalsAndAccountRounding() throws {
+        struct Case:Decodable { let symbol,record,ex,available,factor:String; let rounding:String?; let halted,atClose:Bool; let originals:[String]; let shares,allocation:[Int] }
+        struct Source:Decodable { let sha256:String }
+        let dir=URL(fileURLWithPath:#filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent().appendingPathComponent("fixtures/history/notices")
+        let cases=try JSONDecoder().decode([Case].self,from:Data(contentsOf:dir.appendingPathComponent("cases.json")))
+        let manifest=try JSONDecoder().decode([String:Source].self,from:Data(contentsOf:dir.appendingPathComponent("manifest.json")))
+        XCTAssertEqual(cases.count,3); XCTAssertEqual(Set(cases.flatMap(\.originals)),Set(manifest.keys))
+        for c in cases {
+            for file in c.originals { XCTAssertEqual(try Integrity.sha(Data(contentsOf:dir.appendingPathComponent(file))),manifest[file]?.sha256) }
+            let e=MarketEvent(date:c.ex,cash_per_share:0,share_factor:Double(c.factor),record_date:c.record,source:c.originals.last,payment_date:nil)
+            let t=try SplitTerms(e,symbol:c.symbol,calendar:Sessions(),halted:c.halted)
+            XCTAssertEqual(t.atClose,c.atClose); XCTAssertEqual(t.available,c.available); XCTAssertEqual(t.rounding,c.rounding)
+            XCTAssertEqual(try t.allocation(c.shares),c.allocation)
+            XCTAssertEqual(try t.converted(c.shares.reduce(0,+)),c.allocation.reduce(0,+))
         }
     }
     func testCashAndNoTradeAcrossAnAction() throws {

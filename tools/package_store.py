@@ -27,8 +27,11 @@ def digest(data):
 
 
 def file_hash(path):
+    sha = hashlib.sha256()
     with path.open("rb") as handle:
-        return hashlib.file_digest(handle, "sha256").hexdigest()
+        for part in iter(lambda: handle.read(CHUNK), b""):
+            sha.update(part)
+    return sha.hexdigest()
 
 
 def safe_relative(path):
@@ -87,7 +90,7 @@ def walk(folder):
         yield from (Path(base) / name for name in files)
 
 
-def collect(root, profile, snapshot, aliases):
+def collect(root, profile, snapshot, aliases, market_only=False):
     if profile == "project":
         for top in root.iterdir():
             if top.name == "ios":
@@ -102,6 +105,9 @@ def collect(root, profile, snapshot, aliases):
     if profile != "snapshot":
         raise ValueError("未知迁移范围")
     paths = {root / POINTER, root / snapshot, *(root / rel for rel in aliases.values())}
+    if market_only:
+        yield from paths
+        return
     for name in ("research/bank_long_history_20261114/prepared_v1",
                  "research/sector_selection_20261114/prepared_new_v1",
                  "research/current_signal_20261114/raw"):
@@ -150,13 +156,15 @@ def external_charts(root, relocated=None):
     return outputs
 
 
-def build(root, out, profile="snapshot", progress=print, chart_root=None):
+def build(root, out, profile="snapshot", progress=print, chart_root=None, market_only=False):
     root, out = Path(root).resolve(), Path(out).resolve()
     if out.is_relative_to(root) and not out.is_relative_to(root / "ios"):
         raise ValueError("项目内的输出只能位于 ios 子目录")
     out.mkdir(parents=True, exist_ok=True)
     info, snapshot, aliases = original_market(root)
-    sources = {p.relative_to(root).as_posix(): p for p in collect(root, profile, snapshot, aliases)}
+    if market_only and profile != "snapshot":
+        raise ValueError("仅行情模式需使用 snapshot 范围")
+    sources = {p.relative_to(root).as_posix(): p for p in collect(root, profile, snapshot, aliases, market_only)}
     if profile == "project":
         for rel, (original, old_path) in external_charts(root, chart_root).items():
             if rel in sources:

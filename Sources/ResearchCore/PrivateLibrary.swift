@@ -1,5 +1,9 @@
 import Foundation
 
+public enum MarketOrigin:String,Codable { case phone, archive
+    public var title:String { self == .phone ? "本机行情" : "导入快照" }
+}
+
 public struct TransferProgress {
     public let phase: String
     public let completed, total: Int
@@ -12,9 +16,18 @@ public actor PrivateLibrary {
     private let fm = FileManager.default
     private var importing = false
     var updatingQuotes = false
-    private struct Pointer: Codable { let generation: UUID; let id: String }
+    private struct Pointer: Codable { let generation: UUID; let id: String; var previousGeneration:UUID?, previousID:String? }
 
     public init(root: URL) { self.root = root }
+    public func selectedMarket() throws -> MarketOrigin? {
+        let file=root.appendingPathComponent("market-source.json")
+        guard fm.fileExists(atPath:file.path) else { return nil }
+        return try JSONDecoder().decode(MarketOrigin.self,from:Data(contentsOf:file))
+    }
+    public func selectMarket(_ origin:MarketOrigin) throws {
+        try fm.createDirectory(at:root,withIntermediateDirectories:true)
+        try JSONEncoder().encode(origin).write(to:root.appendingPathComponent("market-source.json"),options:.atomic)
+    }
 
     public static func applicationLibrary() throws -> PrivateLibrary {
         let support = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask,
@@ -51,6 +64,18 @@ public actor PrivateLibrary {
         let p = try JSONDecoder().decode(Pointer.self, from: Data(contentsOf: pointer))
         return try Archive(directory: root.appendingPathComponent("generations/\(p.generation.uuidString)"), id: p.id)
     }
+    public func restorePreviousArchive() throws -> Archive {
+        let dir=root.appendingPathComponent("generations")
+        try HistoryWriters.shared.claim(dir); defer { HistoryWriters.shared.release(dir) }
+        let active=root.appendingPathComponent("active.json")
+        let current=try JSONDecoder().decode(Pointer.self,from:Data(contentsOf:active))
+        guard let generation=current.previousGeneration,let id=current.previousID else { throw ResearchError("尚无上一代导入记录") }
+        let previous=try Archive(directory:dir.appendingPathComponent(generation.uuidString),id:id)
+        try previous.verify { _,_ in try Task.checkCancellation() }
+        let restored=Pointer(generation:generation,id:id,previousGeneration:current.generation,previousID:current.id)
+        try JSONEncoder().encode(restored).write(to:active,options:.atomic)
+        return previous
+    }
 
     @discardableResult
     public func receive(manifest data: Data, id: String,
@@ -63,6 +88,9 @@ public actor PrivateLibrary {
         let stage = root.appendingPathComponent("incoming/\(id)")
         let journal = root.appendingPathComponent("incoming/\(id).activation.json")
         let dir = root.appendingPathComponent("generations")
+        try HistoryWriters.shared.claim(dir); defer { HistoryWriters.shared.release(dir) }
+        let pointerURL=root.appendingPathComponent("active.json")
+        let oldPointer=try fm.fileExists(atPath:pointerURL.path) ? JSONDecoder().decode(Pointer.self,from:Data(contentsOf:pointerURL)) : nil
         func verify(_ archive: Archive) throws {
             try archive.verify { done, total in
                 try Task.checkCancellation()
@@ -127,7 +155,7 @@ public actor PrivateLibrary {
         let generation = UUID()
         try mkdir(dir)
         let final = dir.appendingPathComponent(generation.uuidString)
-        let pointer = Pointer(generation: generation, id: id)
+        let pointer = Pointer(generation: generation, id: id, previousGeneration:oldPointer?.generation, previousID:oldPointer?.id)
         try JSONEncoder().encode(pointer).write(to: journal, options: .atomic)
         try fm.moveItem(at: stage, to: final)
         return try activate(pointer)
