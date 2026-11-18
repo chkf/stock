@@ -13,7 +13,8 @@ struct MarketBlock: View {
         if type == "marketUpdate" {
             Section {
                 Button { model.refresh() } label: { Label(model.handset == nil ? "联网获取 28 只 ETF" : "更新收盘行情",systemImage:"arrow.clockwise") }.disabled(model.busy || model.vault == nil)
-                if model.archivedMarket != nil && model.handset != nil { Toggle("使用导入的历史快照",isOn:$model.preferArchive) }
+                MarketSourceControl()
+                NavigationLink("回填本机历史行情") { HistoryDownloadView() }
                 if model.busy { ProgressView(value:model.fraction) { Text(model.progress) }; Button("取消") { model.cancel() } }
             }
         } else if type == "strategyPicker", let w = model.workspace {

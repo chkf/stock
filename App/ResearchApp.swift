@@ -35,7 +35,20 @@ import SwiftUI
     @Published var sources = [String]()
     @Published var archivedMarket: MarketSnapshot?
     @Published var watch = [WatchedSecurity]()
-    @Published var preferArchive = false
+    @Published var origin:MarketOrigin = .phone
+    @Published var coverage:HistoryCoverage?
+    @Published var coverageError=""
+    @Published var studyStrategy=""
+    var rangeProblem:String? {
+        guard let coverage else { return coverageError.isEmpty ? "正在等候已核行情区间" : coverageError }
+        return coverage.problem(start:replayStart,end:replayEnd,completed:today.isEmpty ? nil : today)
+    }
+    func selectOrigin(_ choice:MarketOrigin) {
+        guard let vault else { return }
+        start("切换行情来源") {
+            try await vault.selectMarket(choice); self.origin=choice
+        }
+    }
     @Published var selectedStrategy = ""
     @Published var workspace: WorkspaceVersion?
     @Published var decision: Decision?
@@ -50,11 +63,11 @@ import SwiftUI
     private var opened = false
     var store: WorkspaceStore? { vault.map { WorkspaceStore(root:$0.root.deletingLastPathComponent()) } }
     var selectedFile: StrategyFile? { workspace?.design.strategies.first { $0.id == selectedStrategy } }
-    var studyKey: String { "\(marketID ?? "")|\(workspace?.hash ?? "")" }
+    var studyKey: String { "\(origin.rawValue)|\(marketID ?? "")|\(workspace?.hash ?? "")|\(studyStrategy)" }
     var signalKey: String { studyKey+"|"+selectedStrategy }
     @Published var studies: [String: ReplayReport] = [:]
     var useArchive: Bool {
-        archivedMarket != nil && (preferArchive || handset == nil)
+        origin == .archive
     }
     var market: MarketSnapshot? { useArchive ? archivedMarket : handset?.market }
     var marketID: String? { useArchive ? archive?.manifest.snapshot.hash : handset?.hash }
@@ -67,6 +80,13 @@ import SwiftUI
             let library = try PrivateLibrary.applicationLibrary()
             vault = library
             var issues = [String]()
+            do {
+                if let saved=try await library.selectedMarket() { origin=saved }
+                else if !FileManager.default.fileExists(atPath:library.root.appendingPathComponent("public-market/current.json").path),
+                    FileManager.default.fileExists(atPath:library.root.appendingPathComponent("active.json").path) {
+                    origin = .archive; try await library.selectMarket(.archive)
+                }
+            } catch { issues.append(error.localizedDescription) }
             if let store {
                 do {
                     self.workspace = try await Task.detached {
@@ -123,6 +143,14 @@ import SwiftUI
         }
     }
     func cancel() { job?.cancel() }
+    func restorePreviousArchive() {
+        guard let vault else { return }
+        start("核验上一代导入资料") {
+            let archived=try await vault.restorePreviousArchive()
+            try await self.display(archived)
+            self.progress="已恢复上一代导入资料"
+        }
+    }
     func normalizeSelection() {
         guard let config = workspace?.design else { return }
         if !config.strategies.contains(where: { $0.id == selectedStrategy }) { selectedStrategy = config.strategies[0].id }
@@ -176,7 +204,7 @@ import SwiftUI
             let personal = try await vault.personalAccount(), saved = try await vault.reports()
             let watch = try await vault.watchlist(), archive = try await vault.active()
             let oldMarket = try await Task.detached { try archive?.loadMarket() }.value
-            let m = (self.preferArchive || live == nil ? oldMarket : live?.market) ?? live?.market ?? oldMarket
+            let m = self.useArchive ? oldMarket : live?.market
             let new = try await Task.detached {
                 if rollback { return try store.rollback() }
                 return try store.activate { candidate in
@@ -228,10 +256,10 @@ import SwiftUI
         try await vault.savePersonal(account)
         personal = try await vault.personalAccount()
     }
-    func refresh() {
+    func refresh(from:String?=nil,through:String?=nil) {
         guard let vault else { return }
         start("连接公开行情源") {
-            self.handset = try await vault.refreshPublicMarket { p in
+            self.handset = try await vault.refreshPublicMarket(from:from,asOf:through) { p in
                 Task { @MainActor in self.progress = p.phase; self.fraction = p.fraction }
             }
             self.progress = "本机行情已保存"
@@ -245,7 +273,7 @@ import SwiftUI
                 let sessions = try Sessions(), market: MarketSnapshot, hash: String
                 let requested = try sessions.completed(asOf: date)
                 if phone, let live = try await vault.phoneMarket() {
-                    guard requested >= live.usableFrom else { throw ResearchError("本机新建行情库的完整暖机截至 \(live.usableFrom)") }
+                    guard let first=live.usableFrom,requested>=first else { throw ResearchError("本机行情在请求日期缺足够的已核暖机数据") }
                     market = live.market; hash = live.hash
                 } else if !phone, let archive {
                     market = try archive.loadMarket(); hash = archive.manifest.snapshot.hash
@@ -294,14 +322,14 @@ struct StrategyView: View {
     @State private var date = ""
     @State private var capital = "50000"
     @State private var current = true
-    @State private var preferPhone = true
     @State private var useActual = true
     var body: some View {
-        let phone = model.handset != nil && (preferPhone || model.archive == nil)
-        let snapshotDay = phone ? model.handset?.market.as_of : model.archive?.manifest.snapshot.as_of
+        let phone = model.origin == .phone
+        let snapshotDay = model.market?.as_of
         let actual = current && useActual && model.personal != nil
         Form {
             Section("本机行情") {
+                MarketSourceControl()
                 Button { model.refresh() } label: { Label(model.handset == nil ? "联网建立 28 只 ETF 行情库" : "更新 28 只 ETF 行情", systemImage: "arrow.clockwise") }
                     .disabled(model.busy)
                 if let live = model.handset { LabeledContent("公开行情已核至", value: live.market.as_of) }
@@ -309,12 +337,6 @@ struct StrategyView: View {
             }
             if let snapshotDay {
                 Section("行情") {
-                    if model.archive != nil && model.handset != nil {
-                        Picker("来源", selection: $preferPhone) {
-                            Text("手机联网取得").tag(true); Text("旧资料快照").tag(false)
-                        }
-                    }
-                    LabeledContent("当前计算来源", value: phone ? "手机行情库" : "已导入快照")
                     LabeledContent("已校验收盘", value: snapshotDay)
                 }
                 Section("独立方案") {

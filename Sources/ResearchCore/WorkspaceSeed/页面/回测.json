@@ -1,9 +1,9 @@
 {
   "title":"策略回测","tab":"回测","icon":"chart.xyaxis.line","blocks":[
     {"type":"group","text":"独立区间 · 每套初始 50,000 元","blocks":[
-      {"type":"field","key":"replayStart","text":"起始交易日 YYYY-MM-DD"},
-      {"type":"field","key":"replayEnd","text":"结束交易日 YYYY-MM-DD"},
-      {"type":"command","target":"study.run","text":"计算或续跑全部策略"},
+      {"type":"dateField","key":"replayStart","text":"起始交易日"},
+      {"type":"dateField","key":"replayEnd","text":"结束交易日"},
+      {"type":"command","target":"study.run","text":"计算或续跑"},
       {"type":"text","text":"首次按前一交易日收盘选取，月末换仓。成交按下一交易日原始开盘价模拟，计入涨跌停、整手、分红、佣金和滑点。"}
     ]},
     {"type":"job"},{"type":"studyChart","text":"同区间策略对照"}

@@ -50,9 +50,9 @@ struct WorkspacePage: View {
         case "text": Text(b.text ?? "")
         case "link": NavigationLink(b.text ?? model.workspace?.pages[b.target ?? ""]?.title ?? "打开") { WorkspacePage(id:b.target ?? "") }
         case "archiveLink": NavigationLink(b.text ?? "原始资料与报告") { LibraryView() }
-        case "field":
-            if b.key == "replayStart" { TextField(b.text ?? "",text:$model.replayStart).keyboardType(.numbersAndPunctuation) }
-            else if b.key == "replayEnd" { TextField(b.text ?? "",text:$model.replayEnd).keyboardType(.numbersAndPunctuation) }
+        case "field","dateField":
+            if b.key == "replayStart" { StudyCoverageView(); StudyDateRow(start:true) }
+            else if b.key == "replayEnd" { StudyDateRow(start:false) }
             else { TextField(b.text ?? b.key ?? "",text:Binding(get:{ model.fields[b.key ?? ""] ?? "" },set:{ model.fields[b.key ?? ""]=$0 })) }
         case "command","accountBalance","holdings","watchRows","etfRows","job","nativeLink":
             WorkspaceDataBlock(b:b)
@@ -127,7 +127,7 @@ private struct WorkspaceDataBlock: View {
                 case "job.cancel": model.cancel()
                 default: break
                 }
-            }.disabled((b.target != "job.cancel" && model.busy) || (b.target == "study.run" && model.market == nil) || (b.target == "watch.add" && (model.fields["symbol"] ?? "").isEmpty))
+            }.disabled((b.target != "job.cancel" && model.busy) || (b.target == "study.run" && model.rangeProblem != nil) || (b.target == "watch.add" && (model.fields["symbol"] ?? "").isEmpty))
         case "job":
             if model.busy { Section { ProgressView(value:model.fraction) { Text(model.progress) }; Button("暂停") { model.cancel() } } }
         case "accountBalance":
@@ -168,6 +168,12 @@ private struct WorkspaceDataBlock: View {
 }
 
 extension AppModel {
+    func confirmStudyDay(_ day:String,start:Bool) {
+        if start { replayStart=day } else { replayEnd=day }
+        guard let vault,let id=marketID,let workspace,ExchangeDay.date(replayStart) != nil,ExchangeDay.date(replayEnd) != nil else { return }
+        do { try vault.setStudyRange([replayStart,replayEnd],market:id,workspace:workspace.hash) }
+        catch { self.error=error.localizedDescription }
+    }
     func runAction(_ id: String,request:WorkspaceTicket? = nil) {
         guard let w=workspace, let store else { return }
         let m=market, fields=request?.request.fields ?? (request == nil ? self.fields : [:])
@@ -188,42 +194,43 @@ extension AppModel {
         }
     }
     func restoreStudies() async {
-        studies=[:]
-        guard let m=market, let w=workspace, let v=vault, let raw=marketID else { return }
-        let key = studyKey, phone = !useArchive ? handset?.usableFrom : nil
+        studies=[:]; coverage=nil; coverageError=""; replayStart=""; replayEnd=""
+        guard let m=market, let w=workspace, let v=vault, let raw=marketID else { coverageError=origin.title+"尚无可读快照"; return }
+        let key=studyKey, strategy=studyStrategy
         do {
-            let data = try await Task.detached { () throws -> (String,String,[String:ReplayReport]) in
-                let cal=try Sessions(), end=try cal.index(m.as_of)
-                let from=phone ?? "2007-01-02"
-                let earliest=cal.days.firstIndex(where:{ $0 >= from }) ?? end
-                let start=cal.days[min(end,max(earliest+1,end-1259))]
-                let range=try v.studyRange(market:raw,workspace:w.hash) ?? [start,m.as_of]
-                let fingerprint=Integrity.sha(Data((raw+"|"+w.hash).utf8))
+            let data = try await Task.detached { () throws -> (String,String,[String:ReplayReport],HistoryCoverage) in
+                let definitions=w.design.strategies.filter { strategy.isEmpty || $0.id==strategy }
+                let coverage=try HistoryCoverage(market:m,sessions:Sessions(),strategies:definitions)
+                let window=coverage.windows.last
+                let range=try v.studyRange(market:raw,workspace:w.hash) ?? [window?.start ?? "",window?.end ?? ""]
+                let fingerprint=ReplayReport.fingerprint(market:raw,workspace:w.hash)
                 var found=[String:ReplayReport]()
-                for s in w.design.strategies {
+                for s in definitions where coverage.problem(start:range[0],end:range[1])==nil {
                     found[s.id]=try v.savedReplay(snapshot:fingerprint,strategy:s.id,start:range[0],end:range[1])
                 }
-                return (range[0],range[1],found)
+                return (range[0],range[1],found,coverage)
             }.value
-            if !Task.isCancelled, studyKey == key { replayStart=data.0; replayEnd=data.1; studies=data.2 }
-        } catch { if !Task.isCancelled { self.error=error.localizedDescription } }
+            if !Task.isCancelled, studyKey == key { replayStart=data.0; replayEnd=data.1; studies=data.2; coverage=data.3 }
+        } catch { if !Task.isCancelled,studyKey==key { coverageError=error.localizedDescription } }
     }
     func runStudies() {
         guard let m=market, let w=workspace, let vault, let raw=marketID else { return }
-        let key=studyKey, from=replayStart, end=replayEnd, warmup=useArchive ? nil : handset?.usableFrom
+        guard let coverage,rangeProblem==nil else { self.error=rangeProblem; return }
+        let key=studyKey, from=replayStart, end=replayEnd, selection=studyStrategy
         start("准备本机回测") {
             let task=Task.detached(priority:.userInitiated) {
                 let cal=try Sessions()
-                guard try cal.index(from) <= cal.index(end), end <= m.as_of, warmup.map({ from > $0 }) ?? true else { throw ResearchError("起止日须为有效交易日，并在行情完成暖机之后") }
+                if let reason=coverage.problem(start:from,end:end,completed:try cal.completed()) { throw ResearchError(reason) }
                 try vault.setStudyRange([from,end],market:raw,workspace:w.hash)
-                let stamp=Integrity.sha(Data((raw+"|"+w.hash).utf8))
+                let stamp=ReplayReport.fingerprint(market:raw,workspace:w.hash)
                 let engine=StrategyEngine(market:m,sessions:cal,workspace:w)
-                for (i,s) in w.design.strategies.enumerated() {
+                let definitions=w.design.strategies.filter { selection.isEmpty || $0.id==selection }
+                for (i,s) in definitions.enumerated() {
                     try Task.checkCancellation()
                     let old=try vault.savedReplay(snapshot:stamp,strategy:s.id,start:from,end:end)
                     let r=try engine.replay(s.id,snapshot:stamp,start:from,end:end,resume:old) { state,progress in
                         try vault.storeReplay(state)
-                        Task { @MainActor in self.progress="\(s.short) · \(state.outcomeDate)"; self.fraction=(Double(i)+progress)/Double(w.design.strategies.count) }
+                        Task { @MainActor in self.progress="\(s.short) · \(state.outcomeDate)"; self.fraction=(Double(i)+progress)/Double(definitions.count) }
                     }
                     await MainActor.run { if self.studyKey == key { self.studies[s.id]=r } }
                 }
@@ -234,14 +241,147 @@ extension AppModel {
     }
 }
 
+struct MarketSourceControl:View {
+    @EnvironmentObject var model:AppModel
+    var body:some View {
+        Picker("行情来源",selection:Binding(get:{ model.origin },set:{ model.selectOrigin($0) })) {
+            Text("本机行情").tag(MarketOrigin.phone); Text("导入快照").tag(MarketOrigin.archive)
+        }.pickerStyle(.segmented).accessibilityIdentifier("market.origin").disabled(model.busy)
+        if let id=model.marketID { Text("快照 "+id).font(.caption.monospaced()).textSelection(.enabled) }
+        else { Text(model.origin.title+"尚无可读快照").foregroundStyle(.secondary) }
+    }
+}
+private struct StudyCoverageView:View {
+    @EnvironmentObject var model:AppModel
+    var body:some View {
+        MarketSourceControl()
+        Picker("研究策略",selection:$model.studyStrategy) {
+            Text("全部策略").tag("")
+            ForEach(model.workspace?.design.strategies ?? []) { s in Text(s.short).tag(s.id) }
+        }.disabled(model.busy)
+        if let c=model.coverage {
+            LabeledContent("行情请求范围",value:c.from+" 至 "+c.through)
+            if let first=c.securities.compactMap(\.firstBar).min(),let last=c.securities.compactMap(\.lastBar).max() {
+                LabeledContent("实际原价范围",value:first+" 至 "+last)
+            }
+            if let w=c.windows.last { LabeledContent("最近已核区间",value:w.start+" 至 "+w.end) }
+            else { Text("当前快照没有可运行的区间") }
+            Text("起日前一交易日需有合格样本，最长预热 \(c.warmup) 个交易日。选定起日合格 \(c.sampleCount(on:model.replayStart)) 只。").font(.footnote)
+            NavigationLink("覆盖明细 · \(c.securities.reduce(0){$0+$1.missingDays}) 个证券缺日") {
+                List {
+                    Section("连续可回测区间") { ForEach(c.windows,id:\.start) { w in Text(w.start+" 至 "+w.end) } }
+                    Section("待核原因") { ForEach(Array(c.issues.enumerated()),id:\.offset) { _,i in Text(i.message) } }
+                    Section("逐证券覆盖") { ForEach(c.securities,id:\.symbol) { s in
+                        NavigationLink {
+                            List {
+                                if s.gaps.isEmpty { Text("请求区间内每天都有原价") }
+                                ForEach(s.gaps,id:\.start) { g in
+                                    VStack(alignment:.leading) {
+                                        Text(g.start+" 至 "+g.end+" · \(g.days) 日")
+                                        Text(g.state.title).font(.subheadline)
+                                        if let ref=g.evidence { Text(ref).font(.caption).textSelection(.enabled) }
+                                    }
+                                }
+                            }.navigationTitle(s.symbol)
+                        } label: {
+                            VStack(alignment:.leading) { Text(s.symbol); Text("原价 \(s.firstBar ?? "无") 至 \(s.lastBar ?? "无")\n信号 \(s.firstSignal ?? "无") 至 \(s.lastSignal ?? "无")\n上市凭证 \(s.listed ?? "未知") · 缺日 \(s.missingDays)").font(.caption) }
+                        }
+                    } }
+                }.navigationTitle("核验明细")
+            }
+        }
+        if let problem=model.rangeProblem { Text(problem).font(.footnote).foregroundStyle(.orange) }
+    }
+}
+private struct StudyDateRow:View {
+    @EnvironmentObject var model:AppModel
+    let start:Bool
+    @State private var editing=false
+    @State private var draft=Date()
+    private var value:String { start ? model.replayStart : model.replayEnd }
+    private var bounds:ClosedRange<Date>? {
+        guard let c=model.coverage,let first=c.windows.first,let last=c.windows.last,let lo=ExchangeDay.date(first.start),let hi=ExchangeDay.date(last.end) else { return nil }
+        return lo...hi
+    }
+    var body:some View {
+        Button {
+            guard let bounds else { return }; draft=ExchangeDay.date(value).flatMap { bounds.contains($0) ? $0 : nil } ?? (start ? bounds.lowerBound : bounds.upperBound)
+            editing=true
+        } label: { LabeledContent(start ? "起始交易日" : "结束交易日",value:value.isEmpty ? "选择日期" : value) }
+        .accessibilityLabel(start ? "起始交易日" : "结束交易日").accessibilityValue(value)
+        .accessibilityIdentifier(start ? "replay.start" : "replay.end")
+        .disabled(bounds==nil || model.busy)
+        .sheet(isPresented:$editing) {
+            NavigationStack {
+                if let bounds {
+                    VStack {
+                        DatePicker("交易日",selection:$draft,in:bounds,displayedComponents:.date)
+                            .accessibilityIdentifier("replay.wheel")
+                            .datePickerStyle(.wheel).environment(\.calendar,ExchangeDay.calendar).environment(\.timeZone,ExchangeDay.zone).environment(\.locale,Locale(identifier:"zh_CN"))
+                        let day=ExchangeDay.string(draft)
+                        if let issue=model.coverage?.problem(start:start ? day:model.replayStart,end:start ? model.replayEnd:day,completed:model.today.isEmpty ? nil:model.today) {
+                            Text(issue).font(.footnote).foregroundStyle(.orange)
+                        }
+                    }.navigationTitle(start ? "起始交易日" : "结束交易日")
+                    .toolbar {
+                        ToolbarItem(placement:.cancellationAction) { Button("取消") { editing=false }.accessibilityIdentifier("replay.cancel") }
+                        ToolbarItem(placement:.confirmationAction) { Button("确认") {
+                            model.confirmStudyDay(ExchangeDay.string(draft),start:start); editing=false
+                        }.accessibilityIdentifier("replay.confirm") }
+                    }
+                }
+            }.presentationDetents([.medium])
+        }
+    }
+}
+struct HistoryDownloadView:View {
+    @EnvironmentObject var model:AppModel
+    @State private var from=Date(), through=Date()
+    @State private var calendar:Sessions?
+    @State private var last=""
+    @State private var loadError=""
+    private var invalid:String? {
+        guard let calendar else { return loadError.isEmpty ? "正在读取交易日历" : loadError }
+        let a=ExchangeDay.string(from),b=ExchangeDay.string(through)
+        guard (try? calendar.index(a)) != nil,(try? calendar.index(b)) != nil else { return "起止日期须为交易日" }
+        guard a<=b,b<=last else { return "起止倒置或尚未收盘" }
+        if let previous=model.handset?.market.as_of,b<previous { return "本机已有行情至 "+previous+"，请选择相同或更晚截止日" }
+        return nil
+    }
+    var body:some View {
+        Form {
+            DatePicker("历史起点",selection:$from,displayedComponents:.date)
+            DatePicker("目标截止日",selection:$through,displayedComponents:.date)
+            if let invalid { Text(invalid).font(.footnote).foregroundStyle(.orange) }
+            Text("补历史会分证券、分页保存原响应。已有截止日也能向前补。缺公告、缺原价或出现修订时保留候选及诊断。").font(.footnote)
+            Button("下载并核验候选") { model.refresh(from:ExchangeDay.string(from),through:ExchangeDay.string(through)) }.disabled(invalid != nil || model.busy)
+            if model.busy { ProgressView(value:model.fraction); Button("暂停") { model.cancel() } }
+            if !model.progress.isEmpty { Text(model.progress) }
+            if model.handset != nil {
+                Button("恢复上一代本机行情") {
+                    guard let vault=model.vault else { return }
+                    model.start("正在核对上一代行情") {
+                        model.handset=try await vault.restorePreviousPhoneMarket()
+                        model.progress="已恢复经校验的上一代本机行情"
+                    }
+                }.disabled(model.busy)
+            }
+        }.navigationTitle("历史行情回填").environment(\.calendar,ExchangeDay.calendar).environment(\.timeZone,ExchangeDay.zone)
+        .task { do {
+            let c=try Sessions(),day=try c.completed()
+            calendar=c; last=day; through=ExchangeDay.date(day) ?? Date()
+            from=ExchangeDay.date(model.handset?.market.history?.from ?? model.handset?.market.securities.values.compactMap { $0.bars.keys.min() }.min() ?? day) ?? through
+        } catch { loadError=error.localizedDescription } }
+    }
+}
 struct ReplayView: View {
     @EnvironmentObject var model: AppModel
     var body: some View {
         List {
-            Section("独立区间 · 每套初始 50,000 元") {
-                TextField("起始交易日 YYYY-MM-DD",text:$model.replayStart)
-                TextField("结束交易日 YYYY-MM-DD",text:$model.replayEnd)
-                Button("计算或续跑全部策略") { model.runStudies() }.disabled(model.busy || model.market == nil)
+            Section("回测区间") {
+                StudyCoverageView()
+                StudyDateRow(start:true); StudyDateRow(start:false)
+                Button("计算或续跑") { model.runStudies() }.disabled(model.busy || model.rangeProblem != nil)
                 if model.busy { ProgressView(value:model.fraction) { Text(model.progress) }; Button("暂停") { model.cancel() } }
                 Text("首次按上一交易日收盘选取，随后月末换仓，按策略检查保护退出。下一交易日以原始开盘价模拟成交，计入整手、涨跌停、分红、佣金和滑点。").font(.caption)
             }
@@ -282,7 +422,7 @@ struct OutcomeSection: View {
                 Text("\(r.start) 至 \(r.end)，由首次建仓至全部退出。"+e.reason).font(.caption)
             } else {
                 Text("运行回测后显示该 ETF 的已平仓笔数、历史净盈利比例及本次预测的可用样本。").font(.footnote)
-                Button("计算历史样本") { model.runStudies() }.disabled(model.busy || model.replayStart.isEmpty)
+                Button("计算历史样本") { model.runStudies() }.disabled(model.busy || model.rangeProblem != nil)
             }
         }
     }

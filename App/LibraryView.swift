@@ -12,7 +12,7 @@ struct LibraryView: View {
             if let live = model.handset {
                 Section("手机行情库") {
                     LabeledContent("行情截止", value: live.market.as_of)
-                    LabeledContent("完整策略可用起日", value: live.usableFrom)
+                    LabeledContent("首个已核信号日", value: live.usableFrom ?? "尚无")
                     LabeledContent("固定池", value: "\(live.market.securities.count) 只 ETF")
                     NavigationLink("查看公开行情和行动原件") { QuoteEvidenceBrowser(live: live) }
                     Button("用手机行情重跑 Python 对照用例") { model.reconcile(phone: true) }.disabled(model.busy)
@@ -33,6 +33,7 @@ struct LibraryView: View {
             }
             if let archive = model.archive {
                 Section("已导入旧资料") {
+                    Button("恢复上一代导入资料") { model.restorePreviousArchive() }.disabled(model.busy)
                     LabeledContent("范围", value: archive.manifest.profile == "snapshot" ? "快照及来源证据" : "完整原项目归档")
                     LabeledContent("文件", value: "\(archive.manifest.fileCount) 件")
                     LabeledContent("大小", value: ByteCountFormatter.string(fromByteCount: Int64(archive.manifest.totalBytes), countStyle: .file))
