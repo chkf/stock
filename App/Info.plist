@@ -13,6 +13,10 @@
     <key>LSRequiresIPhoneOS</key><true/>
     <key>UIFileSharingEnabled</key><true/>
     <key>LSSupportsOpeningDocumentsInPlace</key><true/>
+    <key>CFBundleURLTypes</key><array><dict>
+        <key>CFBundleURLName</key><string>org.stockresearch.workspace</string>
+        <key>CFBundleURLSchemes</key><array><string>stockresearch</string></array>
+    </dict></array>
     <key>NSLocalNetworkUsageDescription</key><string>在同一 Wi-Fi 下从已配对的电脑接收研究资料。</string>
     <key>NSCameraUsageDescription</key><string>扫描电脑上显示的一次性迁移配对码。</string>
     <key>NSAppTransportSecurity</key><dict><key>NSAllowsLocalNetworking</key><true/></dict>

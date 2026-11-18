@@ -5,6 +5,10 @@ import ResearchCore
 @main struct ResearchCheck {
     static func main() async throws {
         let args = Array(CommandLine.arguments.dropFirst())
+        if args.count == 3 && args[0] == "--workspace-offline" {
+            try WorkspaceCheck.run(directory:URL(fileURLWithPath:args[1]),output:URL(fileURLWithPath:args[2]))
+            return
+        }
         if args.count == 2 && args[0] == "--fresh-download" {
             try await FreshCheck.download(URL(fileURLWithPath: args[1]))
             return

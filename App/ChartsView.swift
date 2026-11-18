@@ -67,7 +67,7 @@ private final class PlotCanvas: UIView, UIGestureRecognizerDelegate {
         isAccessibilityElement = true
         accessibilityLabel = "历史曲线，左右轻扫调整日期"
         accessibilityTraits = .adjustable
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(move(_:)))
+        let pan = UIPanGestureRecognizer(target: self, action: #selector(panChart(_:)))
         pan.maximumNumberOfTouches = 1; pan.delegate = self
         let pinch = UIPinchGestureRecognizer(target: self,action: #selector(zoom(_:)))
         let press = UILongPressGestureRecognizer(target: self,action: #selector(readValue(_:)))
@@ -76,7 +76,7 @@ private final class PlotCanvas: UIView, UIGestureRecognizerDelegate {
         [pinch,pan,press,UITapGestureRecognizer(target: self,action: #selector(readValue(_:)))].forEach(addGestureRecognizer)
     }
     required init?(coder: NSCoder) { fatalError("init(coder:) is unavailable") }
-    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+    override func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
         guard let p = gestureRecognizer as? UIPanGestureRecognizer else { return true }
         let v = p.velocity(in: self); return abs(v.x) > abs(v.y)
     }
@@ -87,7 +87,7 @@ private final class PlotCanvas: UIView, UIGestureRecognizerDelegate {
         start = min(max(0,anchor-ratio*(span-1)), CGFloat(dates.count)-span)
         cursor = nil; valueChanged?(nil); setNeedsDisplay()
     }
-    @objc private func move(_ g: UIPanGestureRecognizer) {
+    @objc private func panChart(_ g: UIPanGestureRecognizer) {
         if g.state == .began { savedStart = start }
         start = min(max(0,savedStart-g.translation(in: self).x/max(1,plot.width)*(span-1)),CGFloat(dates.count)-span)
         cursor = nil; valueChanged?(nil); setNeedsDisplay()
@@ -156,7 +156,8 @@ private final class PlotCanvas: UIView, UIGestureRecognizerDelegate {
 
 struct QuotesView: View {
     @EnvironmentObject var model: AppModel
-    @State private var input = "", query = ""
+    @State private var input = ""
+    @State private var query = ""
     var body: some View {
         List {
             Section("我的自选") {

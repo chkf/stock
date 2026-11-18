@@ -119,7 +119,9 @@ public struct WorkspaceVersion {
             let strategy,date,previousState: String; let previousSectors: [String:String], dates: [String], securities: [String:Security]
         }
         let inputs = market.securities.mapValues { sec in Security(name:sec.name,group:sec.group,close:days.map { sec.signal_close[$0] }) }
-        let data = try JSONEncoder().encode(Input(strategy:id,date:date,previousState:previous,previousSectors:sectors,dates:days,securities:inputs))
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let data = try encoder.encode(Input(strategy:id,date:date,previousState:previous,previousSectors:sectors,dates:days,securities:inputs))
         let raw = try Self.execute(library+"\n"+String(decoding:program,as:UTF8.self),file:s.file,input:data)
         let d = try JSONDecoder().decode(Decision.self,from:raw)
         guard d.date == date, d.strategy == id, d.weights.keys.allSatisfy({ inputs[$0] != nil }),
@@ -146,6 +148,10 @@ public struct WorkspaceStore {
     public var working: URL { root.appendingPathComponent("设计",isDirectory:true) }
     private var versions: URL { root.appendingPathComponent("版本",isDirectory:true) }
     private var pointer: URL { versions.appendingPathComponent("current.json") }
+    public func logActivation(active:String,message:String,successful:Bool) throws {
+        let record:[String:Any]=["active":active,"message":message,"ok":successful,"time":ISO8601DateFormatter().string(from:Date())]
+        try JSONSerialization.data(withJSONObject:record,options:[.prettyPrinted,.sortedKeys]).write(to:root.appendingPathComponent("输出/工作区状态.json"),options:.atomic)
+    }
     private struct Receipt: Codable { let active: String; let previous: String? }
     private func receipt() throws -> Receipt? {
         if !FileManager.default.fileExists(atPath:pointer.path) { return nil }

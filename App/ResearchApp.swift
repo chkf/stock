@@ -10,6 +10,8 @@ import SwiftUI
             .tint(Color(red: 0.04, green: 0.40, blue: 0.38))
             .task { await model.open() }
             .task(id: model.studyKey) { await model.restoreStudies() }
+            .onOpenURL { model.queueWorkspaceLink($0) }
+            .onChange(of:model.busy) { value in if !value { model.dispatchWorkspaceLink() } }
             .alert("股票研究台", isPresented: Binding(get: { model.error != nil }, set: { if !$0 { model.error = nil } })) {
                 Button("知道了") { model.error = nil }
             } message: { Text(model.error ?? "") }
@@ -37,9 +39,14 @@ import SwiftUI
     @Published var selectedStrategy = "BANK_ELSE_GB"
     @Published var workspace: WorkspaceVersion?
     @Published var decision: Decision?
-    @Published var signalReason = "", next = "", today = ""
-    @Published var replayStart = "", replayEnd = ""
-    @Published var fields = [String:String](), widgetResults = [String:FunctionOutput]()
+    @Published var signalReason = ""
+    @Published var next = ""
+    @Published var today = ""
+    @Published var replayStart = ""
+    @Published var replayEnd = ""
+    @Published var fields = [String:String]()
+    @Published var widgetResults = [String:FunctionOutput]()
+    private var pendingLink: URL?
     var store: WorkspaceStore? { vault.map { WorkspaceStore(root:$0.root.deletingLastPathComponent()) } }
     var selectedFile: StrategyFile? { workspace?.design.strategies.first { $0.id == selectedStrategy } }
     var studyKey: String { "\(marketID ?? "")|\(workspace?.hash ?? "")" }
@@ -76,6 +83,7 @@ import SwiftUI
             } catch { issues.append(error.localizedDescription) }
             do { saved = try await library.reports() } catch { issues.append(error.localizedDescription) }
             if !issues.isEmpty { self.error = issues.joined(separator: "\n") }
+            dispatchWorkspaceLink()
         } catch { self.error = error.localizedDescription }
     }
     private func display(_ active: Archive?) async throws {
@@ -112,9 +120,21 @@ import SwiftUI
         guard let config = workspace?.design else { return }
         if !config.strategies.contains(where: { $0.id == selectedStrategy }) { selectedStrategy = config.strategies[0].id }
     }
+    func queueWorkspaceLink(_ url: URL) {
+        guard url.scheme == "stockresearch", url.host == "workspace", url.query == nil, url.fragment == nil else { return }
+        pendingLink = url; dispatchWorkspaceLink()
+    }
+    func dispatchWorkspaceLink() {
+        guard !busy, vault != nil, let w=workspace, let url=pendingLink else { return }
+        let parts = url.pathComponents.filter { $0 != "/" }
+        pendingLink=nil
+        if parts == ["reload"] { reloadWorkspace() }
+        else if parts.count == 2, parts[0] == "run", w.design.actions[parts[1]] != nil { runAction(parts[1]) }
+    }
     func reloadWorkspace(rollback: Bool = false) {
         guard let store, let vault else { return }
         start("检查工作区文件") {
+            do {
             let live = try await vault.phoneMarket()
             let personal = try await vault.personalAccount(), saved = try await vault.reports()
             let watch = try await vault.watchlist(), archive = try await vault.active()
@@ -134,6 +154,11 @@ import SwiftUI
             self.names=oldMarket?.securities.mapValues(\.name) ?? [:]; self.sources=oldMarket?.sources.keys.sorted() ?? []
             self.workspace = new; self.widgetResults = [:]; self.normalizeSelection()
             self.progress = "已启用 "+String(new.hash.prefix(12))
+            try store.logActivation(active:new.hash,message:self.progress,successful:true)
+            } catch {
+                try? store.logActivation(active:self.workspace?.hash ?? "",message:error.localizedDescription,successful:false)
+                throw error
+            }
         }
     }
     func updateDecision() async {

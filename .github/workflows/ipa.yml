@@ -36,6 +36,8 @@ jobs:
       - name: 构建未签名 IPA
         if: github.event_name == 'push' || inputs.signing == 'unsigned'
         run: python3 .github/scripts/build_ipa.py unsigned
+      - name: 在模拟 iPhone 外部修改工作区并重载验证
+        run: python3 .github/scripts/test_workspace_simulator.py
       - name: 给已登记的 iPhone 构建签名 IPA
         if: github.event_name == 'workflow_dispatch' && inputs.signing == 'ad-hoc'
         env:
