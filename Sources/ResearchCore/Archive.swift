@@ -151,6 +151,11 @@ public struct Archive {
                 throw ResearchError("来源证据无法核对 \(original)")
             }
         }
+        if let history=market.history {
+            try history.validate(sources:market.sources,calendar:Sessions())
+            try history.verifyEvidence(sources:market.sources) { try read($0) }
+            guard history.from<=market.as_of, history.through==market.as_of else { throw ResearchError("导入快照的截止日与审核请求不一致") }
+        }
         return market
     }
 
@@ -186,7 +191,7 @@ public struct Archive {
                 try ActionIdentity.verify(read(f.path), filenameID: id)
             }
         }
-        _ = try loadMarket()
+        _ = try HistoryCoverage.forActivation(loadMarket(),calendar:Sessions())
         try progress(manifest.fileCount, manifest.fileCount)
     }
 }

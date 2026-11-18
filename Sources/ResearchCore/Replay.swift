@@ -14,12 +14,50 @@ private struct CycleBook: Codable {
     let entry, route: String
     var balance = 0.0
 }
-private struct Lot: Codable { var shares: Int; var available: String }
+struct Lot: Codable {
+    var shares: Int; var available: String; var basis:Double
+    init(shares:Int,available:String,basis:Double=0) { self.shares=shares; self.available=available; self.basis=basis }
+    init(from decoder:Decoder) throws {
+        let c=try decoder.container(keyedBy:CodingKeys.self)
+        shares=try c.decode(Int.self,forKey:.shares); available=try c.decode(String.self,forKey:.available)
+        basis=try c.decodeIfPresent(Double.self,forKey:.basis) ?? 0
+    }
+}
 private struct Claim: Codable { let ex, pay: String; var amount: Double }
 private struct SimBook: Codable {
     var price = 0.0, high: Double?, lots = [Lot](), claims = [Claim]()
     var firstFill: CycleBook?
     var quantity: Int { lots.reduce(0) { $0+$1.shares } }
+    mutating func convert(_ terms:SplitTerms, pending:inout Int?) throws {
+        let quantities = try terms.allocation(lots.map(\.shares))
+        if terms.factor >= 1 {
+            let old=lots
+            for (j,lot) in old.enumerated() where quantities[j]>lot.shares {
+                let original=Planning.money(lot.basis*Double(lot.shares)/Double(quantities[j]))
+                lots[j].basis=original
+                lots.append(.init(shares:quantities[j]-lot.shares,available:max(lot.available,terms.available),basis:Planning.money(lot.basis-original)))
+            }
+        } else {
+            for j in lots.indices { lots[j].shares=quantities[j]; lots[j].available=max(lots[j].available,terms.available) }
+            let remainder=lots.filter { $0.shares==0 }.reduce(0) { $0+$1.basis }
+            lots.removeAll { $0.shares==0 }
+            if remainder>0 {
+                guard !lots.isEmpty else { throw ResearchError("全部零碎权益的现金处置尚无可执行依据") }
+                lots[0].basis=Planning.money(lots[0].basis+remainder)
+            }
+        }
+        if let q=pending { pending = (q<0 ? -1 : 1) * (try terms.converted(abs(q))) }
+    }
+}
+public struct StudyLedgerDay {
+    public struct Holding {
+        public let shares,available,pending:Int
+        public let mark,basis,receivable:Double
+        public let lots:[Int]
+    }
+    public let date:String
+    public let cash,equity:Double
+    public let holdings:[String:Holding]
 }
 public struct ReplayReport: Codable {
     public let snapshot, strategy, start, end: String
@@ -28,6 +66,10 @@ public struct ReplayReport: Codable {
     fileprivate var cash, peak: Double
     fileprivate var books = [String: SimBook](), pending = [String: Int](), locks = [String: String]()
     fileprivate var active: Decision?
+    public private(set) var ledgerVersion:Int?
+    public static func fingerprint(market:String,workspace:String) -> String {
+        Integrity.sha(Data(("etf-ledger-2|"+market+"|"+workspace).utf8))
+    }
     public var finished: Bool { curve.last?.date == end }
     public var outcomeDate: String { curve.last?.date ?? start }
 }
@@ -65,16 +107,20 @@ extension ReplayReport {
 
 extension StrategyEngine {
     public func replay(_ strategy: String, snapshot: String, start: String, end: String,
-                       resume: ReplayReport? = nil, checkpoint: (ReplayReport, Double) throws -> Void = { _,_ in }) throws -> ReplayReport {
+                       resume: ReplayReport? = nil, observe:((StudyLedgerDay)->Void)?=nil,
+                       checkpoint: (ReplayReport, Double) throws -> Void = { _,_ in }) throws -> ReplayReport {
         let first = try sessions.index(start), last = try sessions.index(end)
         guard first > 0, first <= last, end <= market.as_of, start >= "2006-07-01" else { throw ResearchError("回测区间超出已验证行情或交易规则") }
         let before = sessions.days[first-1], symbols = market.securities.keys.sorted(), rules = try PublicRules.load()
         let version=try workspace ?? Self.seed.get()
+        guard let definition=version.design.strategies.first(where:{ $0.id==strategy }) else { throw ResearchError("工作区缺少策略 "+strategy) }
+        let coverage=try HistoryCoverage(market:market,sessions:sessions,strategies:[definition])
+        if let reason=coverage.problem(start:start,end:end) { throw ResearchError(reason) }
         let settings=version.design.study ?? StudySettings.original
         let ex = market.securities.mapValues { Dictionary(grouping: $0.events, by: \.date) }
         let reg = market.securities.mapValues { Dictionary(grouping: $0.events.filter { ($0.cash_per_share ?? 0) > 0 }, by: { $0.record_date ?? "" }) }
-        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital)
-        guard st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
+        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital, ledgerVersion:2)
+        guard st.ledgerVersion==2, st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
             throw ResearchError("回测检查点的输入或区间不同")
         }
         if st.finished { return st }
@@ -108,18 +154,23 @@ extension StrategyEngine {
             for s in symbols {
                 var b = SimBook()
                 let sec = market.securities[s]!
-                if let day = sec.bars.keys.filter({ $0 <= before }).max() { b.price = sec.bars[day]!.close }
+                if let day = sec.bars.keys.filter({ $0 <= before }).max() {
+                    b.price=sec.bars[day]!.close
+                    for e in sec.events.filter({ day<$0.date && $0.date<=before }).sorted(by:{ $0.date<$1.date }) {
+                        b.price=(b.price-(e.cash_per_share ?? 0))/(e.share_factor ?? 1)
+                    }
+                }
                 st.books[s] = b
             }
             try select(before)
         }
         let position = try st.curve.last.map { try sessions.index($0.date)+1 } ?? first
-        let isListed = market.securities.mapValues { $0.bars.keys.min() ?? "9999" }
         let marketHalts = market.securities.mapValues { $0.statuses ?? [:] }
         for index in position...last {
             try Task.checkCancellation()
             let date = sessions.days[index]
             var executable = [String: Double]()
+            var closingSplits = [String:SplitTerms]()
             for s in symbols {
                 var b = st.books[s]!
                 for e in ex[s]?[date] ?? [] {
@@ -128,44 +179,18 @@ extension StrategyEngine {
                     if let high = b.high { b.high = (high-cash)/factor }
                     if factor != 1 && (b.quantity > 0 || st.pending[s] != nil) {
                         let proof = e.available_date == nil ? rules.members[s]?.events.first(where: { $0.date == e.date && $0.share_factor == e.share_factor }) : nil
-                        guard e.record_date == sessions.days[index-1], let available = e.available_date ?? proof?.available_date else { throw ResearchError("\(s) \(date) 拆合缺少登记日或可卖日") }
-                        let rounding = e.rounding ?? proof?.rounding
-                        func converted(_ q: Int) throws -> Int {
-                            if rounding == "floor" { return Int(floor(Double(q)*factor)) }
-                            if rounding == "ceil" { return Int(ceil(Double(q)*factor)) }
-                            guard factor >= 1, factor == factor.rounded() else { throw ResearchError("\(s) 拆合舍入规则缺失") }
-                            return Int(Double(q)*factor)
-                        }
-                        if rounding == nil {
-                            let old = b.lots
-                            for lot in old {
-                                b.lots.append(Lot(shares: try converted(lot.shares)-lot.shares, available: max(lot.available,available)))
-                            }
-                        } else {
-                            let total = try converted(b.quantity)
-                            let exact = b.lots.map { Double($0.shares)*factor }
-                            let floorShares = exact.map { Int(floor($0)) }
-                            let order = exact.indices.sorted {
-                                let a = exact[$0]-Double(floorShares[$0]), c = exact[$1]-Double(floorShares[$1])
-                                return a == c ? $0 < $1 : a > c
-                            }
-                            let extras = Set(order.prefix(total-floorShares.reduce(0,+)))
-                            for j in b.lots.indices {
-                                b.lots[j].shares = floorShares[j]+(extras.contains(j) ? 1 : 0)
-                                b.lots[j].available = max(available,b.lots[j].available)
-                            }
-                            b.lots.removeAll { $0.shares == 0 }
-                        }
-                        if let q = st.pending[s] { st.pending[s] = (q < 0 ? -1 : 1) * (try converted(abs(q))) }
+                        let terms=try SplitTerms(e,symbol:s,calendar:sessions,halted:HistoryCoverage.noTrade(s,date,market,rules),fallback:proof)
+                        if terms.atClose { closingSplits[s]=terms }
+                        else { try b.convert(terms,pending:&st.pending[s]) }
                     }
                 }
                 for claim in b.claims where claim.pay <= date { st.cash = Planning.money(st.cash + claim.amount) }
                 b.claims.removeAll { $0.pay <= date }
                 st.books[s] = b
                 let status = marketHalts[s]?[date]
-                let halted = status?.state == "halted" || rules.members[s]?.halts[date] != nil
+                let halted = HistoryCoverage.noTrade(s,date,market,rules)
                 guard let bar = market.securities[s]?.bars[date] else {
-                    guard date < isListed[s]! || halted else { throw ResearchError("\(s) \(date) 缺行情或停牌证据") }
+                    guard market.history?.symbols[s]?.listing.map({ date<$0.date }) == true || halted else { throw ResearchError("\(s) \(date) 缺行情或停牌证据") }
                     continue
                 }
                 if halted, bar.volume > 0 { throw ResearchError("\(s) \(date) 停牌记录与成交量冲突") }
@@ -205,12 +230,13 @@ extension StrategyEngine {
                     if sell && st.cash+flow < 0 { break }
                     if !sell {
                         if b.quantity == 0 { b.firstFill = CycleBook(entry: date, route: st.active!.route); b.high = nil }
-                        b.lots.append(.init(shares: qty, available: index < last ? sessions.days[index+1] : (try? sessions.next(date)) ?? "9999"))
+                        b.lots.append(.init(shares:qty,available:index < last ? sessions.days[index+1] : (try? sessions.next(date)) ?? "9999",basis:-flow))
                         budget += flow
                     } else {
                         var remove = qty
                         for j in b.lots.indices where b.lots[j].available <= date && remove > 0 {
                             let part = min(remove,b.lots[j].shares)
+                            b.lots[j].basis=Planning.money(b.lots[j].basis*Double(b.lots[j].shares-part)/Double(b.lots[j].shares))
                             b.lots[j].shares -= part; remove -= part
                         }
                         b.lots.removeAll { $0.shares == 0 }
@@ -233,6 +259,7 @@ extension StrategyEngine {
             for (j,s) in buyers.enumerated() { fill(s,budget: buyers.count == 1 ? cash : min(demands[j],cash*demands[j]/total)) }
             for s in symbols {
                 var b = st.books[s]!
+                if let terms=closingSplits[s] { try b.convert(terms,pending:&st.pending[s]) }
                 if let close = market.securities[s]?.bars[date]?.close { b.price = close }
                 for e in reg[s]?[date] ?? [] where b.quantity > 0 {
                     guard let pay = e.payment_date, pay >= e.date else { throw ResearchError("\(s) \(date) 缺少分红到账日，回测停在最后的有效检查点") }
@@ -253,6 +280,15 @@ extension StrategyEngine {
             st.peak = max(st.peak,value)
             st.curve.append(.init(date: date, equity: value, drawdown: value/st.peak-1))
             if index < last, try review(strategy,on:date) { try select(date) }
+            if let observe {
+                var holdings=[String:StudyLedgerDay.Holding]()
+                for (s,b) in st.books {
+                    holdings[s] = .init(shares:b.quantity,available:b.lots.filter { $0.available<=date }.reduce(0){$0+$1.shares},
+                        pending:st.pending[s] ?? 0,mark:b.price,basis:Planning.money(b.lots.reduce(0){$0+$1.basis}),
+                        receivable:b.claims.filter { $0.ex<=date }.reduce(0){$0+$1.amount},lots:b.lots.map(\.shares))
+                }
+                observe(.init(date:date,cash:st.cash,equity:value,holdings:holdings))
+            }
             if (index-first+1).isMultiple(of: 21) || index == last { try checkpoint(st,Double(index-first+1)/Double(last-first+1)) }
         }
         return st
