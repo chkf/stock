@@ -154,7 +154,7 @@ extension StrategyEngine {
             for s in symbols {
                 var b = SimBook()
                 let sec = market.securities[s]!
-                if let day = sec.bars.keys.filter({ $0 <= before }).max() {
+                if let day = sec.bars.keys.filter({ $0 <= before && !HistoryCoverage.noTrade(s,$0,market,rules) }).max() {
                     b.price=sec.bars[day]!.close
                     for e in sec.events.filter({ day<$0.date && $0.date<=before }).sorted(by:{ $0.date<$1.date }) {
                         b.price=(b.price-(e.cash_per_share ?? 0))/(e.share_factor ?? 1)
@@ -260,7 +260,7 @@ extension StrategyEngine {
             for s in symbols {
                 var b = st.books[s]!
                 if let terms=closingSplits[s] { try b.convert(terms,pending:&st.pending[s]) }
-                if let close = market.securities[s]?.bars[date]?.close { b.price = close }
+                if let close = market.securities[s]?.bars[date]?.close, !HistoryCoverage.noTrade(s,date,market,rules) { b.price = close }
                 for e in reg[s]?[date] ?? [] where b.quantity > 0 {
                     guard let pay = e.payment_date, pay >= e.date else { throw ResearchError("\(s) \(date) 缺少分红到账日，回测停在最后的有效检查点") }
                     for lot in b.lots {

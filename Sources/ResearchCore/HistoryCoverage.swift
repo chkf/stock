@@ -144,10 +144,10 @@ public struct HistoryCoverage {
                     if d<rules.anchor && !covered { problem("公司行动","该日期缺历史行动完整性核验区间") }
                     if d>rules.reviewedThrough && !covered && sec.provider_events==nil { problem("公司行动","缺更新后的提供方原件或审核区间") }
                     let e=eventDays[d]?.first, cash=e?.cash_per_share ?? 0, split=e?.share_factor ?? 1
-                    var mark=bar?.close
+                    var mark=nonTrading ? nil : bar?.close
                     if let prev=previousPrice, prev>cash, split>0 {
                         let ref=(prev-cash)/split
-                        if let bar, issue==nil {
+                        if let bar, !nonTrading, issue==nil {
                             if let up=sec.statuses?[d]?.upper_limit,let down=sec.statuses?[d]?.lower_limit {
                                 if up<down || down<=0 || bar.high>up+0.001 || bar.low<down-0.001 { problem("价格区间","与历史涨跌停证据相冲突") }
                             } else {
@@ -155,12 +155,13 @@ public struct HistoryCoverage {
                                 catch { problem("价格区间",error.localizedDescription) }
                             }
                         }
-                        if nonTrading && mark==nil { mark=ref }
+                        if nonTrading { mark=ref }
                         if let sig=signal, let old=previousSignal, let price=mark, ref>0 {
                             let expected=old*price/ref
                             if abs(sig-expected)>max(1e-10,abs(expected)*1e-9) { problem("复权信号","与原价、分红拆合正推不一致") }
                         }
                     }
+                    if nonTrading && mark==nil { problem("停牌估值","缺事件前的已核参考价") }
                     if let sig=signal, sig.isFinite, sig>0 {} else { problem("复权信号","缺少有效信号价") }
                     previousPrice=mark; previousSignal=signal
                 } else { previousPrice=nil; previousSignal=nil }

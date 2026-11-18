@@ -75,7 +75,7 @@ extension PrivateLibrary {
                         throw ResearchError("\(s) \(d) 缺历史公司行动完整性审核，可补入核验材料后续算")
                     }
                     func previousMark(before day:String) -> Double? {
-                        guard let previous,let lastDay=previous.bars.keys.filter({ $0<day }).max(),var mark=previous.bars[lastDay]?.close else { return nil }
+                        guard let previous,let lastDay=previous.bars.keys.filter({ $0<day && !HistoryCoverage.noTrade(s,$0,market,rules) }).max(),var mark=previous.bars[lastDay]?.close else { return nil }
                         for e in previous.events.filter({lastDay<$0.date && $0.date<day}).sorted(by:{$0.date<$1.date}) {
                             mark=(mark-(e.cash_per_share ?? 0))/(e.share_factor ?? 1)
                         }
@@ -126,8 +126,6 @@ extension PrivateLibrary {
             try Task.checkCancellation()
             let current=try readQuoteID()
             guard current==prior?.hash else { throw ResearchError("采集时活动行情已切换，请基于新版本重试") }
-            let (receipt,sha)=try stage.record("accepted")
-            market.sources[receipt]=sha
             let candidate=PhoneSnapshot(market:market,hash:"",usableFrom:nil)
             for key in market.sources.keys {
                 try Task.checkCancellation()
@@ -135,6 +133,10 @@ extension PrivateLibrary {
             }
             try market.history?.verifyEvidence(sources:market.sources) { try onlineEvidence($0,snapshot:candidate) }
             try market.history?.verifyPrices(in:market) { try onlineEvidence($0,snapshot:candidate) }
+            try Task.checkCancellation()
+            let (receipt,sha)=try stage.record("accepted")
+            guard Integrity.sha(try Data(contentsOf:dir.appendingPathComponent(receipt)))==sha else { throw ResearchError("候选核验回执写入失败") }
+            market.sources[receipt]=sha
             let bytes=try enc.encode(market),id=Integrity.sha(bytes)
             try publishQuote(bytes,id:id,through:through,parent:prior?.hash)
             progress(.init(phase:"已核验并启用",completed:56,total:56))

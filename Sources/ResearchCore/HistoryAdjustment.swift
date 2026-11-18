@@ -22,13 +22,15 @@ enum HistoryAdjustment {
                 reference=(last-cash)/split
                 steps[i]=split*last/(last-cash)
             }
-            if let bar=bars[d] {
-                guard bar.valid, !(nonTrading(d) && bar.volume>0) else { throw ResearchError("\(symbol) \(d) OHLC 或停牌证据冲突") }
+            if nonTrading(d) {
+                guard let reference,bars[d].map({ $0.valid && $0.volume==0 }) ?? true else { throw ResearchError("\(symbol) \(d) 缺停牌前参考价，或原价与停牌证据冲突") }
+                marks[i]=reference
+            } else if let bar=bars[d] {
+                guard bar.valid else { throw ResearchError("\(symbol) \(d) OHLC 无效") }
                 if let reference { try PublicFeed.validateBand(bar,reference:reference,band:band(d),symbol:symbol,date:d) }
                 marks[i]=bar.close
             } else {
-                guard nonTrading(d), let reference else { throw ResearchError("\(symbol) \(d) SOURCE_MISSING 缺原价、上市或正式停牌/无成交依据") }
-                marks[i]=reference
+                throw ResearchError("\(symbol) \(d) SOURCE_MISSING 缺原价、上市或正式停牌/无成交依据")
             }
             prev=marks[i]
         }

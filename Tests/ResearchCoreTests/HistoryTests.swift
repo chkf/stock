@@ -124,6 +124,8 @@ final class HistoryTests:XCTestCase {
         let event=MarketEvent(date:ex,cash_per_share:0.2,share_factor:1,record_date:record,source:proof,payment_date:pay)
         m.securities[s]!.events=[event];m.history!.symbols[s]!.events=[event]
         for d in [ex,cal.days[index+1]] { m.securities[s]!.bars[d]=nil; m.history!.symbols[s]!.gaps[d] = .init(state:.halted,evidence:proof) }
+        // A provider can repeat yesterday's price with zero volume during a halt.
+        m.securities[s]!.bars[ex] = .init(open:10,close:10,high:10,low:10,volume:0)
         for d in days where d>=pay { m.securities[s]!.bars[d] = .init(open:9.8,close:9.8,high:9.8,low:9.8,volume:5000) }
         let signals=try HistoryAdjustment.signals(symbol:s,days:days,bars:m.securities[s]!.bars,anchor:days.last!,anchorSignal:10,previousClose:nil,events:[event],listed:nil,nonTrading:{ [ex,cal.days[index+1]].contains($0) },band:{ _ in 0.1 })
         XCTAssertTrue(signals.values.allSatisfy { abs($0-10)<1e-12 }); m.securities[s]!.signal_close=signals

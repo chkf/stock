@@ -33,6 +33,7 @@ struct HistoryCandidate {
         let id:String, parent:String?, from,through,rules:String
         var requests=[String:Capture](), attempts=[Capture](), status="collecting", reason=""
         var blockers:[String:String]?
+        var discardedJournal:String?
     }
     let root,folder,journalURL:URL
     var journal:Journal
@@ -44,10 +45,15 @@ struct HistoryCandidate {
         try FileManager.default.createDirectory(at:refs,withIntermediateDirectories:true)
         journalURL=refs.appendingPathComponent(key+".json")
         if FileManager.default.fileExists(atPath:journalURL.path) {
-            journal=try JSONDecoder().decode(Journal.self,from:Data(contentsOf:journalURL))
-            guard UUID(uuidString:journal.id) != nil, journal.parent==parent,journal.from==from,journal.through==through,journal.rules==rules else { throw ResearchError("候选断点与请求不一致") }
-            if ["refused","accepted"].contains(journal.status) {
+            let raw=try Data(contentsOf:journalURL)
+            if let previous=try? JSONDecoder().decode(Journal.self,from:raw),UUID(uuidString:previous.id) != nil,
+               previous.parent==parent,previous.from==from,previous.through==through,previous.rules==rules {
+                journal = ["refused","accepted"].contains(previous.status) ? .init(id:UUID().uuidString,parent:parent,from:from,through:through,rules:rules):previous
+            } else {
+                let name=key+"."+Integrity.sha(raw)+".invalid.json"
+                try raw.write(to:refs.appendingPathComponent(name),options:.atomic)
                 journal = .init(id:UUID().uuidString,parent:parent,from:from,through:through,rules:rules)
+                journal.discardedJournal=name
             }
         } else { journal = .init(id:UUID().uuidString,parent:parent,from:from,through:through,rules:rules) }
         folder=root.appendingPathComponent("captures/"+journal.id)

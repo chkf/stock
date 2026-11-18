@@ -59,11 +59,13 @@ enum PublicFeed {
 
     static func quotes(_ bytes: Data, symbol: String, from: String, through: String) throws -> [String: Bar] {
         let root = try JSONSerialization.jsonObject(with: bytes) as? [String: Any]
-        if let code=root?["code"] as? NSNumber, code.intValue != 0 { throw ResearchError("\(symbol) 行情接口返回错误 \(code)") }
+        if let code=root?["code"],String(describing:code) != "0" { throw ResearchError("\(symbol) 行情接口返回错误 \(code)") }
         guard let data = root?["data"] as? [String: Any], let quote = data[ticker(symbol)] as? [String: Any],
               let rows = quote["day"] as? [[Any]] else { throw ResearchError("\(symbol) 原始行情字段缺失") }
-        if let qt=quote["qt"] as? [String:Any], let identity=qt[ticker(symbol)] as? [Any], identity.count>=3,
-           String(describing:identity[2]) != String(symbol.prefix(6)) { throw ResearchError("\(symbol) 响应内证券身份冲突") }
+        if let qt=quote["qt"] {
+            guard let table=qt as? [String:Any],let identity=table[ticker(symbol)] as? [Any],identity.count>=3,
+                  String(describing:identity[2])==String(symbol.prefix(6)) else { throw ResearchError("\(symbol) 响应内证券身份冲突") }
+        }
         var bars = [String: Bar](), advancedBeyondEnd=false
         for row in rows {
             guard row.count>=6, let d=row[0] as? String, AccountInput.validDate(d) else { throw ResearchError("\(symbol) 日线缺字段或日期无效") }
