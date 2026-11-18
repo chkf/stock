@@ -1,5 +1,29 @@
 import Foundation
 
+enum ReplayFunding {
+    static let maximumFill = 1_000_000
+    static func fee(_ quantity:Int, price:Double, settings:StudySettings) -> Double {
+        let gross=Double(quantity)*price
+        return Planning.money(Planning.money(max(settings.minimumCommission,gross*settings.commissionRate))+Planning.money(gross*settings.slippageRate))
+    }
+    static func required(_ quantity:Int, price:Double, settings:StudySettings) -> Double {
+        var remaining=quantity/100*100, cash=0.0
+        while remaining>=100 {
+            let q=min(remaining,maximumFill)
+            cash=Planning.money(cash+Planning.money(Double(q)*price+fee(q,price:price,settings:settings)))
+            remaining-=q
+        }
+        return cash
+    }
+    static func budgets(_ required:[String:Double], cash:Double) -> [String:Double] {
+        let symbols=required.keys.sorted()
+        if symbols.count==1 { return [symbols[0]:cash] }
+        let total=symbols.reduce(0) { $0+required[$1]! }
+        if total<=cash { return required }
+        return Dictionary(uniqueKeysWithValues:symbols.map { ($0,cash*required[$0]!/total) })
+    }
+}
+
 public struct StudyPoint: Codable { public let date: String; public let equity, drawdown: Double }
 public struct StudyFill: Codable {
     public let date, symbol, side: String
@@ -67,8 +91,9 @@ public struct ReplayReport: Codable {
     fileprivate var books = [String: SimBook](), pending = [String: Int](), locks = [String: String]()
     fileprivate var active: Decision?
     public private(set) var ledgerVersion:Int?
+    public static let currentLedgerVersion=3
     public static func fingerprint(market:String,workspace:String) -> String {
-        Integrity.sha(Data(("etf-ledger-2|"+market+"|"+workspace).utf8))
+        Integrity.sha(Data(("etf-ledger-\(currentLedgerVersion)|"+market+"|"+workspace).utf8))
     }
     public var finished: Bool { curve.last?.date == end }
     public var outcomeDate: String { curve.last?.date ?? start }
@@ -119,9 +144,9 @@ extension StrategyEngine {
         let settings=version.design.study ?? StudySettings.original
         let ex = market.securities.mapValues { Dictionary(grouping: $0.events, by: \.date) }
         let reg = market.securities.mapValues { Dictionary(grouping: $0.events.filter { ($0.cash_per_share ?? 0) > 0 }, by: { $0.record_date ?? "" }) }
-        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital, ledgerVersion:2)
-        guard st.ledgerVersion==2, st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
-            throw ResearchError("回测检查点的输入或区间不同")
+        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital, ledgerVersion:ReplayReport.currentLedgerVersion)
+        guard st.ledgerVersion==ReplayReport.currentLedgerVersion, st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
+            throw ResearchError("回测检查点的账簿版本、输入或区间不同；请以当前版本重新回测，保留旧记录")
         }
         if st.finished { return st }
         func equity(_ date: String) -> Double {
@@ -207,11 +232,10 @@ extension StrategyEngine {
                 var b = st.books[s]!, remaining = st.pending[s]!, budget = budget
                 let p = executable[s]!, sell = remaining < 0
                 func fee(_ q: Int) -> Double {
-                    let gross = Double(q)*p
-                    return Planning.money(Planning.money(max(settings.minimumCommission,gross*settings.commissionRate))+Planning.money(gross*settings.slippageRate))
+                    ReplayFunding.fee(q,price:p,settings:settings)
                 }
                 while remaining != 0 {
-                    var qty = min(abs(remaining),1_000_000)
+                    var qty = min(abs(remaining),ReplayFunding.maximumFill)
                     if sell {
                         let available = b.lots.filter { $0.available <= date }.reduce(0) { $0+$1.shares }
                         qty = min(qty,available)
@@ -255,8 +279,11 @@ extension StrategyEngine {
             }
             for s in executable.keys.sorted() where (st.pending[s] ?? 0) < 0 { fill(s,budget: 0) }
             let buyers = executable.keys.filter { (st.pending[$0] ?? 0) > 0 }.sorted()
-            let demands = buyers.map { Double(st.pending[$0]!)*executable[$0]! }, total = demands.reduce(0,+), cash = st.cash
-            for (j,s) in buyers.enumerated() { fill(s,budget: buyers.count == 1 ? cash : min(demands[j],cash*demands[j]/total)) }
+            let required=Dictionary(uniqueKeysWithValues:buyers.map {
+                ($0,ReplayFunding.required(st.pending[$0]!,price:executable[$0]!,settings:settings))
+            })
+            let budgets=ReplayFunding.budgets(required,cash:st.cash)
+            for s in buyers { fill(s,budget:budgets[s]!) }
             for s in symbols {
                 var b = st.books[s]!
                 if let terms=closingSplits[s] { try b.convert(terms,pending:&st.pending[s]) }

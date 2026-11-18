@@ -78,7 +78,7 @@ def run(out):
         assert "account" not in json.loads(config.read_bytes())["tabs"]
         reports=[json.loads(p.read_bytes()) for p in (root/"数据/studies/v1").rglob("*.json")]
         expected_ids={"BANK_ELSE_GB","MOM20","MV","GB","SECTOR_M"}
-        completed={r["strategy"] for r in reports if r.get("ledgerVersion")==2 and r["start"]=="2025-10-27"
+        completed={r["strategy"] for r in reports if r.get("ledgerVersion")==3 and r["start"]=="2025-10-27"
                    and r["end"]=="2025-11-17" and r["curve"][-1]["date"]==r["end"] and r["trades"]}
         if completed!=expected_ids:
             raise RuntimeError(f"模拟 iPhone 已落盘的完整回测为 {sorted(completed)}")
