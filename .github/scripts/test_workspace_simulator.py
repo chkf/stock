@@ -36,8 +36,10 @@ def main():
     if phone["state"] != "Booted":
         sim("boot",udid)
     derived = Path(os.environ["RUNNER_TEMP"])/"workspace-simulator"
-    subprocess.run(["xcodebuild","-quiet","-project","StockResearch.xcodeproj","-scheme","StockResearch",
-                    "-configuration","Debug","-destination",f"id={udid}","-derivedDataPath",str(derived),"build"],check=True)
+    subprocess.run(["xcodebuild","-project","StockResearch.xcodeproj","-scheme","StockResearch","-sdk","iphonesimulator",
+                    "-configuration","Debug","-destination",f"platform=iOS Simulator,id={udid},arch=arm64",
+                    "-derivedDataPath",str(derived),"SDKROOT=iphonesimulator","ARCHS=arm64","ONLY_ACTIVE_ARCH=YES",
+                    "IPHONEOS_DEPLOYMENT_TARGET=16.0","build"],check=True)
     sim("bootstatus",udid,"-b")
     bundle = "org.stockresearch.nativephone"
     sim("install",udid,derived/"Build/Products/Debug-iphonesimulator/StockResearch.app")

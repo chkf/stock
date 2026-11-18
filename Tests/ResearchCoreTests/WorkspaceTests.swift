@@ -23,7 +23,7 @@ final class WorkspaceTests: XCTestCase {
         XCTAssertEqual(try signal(a).route,"CASH")
         let strategy=store.working.appendingPathComponent("策略/混合.js")
         var script=try String(contentsOf:strategy,encoding:.utf8)
-        script=script.replacingOccurrences(of:"return d;",with:"d.headline='手机修改已生效'; return d;")
+        script=script.replacingOccurrences(of:"return describe(d);",with:"d.headline='手机修改已生效'; return d;")
         try Data(script.utf8).write(to:strategy,options:.atomic)
         let page=store.working.appendingPathComponent("页面/市场.json")
         let newPage=#"{"title":"我的首页","icon":"star","blocks":[{"type":"text","text":"按我的顺序显示"},{"type":"decision"}]}"#
@@ -39,7 +39,7 @@ final class WorkspaceTests: XCTestCase {
         XCTAssertThrowsError(try store.activate())
         XCTAssertEqual(try store.active()?.hash,b.hash)
         XCTAssertEqual(try store.rollback().hash,a.hash)
-        XCTAssertNil(try signal(XCTUnwrap(store.active())).headline)
+        XCTAssertEqual(try signal(XCTUnwrap(store.active())).headline,try signal(a).headline)
         XCTAssertEqual(try Data(contentsOf:vault.root.appendingPathComponent("old.json")),receipt)
     }
     func testStrengthVotesAndThreshold() throws {

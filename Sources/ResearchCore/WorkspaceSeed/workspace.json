@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "title": "股票研究台",
+  "study": {"capital":50000,"commissionRate":0.0003,"minimumCommission":5,"slippageRate":0.0005,"rebalanceBand":0.03},
   "tabs": ["market", "quotes", "replay", "account", "library"],
   "pages": {
     "market": "页面/市场.json", "quotes": "页面/行情.json", "replay": "页面/回测.json",

@@ -69,10 +69,12 @@ extension StrategyEngine {
         let first = try sessions.index(start), last = try sessions.index(end)
         guard first > 0, first <= last, end <= market.as_of, start >= "2006-07-01" else { throw ResearchError("回测区间超出已验证行情或交易规则") }
         let before = sessions.days[first-1], symbols = market.securities.keys.sorted(), rules = try PublicRules.load()
+        let version=try workspace ?? Self.seed.get()
+        let settings=version.design.study ?? StudySettings.original
         let ex = market.securities.mapValues { Dictionary(grouping: $0.events, by: \.date) }
         let reg = market.securities.mapValues { Dictionary(grouping: $0.events.filter { ($0.cash_per_share ?? 0) > 0 }, by: { $0.record_date ?? "" }) }
-        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: 50_000, cash: 50_000, peak: 50_000)
-        guard st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == 50_000 else {
+        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital)
+        guard st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
             throw ResearchError("回测检查点的输入或区间不同")
         }
         if st.finished { return st }
@@ -91,13 +93,13 @@ extension StrategyEngine {
             for s in symbols {
                 var b = st.books[s]!
                 if let day = st.locks[s], b.quantity == 0, day < date { st.locks.removeValue(forKey: s) }
-                if old?.route != d.route && ["MOM","BANK"].contains(d.route) { b.high = b.quantity > 0 ? b.price : nil; st.books[s] = b }
+                if old?.route != d.route && (d.resetHighOnEntry ?? ["MOM","BANK"].contains(d.route)) { b.high = b.quantity > 0 ? b.price : nil; st.books[s] = b }
                 guard st.locks[s] == nil else { continue }
                 let w = d.weights[s] ?? 0
                 guard w == 0 || b.price > 0 else { throw ResearchError("\(s) 缺少建仓参考价") }
                 let target = w > 0 ? Int(value*w/b.price)/100*100 : 0
                 var diff = target-b.quantity
-                if b.quantity > 0, w > 0, Double(abs(diff))*b.price < 0.03*value { diff = 0 }
+                if b.quantity > 0, w > 0, Double(abs(diff))*b.price < settings.rebalanceBand*value { diff = 0 }
                 st.pending[s] = diff == 0 ? nil : diff
             }
             st.active = d
@@ -180,7 +182,7 @@ extension StrategyEngine {
                 let p = executable[s]!, sell = remaining < 0
                 func fee(_ q: Int) -> Double {
                     let gross = Double(q)*p
-                    return Planning.money(Planning.money(max(5, gross*0.0003))+Planning.money(gross*0.0005))
+                    return Planning.money(Planning.money(max(settings.minimumCommission,gross*settings.commissionRate))+Planning.money(gross*settings.slippageRate))
                 }
                 while remaining != 0 {
                     var qty = min(abs(remaining),1_000_000)
@@ -249,7 +251,7 @@ extension StrategyEngine {
             guard value.isFinite, value > 0, st.cash >= -0.001 else { throw ResearchError("回测资金校验失败") }
             st.peak = max(st.peak,value)
             st.curve.append(.init(date: date, equity: value, drawdown: value/st.peak-1))
-            if index < last, try sessions.monthEnd(date) { try select(date) }
+            if index < last, try review(strategy,on:date) { try select(date) }
             if (index-first+1).isMultiple(of: 21) || index == last { try checkpoint(st,Double(index-first+1)/Double(last-first+1)) }
         }
         return st

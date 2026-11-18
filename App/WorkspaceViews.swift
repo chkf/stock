@@ -66,7 +66,7 @@ struct WorkspacePage: View {
         case "quotes": NavigationLink(b.text ?? "ETF 和自选行情") { QuotesView() }
         case "replay": NavigationLink(b.text ?? "策略回测") { ReplayView() }
         case "account": NavigationLink(b.text ?? "我的账户") { AccountView() }
-        default: MarketBlock(type:b.type)
+        default: MarketBlock(type:b.type,target:b.target)
         }
     }
     private func children(_ b: ScreenBlock) -> AnyView {

@@ -5,30 +5,10 @@ func percent(_ value: Double, _ digits: Int = 1) -> String { String(format: "%.*
 private func regime(_ value: String) -> String {
     ["BULL":"强势","BEAR":"弱势","TRANSITION":"过渡","UNKNOWN":"资料不足"][value] ?? value
 }
-private func resolution(_ d: Decision) -> String {
-    switch d.route {
-    case "BANK": return "配置银行 ETF"
-    case "MOM": return d.weights.isEmpty ? "保留现金" : "配置动量领先的 ETF"
-    case "MV": return d.weights.isEmpty ? "协方差样本不足，保留现金" : "采用最小波动配置"
-    case "GB": return "按四类资产配置"
-    case "GROUP": return d.weights.isEmpty ? "保留现金" : "按板块强弱配置"
-    default: return "保留现金，等待信号"
-    }
-}
-private func explanation(_ d: Decision) -> String {
-    switch d.route {
-    case "BANK": return "A 股偏弱。银行 ETF 近 60 个交易日收益为正，且收盘高于 200 日均线。"
-    case "MOM": return "半年收益为正的 ETF 中，按一年收益取前三，各占三分之一，空位留现金。"
-    case "MV": return "用 126 个交易日的收益估算协方差，单只目标上限 35%。"
-    case "GB": return (d.bankStatus == "trend_failed" ? "银行趋势条件未通过。" : d.bankStatus == "insufficient" ? "银行 ETF 历史不足。" : "") + "A 股、海外股票、商品、国债各占四分之一，缺类留现金。"
-    case "GROUP": return "分板块和海外区域判断强弱，强势组按动量选取，剩余资金按规则分配。"
-    default: return "可用历史不足以判断市场状态。"
-    }
-}
-
 struct MarketBlock: View {
     @EnvironmentObject var model: AppModel
     let type: String
+    let target: String?
     var body: some View {
         if type == "marketUpdate" {
             Section {
@@ -44,15 +24,15 @@ struct MarketBlock: View {
                 Text(model.selectedFile?.title ?? model.selectedStrategy).font(.caption).foregroundStyle(.secondary)
             }
         } else if let m = model.market, let d = model.decision, d.strategy == model.selectedStrategy, d.date == m.as_of {
-            if type == "strength", d.strategy == "BANK_ELSE_GB" { StrengthCard(d:d) }
+            if type == "strength", target == nil || d.strategy == target { StrengthCard(d:d) }
             if type == "outlook", let s = leadersFirst(d,m) { OutcomeSection(strategy:d.strategy,symbol:s,name:m.securities[s]?.name ?? s) }
             if type == "decision" {
                 let stale = m.as_of < model.today
                 Section(stale ? "历史判断 · \(d.date)" : "下一交易日 · \(model.next)") {
                     VStack(alignment:.leading,spacing:8) {
-                        Text(d.headline ?? resolution(d)).font(.title2.bold())
+                        Text(d.headline ?? d.route).font(.title2.bold())
                         Text("A 股\(regime(d.marketState)) · \(d.date) 收盘").font(.subheadline)
-                        Text(d.rationale ?? explanation(d)).font(.callout).foregroundStyle(.secondary)
+                        if let why=d.rationale { Text(why).font(.callout).foregroundStyle(.secondary) }
                         if stale { Label("该判断只对应 \(model.next)，请更新行情。",systemImage:"clock").font(.caption).foregroundStyle(.orange) }
                     }.padding(.vertical,3)
                     ForEach(Array(ranked(d,m).filter { $0.place != nil }.prefix(3))) { item in

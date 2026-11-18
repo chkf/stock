@@ -1,1 +1,1 @@
-{"title":"市场判断","tab":"市场","icon":"chart.bar.xaxis","blocks":[{"type":"strategyPicker"},{"type":"decision"},{"type":"strength"},{"type":"outlook"},{"type":"marketUpdate"}]}
+{"title":"市场判断","tab":"市场","icon":"chart.bar.xaxis","blocks":[{"type":"strategyPicker"},{"type":"decision"},{"type":"strength","target":"BANK_ELSE_GB"},{"type":"outlook"},{"type":"marketUpdate"}]}

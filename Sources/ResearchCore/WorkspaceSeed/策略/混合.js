@@ -13,5 +13,5 @@ function run(input) {
             d.protection=Object.keys(input.securities);
         } else { d.route="GB"; fourClasses(rows,d); }
     }
-    return d;
+    return describe(d);
 }

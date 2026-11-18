@@ -11,5 +11,5 @@ function run(input) {
     const idle=1-d.selected.length/3;
     if(idle>1e-12)fourClasses(rows,d,idle,Object.keys(rows).filter(s=>eligible.has(s) || ["bond","commodity"].includes(rows[s].group)));
     d.protection=Object.keys(input.securities).filter(s=>input.securities[s].group.startsWith("domestic") || input.securities[s].group==="overseas_equity");
-    return d;
+    return describe(d);
 }

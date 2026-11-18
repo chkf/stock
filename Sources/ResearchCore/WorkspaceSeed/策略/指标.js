@@ -50,6 +50,22 @@ function setup(input) {
     return {rows, d:{strategy:input.strategy,date:input.date,route:"CASH",marketState:cls.state,breadth:cls.breadth,
         selected:[],scores:{},weights:{},protection:[],exitDrawdown:0.2}};
 }
+function describe(d) {
+    d.resetHighOnEntry=["MOM","BANK"].includes(d.route);
+    const titles={BANK:"配置银行 ETF",MOM:"配置动量领先的 ETF",MV:"采用最小波动配置",GB:"按四类资产配置",GROUP:"按板块强弱配置",CASH:"保留现金，等待信号"};
+    const notes={
+        BANK:"A 股偏弱。银行 ETF 近 60 个交易日收益为正，且收盘高于 200 日均线。",
+        MOM:"半年收益为正的 ETF 中，按一年收益取前三，各占三分之一，空位留现金。",
+        MV:"用 126 个交易日的收益估算协方差，单只目标上限 35%。",
+        GB:"A 股、海外股票、商品、国债各占四分之一，缺类留现金。",
+        GROUP:"分板块和海外区域判断强弱，强势组按动量选取，剩余资金按规则分配。",
+        CASH:"可用历史不足以判断市场状态。"
+    };
+    d.headline=Object.keys(d.weights).length ? titles[d.route] : "保留现金";
+    d.rationale=(d.bankStatus==="trend_failed"?"银行趋势条件未通过。":d.bankStatus==="insufficient"?"银行 ETF 历史不足。":"")+
+        (d.route==="MV" && !Object.keys(d.weights).length?"协方差计算至少需要三只合格 ETF。":notes[d.route]);
+    return d;
+}
 function momentum(rows,d,allowed=Object.keys(rows)) {
     d.scores={};
     for (const s of allowed) if(rows[s] && rows[s].momentum!==null) d.scores[s]=rows[s].momentum;

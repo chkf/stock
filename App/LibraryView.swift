@@ -56,6 +56,7 @@ struct LibraryView: View {
                     ForEach(model.parity, id: \.name) { item in
                         VStack(alignment: .leading) {
                             Label(item.name, systemImage: item.differences.isEmpty ? "checkmark.circle" : "exclamationmark.triangle")
+                            if item.onlyOrderDiffers == true { Text("两只 ETF 同在 35% 上限附近，数值库的末位差异改变了行序。逐只核对的方向、份额和费用均一致。").font(.caption) }
                             if !item.differences.isEmpty { Text(item.differences.joined(separator: "\n")).font(.caption) }
                         }
                     }

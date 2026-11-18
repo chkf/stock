@@ -110,12 +110,12 @@ extension StrategyEngine {
                     }
                 }
             }
-            if !repeatDay, try sessions.monthEnd(d) {
+            if !repeatDay, try review(old.decision.strategy,on:d) {
                 state.locks = state.locks.filter { held[$0.key] != nil || d <= $0.value.date }
                 let prior = state.decision
                 state.decision = try decision(old.decision.strategy, on: d, previousState: prior.marketState,
                                               previousSectors: prior.sectorStates ?? [:])
-                if prior.route != state.decision.route && ["MOM", "BANK"].contains(state.decision.route) {
+                if prior.route != state.decision.route && (state.decision.resetHighOnEntry ?? ["MOM", "BANK"].contains(state.decision.route)) {
                     state.highs = [:]
                     for p in positions where !newSymbols.contains(p.symbol) || (p.entry_date ?? "") <= d {
                         state.highs[p.symbol] = market.securities[p.symbol]?.bars[d]?.close

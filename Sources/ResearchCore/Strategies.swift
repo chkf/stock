@@ -1,28 +1,5 @@
 import Foundation
 
-public enum MarketStrategy: String, CaseIterable, Identifiable {
-    case hybrid = "BANK_ELSE_GB", momentum = "MOM20", variance = "MV", balanced = "GB", sector = "SECTOR_M"
-    public var id: String { rawValue }
-    public var title: String {
-        switch self {
-        case .hybrid: return "动量／协方差／银行，否则四类"
-        case .momentum: return "跨资产动量轮动"
-        case .variance: return "协方差最小波动配置"
-        case .balanced: return "四类固定配置"
-        case .sector: return "板块独立判断与轮动"
-        }
-    }
-    public var shortTitle: String {
-        switch self {
-        case .hybrid: return "混合"
-        case .momentum: return "动量"
-        case .variance: return "最小波动"
-        case .balanced: return "四类"
-        case .sector: return "板块"
-        }
-    }
-}
-
 public struct StrengthDistance {
     public let eligible, required, shortVotes, longVotes, shortDown, longDown: Int
     public let threshold: Double
@@ -54,6 +31,7 @@ public struct Decision: Codable {
     public var protection: [String]?
     public var exitDrawdown: Double?
     public var headline, rationale: String?
+    public var resetHighOnEntry: Bool?
     public var strength: StrengthDistance? { StrengthDistance(breadth) }
 }
 
@@ -72,6 +50,18 @@ public struct StrategyEngine {
         if let allowed = d.protection { return allowed.contains(symbol) }
         guard ["MOM","BANK","GROUP"].contains(d.route), let group = market.securities[symbol]?.group else { return false }
         return d.strategy != "SECTOR_M" || group.hasPrefix("domestic") || group == "overseas_equity"
+    }
+    func review(_ strategy:String,on date:String) throws -> Bool {
+        let v=try workspace ?? Self.seed.get()
+        switch v.design.strategies.first(where:{ $0.id == strategy })?.rebalance ?? "monthly" {
+        case "daily": return true
+        case "weekly":
+            let cal=Calendar(identifier:.iso8601), f=ISO8601DateFormatter()
+            f.formatOptions=[.withFullDate]
+            guard let now=f.date(from:date), let next=f.date(from:try sessions.next(date)) else { throw ResearchError("缺少周末会话") }
+            return cal.component(.weekOfYear,from:now) != cal.component(.weekOfYear,from:next)
+        default: return try sessions.monthEnd(date)
+        }
     }
 }
 

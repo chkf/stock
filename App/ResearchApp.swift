@@ -36,7 +36,7 @@ import SwiftUI
     @Published var archivedMarket: MarketSnapshot?
     @Published var watch = [WatchedSecurity]()
     @Published var preferArchive = false
-    @Published var selectedStrategy = "BANK_ELSE_GB"
+    @Published var selectedStrategy = ""
     @Published var workspace: WorkspaceVersion?
     @Published var decision: Decision?
     @Published var signalReason = ""
@@ -130,6 +130,9 @@ import SwiftUI
         pendingLink=nil
         if parts == ["reload"] { reloadWorkspace() }
         else if parts.count == 2, parts[0] == "run", w.design.actions[parts[1]] != nil { runAction(parts[1]) }
+        else if parts.count == 2, parts[0] == "strategy", w.design.strategies.contains(where:{ $0.id == parts[1] }) {
+            if selectedStrategy == parts[1] { Task { await updateDecision() } } else { selectedStrategy=parts[1] }
+        }
     }
     func reloadWorkspace(rollback: Bool = false) {
         guard let store, let vault else { return }
@@ -163,14 +166,16 @@ import SwiftUI
     }
     func updateDecision() async {
         decision = nil; signalReason = ""
-        guard let m = market, let w = workspace else { return }
+        guard let m = market, let w = workspace, let store, let raw=marketID else { return }
         let id = selectedStrategy
         do {
             let cal = try Sessions()
             today = try cal.completed()
             let d = try await Task.detached { try StrategyEngine(market:m,sessions:cal,workspace:w).decision(id,on:m.as_of) }.value
             try Task.checkCancellation()
-            next = try cal.next(m.as_of); decision = d
+            next = try cal.next(m.as_of)
+            try store.writeDecision(d,market:m,snapshotID:raw,version:w.hash,next:next,current:today)
+            decision = d
         } catch is CancellationError {} catch { if !Task.isCancelled { signalReason = error.localizedDescription } }
     }
     func editWatch(_ symbol: String, remove: Bool = false) {
@@ -247,7 +252,7 @@ import SwiftUI
 
 struct StrategyView: View {
     @EnvironmentObject var model: AppModel
-    @State private var strategy = MarketStrategy.hybrid.rawValue
+    @State private var strategy = ""
     @State private var date = ""
     @State private var capital = "50000"
     @State private var current = true
@@ -303,7 +308,10 @@ struct StrategyView: View {
             if model.busy { Section { ProgressView(value: model.fraction) { Text(model.progress) }; Button("取消", role: .cancel) { model.cancel() } } }
         }
         .navigationTitle("账户份额测算")
-        .onAppear { if date.isEmpty { date = snapshotDay ?? "" } }
+        .onAppear {
+            if date.isEmpty { date = snapshotDay ?? "" }
+            if model.workspace?.design.strategies.contains(where:{ $0.id == strategy }) != true { strategy=model.selectedStrategy }
+        }
         .onChange(of: snapshotDay) { day in date = day ?? "" }
     }
 }

@@ -4,6 +4,13 @@ import CWorkspaceJS
 public struct StrategyFile: Codable, Identifiable, Hashable {
     public let id, title, short, file: String
     public let history: Int
+    public let rebalance: String?
+}
+public struct StudySettings: Codable {
+    public let capital, commissionRate, minimumCommission, slippageRate, rebalanceBand: Double
+    static let original = Self(capital:50_000,commissionRate:0.0003,minimumCommission:5,slippageRate:0.0005,rebalanceBand:0.03)
+    var valid:Bool { (1...100_000_000).contains(capital) && (0...0.01).contains(commissionRate) &&
+        (0...100).contains(minimumCommission) && (0...0.02).contains(slippageRate) && (0..<1).contains(rebalanceBand) }
 }
 public struct ScreenBlock: Codable {
     public let type: String
@@ -19,6 +26,7 @@ public struct WorkspaceDesign: Codable {
     public let schema: Int
     public let title, library: String
     public let tabs: [String], pages: [String: String], strategies: [StrategyFile], actions: [String: String]
+    public let study: StudySettings?
 }
 public struct WorkspaceVersion {
     public let hash: String, design: WorkspaceDesign, pages: [String: FilePage]
@@ -50,7 +58,7 @@ public struct WorkspaceVersion {
     public static func load(from root: URL) throws -> Self {
         let m = try read(root.appendingPathComponent("workspace.json"),under: root,limit: 256*1024)
         let design = try JSONDecoder().decode(WorkspaceDesign.self,from: m)
-        guard design.schema == 1, (1...5).contains(design.tabs.count), Set(design.tabs).count == design.tabs.count,
+        guard design.schema == 1, design.study?.valid ?? true, (1...5).contains(design.tabs.count), Set(design.tabs).count == design.tabs.count,
               design.pages.count <= 100, !design.strategies.isEmpty, design.strategies.count <= 64, design.actions.count <= 100,
               Set(design.strategies.map(\.id)).count == design.strategies.count, design.tabs.allSatisfy({ design.pages[$0] != nil }),
               (Array(design.pages.keys)+Array(design.actions.keys)+design.strategies.map(\.id)).allSatisfy(validID)
@@ -92,7 +100,7 @@ public struct WorkspaceVersion {
         }
         let library = try script(design.library)
         for s in design.strategies {
-            guard (1...6000).contains(s.history), !s.title.isEmpty else { throw ResearchError("\(s.id) 历史窗口或名称无效") }
+            guard (1...6000).contains(s.history), !s.title.isEmpty, ["daily","weekly","monthly"].contains(s.rebalance ?? "monthly") else { throw ResearchError("\(s.id) 历史窗口、名称或换仓频率无效") }
             _ = try execute(library+"\n"+script(s.file),file:s.file,input:Data(),check:true)
         }
         for name in design.actions.values { _ = try execute(script(name),file:name,input:Data(),check:true) }
@@ -154,6 +162,25 @@ public struct WorkspaceStore {
     public func logActivation(active:String,message:String,successful:Bool) throws {
         let record:[String:Any]=["active":active,"message":message,"ok":successful,"time":ISO8601DateFormatter().string(from:Date())]
         try JSONSerialization.data(withJSONObject:record,options:[.prettyPrinted,.sortedKeys]).write(to:root.appendingPathComponent("输出/工作区状态.json"),options:.atomic)
+    }
+    public func writeDecision(_ d:Decision,market:MarketSnapshot,snapshotID:String,version:String,next:String,current:String) throws {
+        guard WorkspaceVersion.validID(d.strategy) else { throw ResearchError("策略标识无效") }
+        struct Rank: Encodable { let symbol,name:String; let target:Double; let score:Double? }
+        struct Result: Encodable {
+            let snapshot,workspace,nextSession,latestCompleted:String
+            let stale:Bool; let decision:Decision; let ranking:[Rank]
+        }
+        let rows=market.securities.keys.sorted { a,b in
+            let x=d.weights[a] ?? 0,y=d.weights[b] ?? 0
+            if x != y { return x>y }
+            let sx=d.scores[a] ?? -.infinity,sy=d.scores[b] ?? -.infinity
+            return sx == sy ? a<b : sx>sy
+        }.map { Rank(symbol:$0,name:market.securities[$0]!.name,target:d.weights[$0] ?? 0,score:d.scores[$0]) }
+        let file=root.appendingPathComponent("输出/市场判断",isDirectory:true)
+        try FileManager.default.createDirectory(at:file,withIntermediateDirectories:true)
+        let encoder=JSONEncoder(); encoder.outputFormatting=[.sortedKeys,.prettyPrinted,.withoutEscapingSlashes]
+        try encoder.encode(Result(snapshot:snapshotID,workspace:version,nextSession:next,latestCompleted:current,stale:d.date<current,decision:d,ranking:rows))
+            .write(to:file.appendingPathComponent(d.strategy+".json"),options:.atomic)
     }
     private struct Receipt: Codable { let active: String; let previous: String? }
     private func receipt() throws -> Receipt? {

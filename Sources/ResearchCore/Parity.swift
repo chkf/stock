@@ -4,6 +4,7 @@ import Foundation
 public struct ParityResult: Codable {
     public let name: String
     public let differences: [String]
+    public var onlyOrderDiffers: Bool? = nil
 }
 public enum Parity {
     static func object(_ value: some Encodable) throws -> Any {
@@ -79,7 +80,21 @@ public enum Parity {
             var diffs = differences(expected, actual)
             if d.date != c["date"] as? String { diffs.append("信号日期不一致") }
             if d.strategy != strategy { diffs.append("策略编号不一致") }
-            results.append(.init(name: "\(c["name"]!) · \(strategy)", differences: diffs))
+            var result=ParityResult(name: "\(c["name"]!) · \(strategy)", differences: diffs)
+            if !diffs.isEmpty, d.route == "MV" {
+                // Retain the strict order check. Separately identify cases where every security's
+                // direction, quantity and cash amount matches, including funded and deferred shares.
+                func sortedOrders(_ dict:[String:Any]) -> [String:Any] {
+                    var copy=dict
+                    if var plan=copy["plan"] as? [String:Any], let rows=plan["orders"] as? [[String:Any]] {
+                        plan["orders"]=rows.sorted { ($0["symbol"] as? String ?? "") < ($1["symbol"] as? String ?? "") }
+                        copy["plan"]=plan
+                    }
+                    return copy
+                }
+                result.onlyOrderDiffers=differences(sortedOrders(expected),sortedOrders(actual)).isEmpty
+            }
+            results.append(result)
         }
         for c in tracking {
             try progress(results.count, total)
