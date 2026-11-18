@@ -337,7 +337,8 @@ private struct StudyDateRow:View {
 }
 struct HistoryDownloadView:View {
     @EnvironmentObject var model:AppModel
-    @State private var from=Date(), through=Date()
+    @State private var from = Date()
+    @State private var through = Date()
     @State private var calendar:Sessions?
     @State private var last=""
     @State private var loadError=""
