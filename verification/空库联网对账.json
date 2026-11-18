@@ -1,0 +1,552 @@
+{
+  "badUpdatePreservedPrior" : true,
+  "cases" : [
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · MOM20"
+    },
+    {
+      "differences" : [
+        "plan.orders.0.costs.slippage · Python 7.07 · Swift 6.79",
+        "plan.orders.0.costs.total · Python 12.07 · Swift 11.79",
+        "plan.orders.0.reference_price · Python 141.371 · Swift 135.769",
+        "plan.orders.0.reference_value · Python 14137.1 · Swift 13576.9",
+        "plan.orders.0.symbol · Python 511010.SH · Swift 511260.SH",
+        "plan.orders.1.costs.slippage · Python 6.79 · Swift 7.07",
+        "plan.orders.1.costs.total · Python 11.79 · Swift 12.07",
+        "plan.orders.1.reference_price · Python 135.769 · Swift 141.371",
+        "plan.orders.1.reference_value · Python 13576.9 · Swift 14137.1",
+        "plan.orders.1.symbol · Python 511260.SH · Swift 511010.SH"
+      ],
+      "name" : "快照收盘 · MV",
+      "onlyOrderDiffers" : true
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · MOM20"
+    },
+    {
+      "differences" : [
+        "plan.orders.1.costs.slippage · Python 7.07 · Swift 6.79",
+        "plan.orders.1.costs.total · Python 12.07 · Swift 11.79",
+        "plan.orders.1.reference_price · Python 141.371 · Swift 135.769",
+        "plan.orders.1.reference_value · Python 14137.1 · Swift 13576.9",
+        "plan.orders.1.symbol · Python 511010.SH · Swift 511260.SH",
+        "plan.orders.2.costs.slippage · Python 6.79 · Swift 7.07",
+        "plan.orders.2.costs.total · Python 11.79 · Swift 12.07",
+        "plan.orders.2.reference_price · Python 135.769 · Swift 141.371",
+        "plan.orders.2.reference_value · Python 13576.9 · Swift 14137.1",
+        "plan.orders.2.symbol · Python 511260.SH · Swift 511010.SH"
+      ],
+      "name" : "待卖出到账 · MV",
+      "onlyOrderDiffers" : true
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · MOM20"
+    },
+    {
+      "differences" : [
+        "plan.orders.0.costs.commission · Python 10496.8 · Swift 10496.3",
+        "plan.orders.0.costs.order_quantities.0 · Python 247500 · Swift 257700",
+        "plan.orders.0.costs.slippage · Python 17494.66 · Swift 17493.84",
+        "plan.orders.0.costs.total · Python 27991.46 · Swift 27990.14",
+        "plan.orders.0.funded_quantity · Python 247500 · Swift 257700",
+        "plan.orders.0.quantity · Python 247500 · Swift 257700",
+        "plan.orders.0.reference_price · Python 141.371 · Swift 135.769",
+        "plan.orders.0.reference_value · Python 34989322.5 · Swift 34987671.3",
+        "plan.orders.0.requested_quantity · Python 247500 · Swift 257700",
+        "plan.orders.0.symbol · Python 511010.SH · Swift 511260.SH",
+        "plan.orders.1.costs.commission · Python 10496.3 · Swift 10496.8",
+        "plan.orders.1.costs.order_quantities.0 · Python 257700 · Swift 247500",
+        "plan.orders.1.costs.slippage · Python 17493.84 · Swift 17494.66",
+        "plan.orders.1.costs.total · Python 27990.14 · Swift 27991.46",
+        "plan.orders.1.funded_quantity · Python 257700 · Swift 247500",
+        "plan.orders.1.quantity · Python 257700 · Swift 247500",
+        "plan.orders.1.reference_price · Python 135.769 · Swift 141.371",
+        "plan.orders.1.reference_value · Python 34987671.3 · Swift 34989322.5",
+        "plan.orders.1.requested_quantity · Python 257700 · Swift 247500",
+        "plan.orders.1.symbol · Python 511260.SH · Swift 511010.SH"
+      ],
+      "name" : "大额分单 · MV",
+      "onlyOrderDiffers" : true
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末跨日"
+    }
+  ],
+  "damagedEvidenceRejected" : true,
+  "date" : "2026-11-17",
+  "deferredShares" : 1700,
+  "evidenceFilesChecked" : 57,
+  "incrementalParityCases" : 41,
+  "incrementalResults" : [
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "快照收盘 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "一手不足 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "待卖出到账 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "缺持仓报价 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "账户未确认到本日 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "行情过期 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · BANK_ELSE_GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · MOM20"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · MV"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · GB"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "大额分单 · SECTOR_M"
+    },
+    {
+      "differences" : [
+
+      ],
+      "name" : "月末跨日"
+    }
+  ],
+  "manualTestAccountReloaded" : true,
+  "noImport" : true,
+  "offlineReportReloaded" : true,
+  "platform" : "桌面 Swift，共用本机计算及存储代码",
+  "securities" : 28,
+  "sellableShares" : 8300,
+  "snapshot" : "3f2550917accedd86f45b17cf314a61c0deb5cf7f9b07169ccdc19857f4c14f0",
+  "warmup" : "2026-01-16"
+}

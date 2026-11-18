@@ -45,7 +45,7 @@ public struct WorkspaceVersion {
         else { throw ResearchError("工作区路径无效 \(name)") }
         return name
     }
-    private static func read(_ url: URL, under root: URL, limit: Int) throws -> Data {
+    fileprivate static func read(_ url: URL, under root: URL, limit: Int) throws -> Data {
         let p = url.resolvingSymlinksInPath()
         guard p.path.hasPrefix(root.resolvingSymlinksInPath().path+"/"), try p.resourceValues(forKeys: [.isRegularFileKey,.fileSizeKey]).isRegularFile == true,
               try (p.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? Int.max) <= limit else { throw ResearchError("工作区文件位置或大小异常 \(url.lastPathComponent)") }
@@ -153,12 +153,54 @@ public struct WorkspaceVersion {
     }
 }
 
+public struct WorkspaceRequest: Decodable {
+    public let id, operation: String
+    public let target: String?
+    public let fields: [String:String]?
+}
+
+public struct WorkspaceTicket {
+    public let request: WorkspaceRequest
+    public let digest: String
+}
+
 public struct WorkspaceStore {
     public let root: URL
     public init(root: URL) { self.root=root }
     public var working: URL { root.appendingPathComponent("设计",isDirectory:true) }
     private var versions: URL { root.appendingPathComponent("版本",isDirectory:true) }
     private var pointer: URL { versions.appendingPathComponent("current.json") }
+    private var replyFile: URL { root.appendingPathComponent("输出/请求状态.json") }
+    private struct Reply: Codable { let digest,id,status,message,time:String }
+    private func reply(digest:String,id:String,ok:Bool,message:String) throws {
+        let reply = Reply(digest:digest,id:id,status:ok ? "done" : "error",message:message,time:ISO8601DateFormatter().string(from:Date()))
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
+        try encoder.encode(reply).write(to:replyFile,options:.atomic)
+    }
+    public func finish(_ ticket:WorkspaceTicket,ok:Bool,message:String) throws {
+        try reply(digest:ticket.digest,id:ticket.request.id,ok:ok,message:message)
+    }
+    public func nextRequest() throws -> WorkspaceTicket? {
+        let url = root.appendingPathComponent("请求.json")
+        guard FileManager.default.fileExists(atPath:url.path) else { return nil }
+        let data = try WorkspaceVersion.read(url,under:root,limit:64*1024)
+        let digest = Integrity.sha(data)
+        if let bytes = try? Data(contentsOf:replyFile), let previous = try? JSONDecoder().decode(Reply.self,from:bytes), previous.digest == digest { return nil }
+        var id = ""
+        do {
+            let request = try JSONDecoder().decode(WorkspaceRequest.self,from:data)
+            id = request.id
+            guard WorkspaceVersion.validID(id), ["reload","run","strategy"].contains(request.operation),
+                  request.operation == "reload" || WorkspaceVersion.validID(request.target ?? ""),
+                  request.fields?.count ?? 0 <= 64, request.fields?.allSatisfy({ WorkspaceVersion.validID($0.key) && $0.value.utf8.count <= 4096 }) ?? true
+            else { throw ResearchError("请求需要有效的 id、operation 和 target") }
+            return WorkspaceTicket(request:request,digest:digest)
+        } catch {
+            try reply(digest:digest,id:id,ok:false,message:error.localizedDescription)
+            return nil
+        }
+    }
     public func logActivation(active:String,message:String,successful:Bool) throws {
         let record:[String:Any]=["active":active,"message":message,"ok":successful,"time":ISO8601DateFormatter().string(from:Date())]
         try JSONSerialization.data(withJSONObject:record,options:[.prettyPrinted,.sortedKeys]).write(to:root.appendingPathComponent("输出/工作区状态.json"),options:.atomic)
@@ -192,8 +234,12 @@ public struct WorkspaceStore {
         try fm.createDirectory(at:root,withIntermediateDirectories:true)
         try fm.createDirectory(at:root.appendingPathComponent("输入"),withIntermediateDirectories:true)
         try fm.createDirectory(at:root.appendingPathComponent("输出"),withIntermediateDirectories:true)
-        guard !fm.fileExists(atPath:working.path), try receipt() == nil else { return }
         guard let seed = Bundle.module.url(forResource:"WorkspaceSeed",withExtension:nil) else { throw ResearchError("工作区模板缺失") }
+        let guide = root.appendingPathComponent("AGENTS.md")
+        if !fm.fileExists(atPath:guide.path) {
+            try Data(contentsOf:seed.appendingPathComponent("AGENTS.md")).write(to:guide,options:.atomic)
+        }
+        guard !fm.fileExists(atPath:working.path), try receipt() == nil else { return }
         let stage = root.appendingPathComponent(".install-"+UUID().uuidString)
         try fm.copyItem(at:seed,to:stage)
         try fm.moveItem(at:stage,to:working)

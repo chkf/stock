@@ -26,6 +26,13 @@ struct WorkspaceRoot: View {
             } else if model.vault != nil { NavigationStack { WorkspaceControls() } }
             else { ProgressView("正在打开股票研究台") }
         }.task(id:model.signalKey) { await model.updateDecision() }
+            .task(id:phase) {
+                guard phase == .active else { return }
+                while !Task.isCancelled {
+                    model.processFileRequest()
+                    do { try await Task.sleep(nanoseconds:3_000_000_000) } catch { return }
+                }
+            }
             .onChange(of:phase) { phase in if phase == .active { model.today = (try? Sessions().completed()) ?? model.today } }
     }
 }
@@ -161,10 +168,10 @@ private struct WorkspaceDataBlock: View {
 }
 
 extension AppModel {
-    func runAction(_ id: String) {
+    func runAction(_ id: String,request:WorkspaceTicket? = nil) {
         guard let w=workspace, let store else { return }
-        let m=market, fields=self.fields
-        start("正在运行工作区功能") {
+        let m=market, fields=request?.request.fields ?? (request == nil ? self.fields : [:])
+        start("正在运行工作区功能",request:request) {
             let result = try await Task.detached { () throws -> FunctionOutput in
                 let summary: [String:Any] = m?.securities.mapValues { ["name":$0.name,"group":$0.group,"bars":$0.bars.count] as [String:Any] } ?? [:]
                 var input: [String:Any]=["asOf":m?.as_of ?? "","market":summary,"fields":fields,"records":try store.inputs()]

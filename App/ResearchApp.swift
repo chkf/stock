@@ -96,14 +96,20 @@ import SwiftUI
         }
         archive = active
     }
-    func start(_ title: String, _ work: @escaping () async throws -> Void) {
+    func start(_ title: String, request:WorkspaceTicket? = nil, _ work: @escaping () async throws -> Void) {
         guard !busy else { return }
         busy = true; progress = title; fraction = 0
         job = Task {
             defer { busy = false; job = nil }
-            do { try await work() }
-            catch is CancellationError { progress = "本次任务已取消" }
-            catch { self.error = error.localizedDescription; progress = "未完成" }
+            do {
+                try await work()
+                if let request { try store?.finish(request,ok:true,message:progress) }
+            } catch {
+                let reason = error is CancellationError ? "本次任务已取消" : error.localizedDescription
+                if let request { try? store?.finish(request,ok:false,message:reason) }
+                else if !(error is CancellationError) { self.error = reason }
+                progress = reason
+            }
         }
     }
     func receive(_ code: String) {
@@ -139,9 +145,32 @@ import SwiftUI
             Task { dispatchWorkspaceLink() }
         }
     }
-    func reloadWorkspace(rollback: Bool = false) {
+    func processFileRequest() {
+        guard opened, !busy, let store else { return }
+        do {
+            guard let ticket = try store.nextRequest() else { return }
+            let request = ticket.request
+            if request.operation == "reload" { reloadWorkspace(request:ticket); return }
+            guard let w=workspace, let target=request.target else {
+                try store.finish(ticket,ok:false,message:"请先启用工作区"); return
+            }
+            if request.operation == "run", w.design.actions[target] != nil {
+                runAction(target,request:ticket); return
+            }
+            if request.operation == "strategy", w.design.strategies.contains(where:{ $0.id == target }) {
+                selectedStrategy=target
+                start("正在本机重算策略",request:ticket) {
+                    try await self.calculateDecision()
+                    self.progress = "已保存市场判断 "+target
+                }
+                return
+            }
+            try store.finish(ticket,ok:false,message:"当前设计中找不到 "+target)
+        } catch { progress = error.localizedDescription }
+    }
+    func reloadWorkspace(rollback: Bool = false, request: WorkspaceTicket? = nil) {
         guard let store, let vault else { return }
-        start("检查工作区文件") {
+        start("检查工作区文件",request:request) {
             do {
             let live = try await vault.phoneMarket()
             let personal = try await vault.personalAccount(), saved = try await vault.reports()
@@ -171,18 +200,21 @@ import SwiftUI
     }
     func updateDecision() async {
         decision = nil; signalReason = ""
-        guard let m = market, let w = workspace, let store, let raw=marketID else { return }
+        guard market != nil else { return }
+        do { try await calculateDecision() }
+        catch is CancellationError {} catch { if !Task.isCancelled { signalReason = error.localizedDescription } }
+    }
+    private func calculateDecision() async throws {
+        guard let m = market, let w = workspace, let store, let raw=marketID else { throw ResearchError("请先获取行情并启用工作区") }
         let id = selectedStrategy
-        do {
-            let cal = try Sessions()
-            today = try cal.completed()
-            let d = try await Task.detached { try StrategyEngine(market:m,sessions:cal,workspace:w).decision(id,on:m.as_of) }.value
-            try Task.checkCancellation()
-            guard workspace?.hash == w.hash, marketID == raw, selectedStrategy == id else { return }
-            next = try cal.next(m.as_of)
-            try store.writeDecision(d,market:m,snapshotID:raw,version:w.hash,next:next,current:today)
-            decision = d
-        } catch is CancellationError {} catch { if !Task.isCancelled { signalReason = error.localizedDescription } }
+        let cal = try Sessions()
+        today = try cal.completed()
+        let d = try await Task.detached { try StrategyEngine(market:m,sessions:cal,workspace:w).decision(id,on:m.as_of) }.value
+        try Task.checkCancellation()
+        guard workspace?.hash == w.hash, marketID == raw, selectedStrategy == id else { throw CancellationError() }
+        next = try cal.next(m.as_of)
+        try store.writeDecision(d,market:m,snapshotID:raw,version:w.hash,next:next,current:today)
+        decision = d; signalReason = ""
     }
     func editWatch(_ symbol: String, remove: Bool = false) {
         guard let vault else { return }

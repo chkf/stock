@@ -14,6 +14,15 @@ def sim(*args):
     return run("xcrun","simctl",*args)
 
 
+def write_request(root, expect="done", **request):
+    temporary = root/"请求.tmp"
+    temporary.write_text(json.dumps(request,ensure_ascii=False),"utf-8")
+    temporary.replace(root/"请求.json")
+    receipt = wait_for(root/"输出/请求状态.json",lambda r:r.get("id")==request["id"])
+    if receipt.get("status") != expect:
+        raise RuntimeError(f"App reported {receipt}")
+
+
 def wait_for(path, predicate, seconds=100):
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
@@ -64,21 +73,26 @@ def main():
     script.write_text('function run(input) { return {text: String(input.records.sample.value * 3)}; }',"utf-8")
     (root/"输入/sample.json").write_text('{"value":14}',"utf-8")
     (design/"workspace.json").write_text(json.dumps(manifest,ensure_ascii=False),"utf-8")
-    sim("openurl",udid,"stockresearch://workspace/reload")
+    write_request(root,id="first-reload",operation="reload")
     now = wait_for(pointer,lambda p:p.get("active")!=before)["active"]
     print(f"Loaded new page and function in workspace {now}",flush=True)
-    sim("openurl",udid,"stockresearch://workspace/run/newTool")
+    write_request(root,id="first-run",operation="run",target="newTool")
     wait_for(root/"输出/newTool.json",lambda r:r.get("text")=="42")
+    (root/"输入/sample.json").write_text('{"value":21}',"utf-8")
+    write_request(root,id="file-agent",operation="run",target="newTool")
+    wait_for(root/"输出/newTool.json",lambda r:r.get("text")=="63")
     sim("terminate",udid,bundle)
     (root/"输出/newTool.json").unlink()
     sim("launch",udid,bundle)
-    sim("openurl",udid,"stockresearch://workspace/run/newTool")
-    wait_for(root/"输出/newTool.json",lambda r:r.get("text")=="42")
+    write_request(root,id="after-restart",operation="run",target="newTool")
+    wait_for(root/"输出/newTool.json",lambda r:r.get("text")=="63")
     script.write_text("function run(","utf-8")
-    sim("openurl",udid,"stockresearch://workspace/reload")
+    write_request(root,expect="error",id="broken-reload",operation="reload")
     wait_for(root/"输出/工作区状态.json",lambda r:r.get("ok") is False and r.get("active")==now)
     assert json.loads(pointer.read_text())["active"]==now
-    print(f"{phone['name']}: existing binary loaded an external page, ran a new function yielding 42, and kept its last valid release after a broken edit.")
+    write_request(root,id="recovery-run",operation="run",target="newTool")
+    wait_for(root/"输出/newTool.json",lambda r:r.get("text")=="63")
+    print(f"{phone['name']}: file-only requests loaded an external page and new function, produced 42 and 63, survived a restart and a broken edit.",flush=True)
 
 
 if __name__=="__main__":

@@ -1,0 +1,69 @@
+{
+  "end" : "2026-11-17",
+  "issues" : [
+
+  ],
+  "routeDates" : [
+    [
+      "2026-11-17",
+      "BANK"
+    ],
+    [
+      "2026-09-24",
+      "MV"
+    ],
+    [
+      "2026-07-13",
+      "GB"
+    ],
+    [
+      "2026-03-10",
+      "MOM"
+    ]
+  ],
+  "snapshot" : "936d5734e7655d73fbee9d0ffb13fcf5c9eeaa17b639e3dbf115a2f321c666d6",
+  "start" : "2026-01-19",
+  "studies" : [
+    {
+      "closed" : 38,
+      "curveMatchesToCent" : true,
+      "fills" : 95,
+      "sessions" : 200,
+      "strategy" : "BANK_ELSE_GB",
+      "tradesMatch" : true
+    },
+    {
+      "closed" : 12,
+      "curveMatchesToCent" : true,
+      "fills" : 31,
+      "sessions" : 200,
+      "strategy" : "MOM20",
+      "tradesMatch" : true
+    },
+    {
+      "closed" : 2,
+      "curveMatchesToCent" : true,
+      "fills" : 21,
+      "sessions" : 200,
+      "strategy" : "MV",
+      "tradesMatch" : true
+    },
+    {
+      "closed" : 0,
+      "curveMatchesToCent" : true,
+      "fills" : 26,
+      "sessions" : 200,
+      "strategy" : "GB",
+      "tradesMatch" : true
+    },
+    {
+      "closed" : 17,
+      "curveMatchesToCent" : true,
+      "fills" : 52,
+      "sessions" : 200,
+      "strategy" : "SECTOR_M",
+      "tradesMatch" : true
+    }
+  ],
+  "workspace" : "dba216c1dc720811aaec5fdd5b332c6ebc29c0ce4b2ff298f32ca108937156b7"
+}

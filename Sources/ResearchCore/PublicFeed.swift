@@ -34,8 +34,7 @@ struct PublicRules: Decodable {
     let members: [String: Member]
     let review159936: [Double]
     static func load() throws -> Self {
-        guard let url = Bundle.module.url(forResource: "PublicRules", withExtension: "json") else { throw ResearchError("缺少固定 ETF 池") }
-        let rules = try JSONDecoder().decode(Self.self, from: Data(contentsOf: url))
+        let rules = try JSONDecoder().decode(Self.self,from:FrozenInputs.data("PublicRules.json"))
         guard Set(rules.members.keys) == MarketSnapshot.pool else { throw ResearchError("公开证券规则池不完整") }
         return rules
     }

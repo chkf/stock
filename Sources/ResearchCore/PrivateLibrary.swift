@@ -32,6 +32,7 @@ public actor PrivateLibrary {
             guard !fm.fileExists(atPath: data.path) else { throw ResearchError("旧资料和工作区数据同时存在。已保留两份，请在文件中给现有「数据」改名后重新打开。") }
             try fm.moveItem(at: previous,to: data)
         } else { try fm.createDirectory(at: data,withIntermediateDirectories: true) }
+        try FrozenInputs.install(in:data)
         return PrivateLibrary(root: data)
     }
 

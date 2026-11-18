@@ -41,6 +41,10 @@ final class WorkspaceTests: XCTestCase {
         XCTAssertEqual(try store.rollback().hash,a.hash)
         XCTAssertEqual(try signal(XCTUnwrap(store.active())).headline,try signal(a).headline)
         XCTAssertEqual(try Data(contentsOf:vault.root.appendingPathComponent("old.json")),receipt)
+        let calendar = try FrozenInputs.data("XSHG.txt",in:vault.root)
+        let inputFile = vault.root.appendingPathComponent("原版依据/\(Integrity.sha(calendar))/XSHG.txt")
+        try Data("2000-01-01".utf8).write(to:inputFile,options:.atomic)
+        XCTAssertThrowsError(try FrozenInputs.data("XSHG.txt",in:vault.root))
     }
     func testStrengthVotesAndThreshold() throws {
         let sample=["count":18.0,"threshold":0.6,"up60":3.0/18,"up200":2.0/18,"down60":12.0/18,"down200":11.0/18]
@@ -53,5 +57,25 @@ final class WorkspaceTests: XCTestCase {
     }
     func testLocalFunctionTimeout() {
         XCTAssertThrowsError(try WorkspaceVersion.execute("function run(){for(;;){}}",file:"test.js",input:Data("{}".utf8)))
+    }
+    func testAgentRequestSurvivesReopenAndRecordsBadInput() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at:root) }
+        let store = WorkspaceStore(root:root)
+        try store.installIfNeeded()
+        XCTAssertNil(try store.nextRequest())
+        let url = root.appendingPathComponent("请求.json")
+        try Data(#"{"id":"phone-1","operation":"run","target":"coverage","fields":{"symbol":"512800.SH"}}"#.utf8).write(to:url,options:.atomic)
+        let ticket = try XCTUnwrap(store.nextRequest())
+        XCTAssertEqual(ticket.request.fields?["symbol"],"512800.SH")
+        XCTAssertEqual(try WorkspaceStore(root:root).nextRequest()?.digest,ticket.digest)
+        try store.finish(ticket,ok:true,message:"已保存")
+        XCTAssertNil(try WorkspaceStore(root:root).nextRequest())
+        try Data(#"{"id":"phone-2","operation":"unknown"}"#.utf8).write(to:url,options:.atomic)
+        XCTAssertNil(try store.nextRequest())
+        let response = try Data(contentsOf:root.appendingPathComponent("输出/请求状态.json"))
+        let fields = try XCTUnwrap(JSONSerialization.jsonObject(with:response) as? [String:String])
+        XCTAssertEqual(fields["id"],"phone-2")
+        XCTAssertEqual(fields["status"],"error")
     }
 }

@@ -4,7 +4,7 @@
 
 ## 第一次构建
 
-1. 在 GitHub 新建一个私有仓库，用 Windows 上的 GitHub Desktop 将它克隆到一个新目录。
+1. 在 Windows 上用 GitHub Desktop 将自己的 GitHub 仓库克隆到一个新目录。股票研究台的已发布版本可在 [GitHub Releases](https://github.com/chkf/stock/releases) 直接下载。
 2. 将股票研究台的 GitHub 源码包解压到该目录。打开目录能直接看到 Package.swift、StockResearch.xcodeproj、Sources 和 .github。GitHub 从仓库根目录下的 .github/workflows/ipa.yml 识别工作流。
 3. 在 GitHub Desktop 提交到仓库的默认分支并点击 Push origin，首次推送也可能显示 Publish branch。打开 GitHub 仓库网页后应能看到解压出来的文件。
 4. 打开 **Actions → 构建 iPhone IPA → Run workflow**。首次可选 **unsigned**，无需 Apple 签名材料。构建成功后，在这次运行底部的 **Artifacts** 点击 **StockResearch-unsigned.ipa** 下载。此包可用来验证编译或供后续签名，安装到 iPhone 需要有效签名。[GitHub 手动运行工作流](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow)
@@ -31,3 +31,9 @@
 4. 再次打开 **Actions → 构建 iPhone IPA → Run workflow**，选择 **ad-hoc**。下载 **StockResearch-ad-hoc.ipa**。流程会校验导出后的签名、内嵌描述文件、主程序和设备平台。这类 IPA 适用于描述文件中登记的 iPhone。[Apple 设备安装说明](https://help.apple.com/xcode/mac/current/en.lproj/dev7ccaf4d3c.html)
 
 也可以在推送到 main 的提交说明中写入 [build ipa]，让这次提交自动生成未签名包。签名模式由用户在 Actions 页面主动启动。IPA 作为仓库运行产物保留 7 天。
+
+## 手机开发和旧资料
+
+首次安装打开一次，给手机 agent 选择「我的 iPhone / 股票研究台 / 研究工作区」，从根目录 AGENTS.md 开始。页面、功能、算法与参数均可在手机上编辑，应用在前台处理「请求.json」并保存结果。新增原生组件或系统权限时再构建和安装新版框架。[手机工作区说明](Sources/ResearchCore/WorkspaceSeed/手机开发说明.md)
+
+旧电脑资料可选迁入。将本仓库源码放入 Windows 原项目根目录的 ios 子目录，双击「电脑直传.cmd」，在手机资料库打开旧电脑导入入口。也可用 Python 3.12 运行 tools/transfer.py serve --root 后接原 Windows 项目目录。原行情、原始账户与模型留在自己的电脑和手机上。五套策略、研究和原版各实验的进度列于迁移清单。[迁移清单](docs/迁移清单.md)

@@ -41,14 +41,12 @@ public enum Parity {
 
     private static func run(market: MarketSnapshot, originalHash: String?, from: String?,workspace: WorkspaceVersion?,
                             progress: (Int, Int) throws -> Void) throws -> [ParityResult] {
-        guard let url = Bundle.module.url(forResource: "Reference", withExtension: "json"),
-              let references = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any],
+        guard let references = try JSONSerialization.jsonObject(with:FrozenInputs.data("Reference.json")) as? [String: Any],
               let allCases = references["cases"] as? [[String: Any]], let allTracking = references["tracking"] as? [[String: Any]],
               originalHash == nil || references["snapshot"] as? String == originalHash else {
             throw ResearchError("此快照没有配套的固定 Python 对照样例")
         }
-        guard let calURL = Bundle.module.url(forResource: "XSHG", withExtension: "txt"),
-              try Integrity.sha(Data(contentsOf: calURL)) == references["calendarSHA256"] as? String else {
+        guard try Integrity.sha(FrozenInputs.data("XSHG.txt")) == references["calendarSHA256"] as? String else {
             throw ResearchError("交易日历与 Python 对照输入不同")
         }
         // The frozen stale-market case requires that the snapshot ends on precisely its original day.

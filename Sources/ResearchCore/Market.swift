@@ -40,10 +40,7 @@ public struct Sessions {
     private let indices: [String: Int]
 
     public init() throws {
-        guard let url = Bundle.module.url(forResource: "XSHG", withExtension: "txt") else {
-            throw ResearchError("交易日历缺失")
-        }
-        let text = try String(contentsOf: url, encoding: .utf8)
+        let text = String(decoding:try FrozenInputs.data("XSHG.txt"),as:UTF8.self)
         days = text.split(whereSeparator: \.isWhitespace).map(String.init)
         guard !days.isEmpty, days == days.sorted(), Set(days).count == days.count else {
             throw ResearchError("交易日历损坏")
