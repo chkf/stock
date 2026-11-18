@@ -1,0 +1,15 @@
+.build/
+.swiftpm/
+DerivedData/
+xcuserdata/
+__pycache__/
+.pytest_cache/
+*.xcuserstate
+*.ipa
+*.xcarchive/
+*.p12
+*.p8
+*.mobileprovision
+*.keychain-db
+.DS_Store
+/发布/*.zip

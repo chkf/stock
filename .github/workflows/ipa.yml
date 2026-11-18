@@ -1,0 +1,49 @@
+name: 构建 iPhone IPA
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      signing:
+        description: unsigned 用于编译或后续签名，ad-hoc 用于已登记的 iPhone
+        type: choice
+        default: unsigned
+        required: true
+        options:
+          - unsigned
+          - ad-hoc
+
+permissions:
+  contents: read
+
+jobs:
+  iphone:
+    if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[build ipa]')
+    runs-on: macos-26
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: 检查工具版本并运行计算核心测试
+        run: |
+          xcodebuild -version
+          swift test
+      - name: 构建未签名 IPA
+        if: github.event_name == 'push' || inputs.signing == 'unsigned'
+        run: python3 .github/scripts/build_ipa.py unsigned
+      - name: 给已登记的 iPhone 构建签名 IPA
+        if: github.event_name == 'workflow_dispatch' && inputs.signing == 'ad-hoc'
+        env:
+          IOS_P12_BASE64: ${{ secrets.IOS_P12_BASE64 }}
+          IOS_P12_PASSWORD: ${{ secrets.IOS_P12_PASSWORD }}
+          IOS_PROFILE_BASE64: ${{ secrets.IOS_PROFILE_BASE64 }}
+          IOS_BUNDLE_ID: ${{ vars.IOS_BUNDLE_ID }}
+        run: python3 .github/scripts/build_ipa.py ad-hoc
+      - name: 保存可下载的 IPA
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          path: ${{ runner.temp }}/stockresearch-ipa/*.ipa
+          archive: false
+          if-no-files-found: error
+          retention-days: 7

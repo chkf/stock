@@ -1,0 +1,899 @@
+{
+  "anchor": "2025-01-02",
+  "members": {
+    "159611.SZ": {
+      "anchorClose": 0.963,
+      "anchorSignal": 0.963,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "电力公用",
+      "provider": [],
+      "reviewedClose": 1.04
+    },
+    "159919.SZ": {
+      "anchorClose": 4.004,
+      "anchorSignal": 1.8047072734787941,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 0.0661,
+          "date": "2025-03-31",
+          "payment_date": "2025-04-01",
+          "record_date": "2025-03-28",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_159919.html"
+        },
+        {
+          "cash_per_share": 0.0728,
+          "date": "2025-12-08",
+          "payment_date": "2025-12-09",
+          "record_date": "2025-12-05",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_159919.html"
+        }
+      ],
+      "group": "domestic_broad",
+      "halts": {},
+      "name": "沪深300ETF嘉实",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2012-11-30",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.3822,
+          "supported": false
+        },
+        {
+          "cash_per_share": 0.0,
+          "date": "2019-01-11",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 1.1107,
+          "supported": false
+        },
+        {
+          "cash_per_share": 0.152,
+          "date": "2020-09-14",
+          "record_date": "2020-09-11",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.06999999999999999,
+          "date": "2021-09-13",
+          "record_date": "2021-09-10",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.0453,
+          "date": "2024-09-18",
+          "record_date": "2024-09-13",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.0661,
+          "date": "2025-03-31",
+          "record_date": "2025-03-28",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.0728,
+          "date": "2025-12-08",
+          "record_date": "2025-12-05",
+          "share_factor": 1.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 4.222
+    },
+    "159920.SZ": {
+      "anchorClose": 1.221,
+      "anchorSignal": 1.2839552238805971,
+      "band": 0.1,
+      "events": [],
+      "group": "overseas_equity",
+      "halts": {},
+      "name": "恒生ETF",
+      "provider": [
+        {
+          "cash_per_share": 0.076,
+          "date": "2018-06-22",
+          "record_date": "2018-06-22",
+          "share_factor": 1.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 1.374
+    },
+    "159928.SZ": {
+      "anchorClose": 0.799,
+      "anchorSignal": 3.196,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "消费ETF汇添富",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2021-06-24",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 4.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.71
+    },
+    "159936.SZ": {
+      "anchorClose": 1.948,
+      "anchorSignal": 1.948,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "可选消费",
+      "provider": [],
+      "reviewedClose": 1.816
+    },
+    "159939.SZ": {
+      "anchorClose": 0.602,
+      "anchorSignal": 1.204,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "信息技术",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2023-02-15",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 2.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.793
+    },
+    "159944.SZ": {
+      "anchorClose": 0.888,
+      "anchorSignal": 0.888,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "原材料",
+      "provider": [],
+      "reviewedClose": 1.163
+    },
+    "159945.SZ": {
+      "anchorClose": 1.132,
+      "anchorSignal": 1.132,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "能源",
+      "provider": [],
+      "reviewedClose": 1.322
+    },
+    "159952.SZ": {
+      "anchorClose": 1.234,
+      "anchorSignal": 1.234,
+      "band": 0.2,
+      "events": [],
+      "group": "domestic_broad",
+      "halts": {},
+      "name": "创业板ETF广发",
+      "provider": [],
+      "reviewedClose": 1.399
+    },
+    "159980.SZ": {
+      "anchorClose": 1.63,
+      "anchorSignal": 1.63,
+      "band": 0.1,
+      "events": [],
+      "group": "commodity",
+      "halts": {},
+      "name": "有色期货ETF",
+      "provider": [],
+      "reviewedClose": 1.999
+    },
+    "159981.SZ": {
+      "anchorClose": 1.467,
+      "anchorSignal": 1.467,
+      "band": 0.1,
+      "events": [],
+      "group": "commodity",
+      "halts": {},
+      "name": "能源化工期货ETF",
+      "provider": [],
+      "reviewedClose": 1.745
+    },
+    "159985.SZ": {
+      "anchorClose": 1.841,
+      "anchorSignal": 1.841,
+      "band": 0.1,
+      "events": [],
+      "group": "commodity",
+      "halts": {},
+      "name": "豆粕期货ETF",
+      "provider": [],
+      "reviewedClose": 2.112
+    },
+    "510880.SH": {
+      "anchorClose": 3.279,
+      "anchorSignal": 5.429171208318214,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 0.142,
+          "date": "2025-01-21",
+          "payment_date": "2025-01-24",
+          "record_date": "2025-01-20",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_510880.html"
+        },
+        {
+          "cash_per_share": 0.143,
+          "date": "2026-01-21",
+          "payment_date": "2026-01-26",
+          "record_date": "2026-01-20",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_510880.html"
+        }
+      ],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "红利ETF华泰柏瑞",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2007-01-10",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.6553,
+          "supported": false
+        },
+        {
+          "cash_per_share": 0.024,
+          "date": "2009-03-24",
+          "record_date": "2009-03-23",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.023,
+          "date": "2009-10-22",
+          "record_date": "2009-10-21",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.02,
+          "date": "2010-07-15",
+          "record_date": "2010-07-14",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.020999999999999998,
+          "date": "2010-10-22",
+          "record_date": "2010-10-21",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.034999999999999996,
+          "date": "2011-10-24",
+          "record_date": "2011-10-21",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.040999999999999995,
+          "date": "2012-12-18",
+          "record_date": "2012-12-17",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.059,
+          "date": "2014-01-21",
+          "record_date": "2014-01-20",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.08,
+          "date": "2015-01-20",
+          "record_date": "2015-01-19",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.05,
+          "date": "2016-01-20",
+          "record_date": "2016-01-19",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.091,
+          "date": "2017-01-23",
+          "record_date": "2017-01-20",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.10900000000000001,
+          "date": "2018-01-23",
+          "record_date": "2018-01-22",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.098,
+          "date": "2019-01-16",
+          "record_date": "2019-01-15",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.144,
+          "date": "2020-01-17",
+          "record_date": "2020-01-16",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.141,
+          "date": "2021-01-18",
+          "record_date": "2021-01-15",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.086,
+          "date": "2022-01-17",
+          "record_date": "2022-01-14",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.13799999999999998,
+          "date": "2023-01-16",
+          "record_date": "2023-01-13",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.131,
+          "date": "2024-01-23",
+          "record_date": "2024-01-22",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.142,
+          "date": "2025-01-21",
+          "record_date": "2025-01-20",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.143,
+          "date": "2026-01-21",
+          "record_date": "2026-01-20",
+          "share_factor": 1.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 3.416
+    },
+    "511010.SH": {
+      "anchorClose": 141.411,
+      "anchorSignal": 143.1242273324874,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 1.45,
+          "date": "2025-09-23",
+          "payment_date": "2025-09-26",
+          "record_date": "2025-09-22",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
+        },
+        {
+          "cash_per_share": 0.6542,
+          "date": "2025-12-26",
+          "payment_date": "2025-12-31",
+          "record_date": "2025-12-25",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
+        },
+        {
+          "cash_per_share": 0.5715,
+          "date": "2026-03-25",
+          "payment_date": "2026-03-30",
+          "record_date": "2026-03-24",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
+        },
+        {
+          "cash_per_share": 0.8144,
+          "date": "2026-06-25",
+          "payment_date": "2026-06-30",
+          "record_date": "2026-06-24",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
+        },
+        {
+          "cash_per_share": 0.6204,
+          "date": "2026-09-18",
+          "payment_date": "2026-09-23",
+          "record_date": "2026-09-17",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_511010.html"
+        }
+      ],
+      "group": "bond",
+      "halts": {},
+      "name": "5年国债ETF",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2013-03-05",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.01,
+          "supported": false
+        },
+        {
+          "cash_per_share": 0.27999999999999997,
+          "date": "2013-06-03",
+          "record_date": "2013-05-31",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 1.0,
+          "date": "2015-10-09",
+          "record_date": "2015-10-08",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 1.45,
+          "date": "2025-09-23",
+          "record_date": "2025-09-22",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.6542,
+          "date": "2025-12-26",
+          "record_date": "2025-12-25",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.5715,
+          "date": "2026-03-25",
+          "record_date": "2026-03-24",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.8144,
+          "date": "2026-06-25",
+          "record_date": "2026-06-24",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.6204,
+          "date": "2026-09-18",
+          "record_date": "2026-09-17",
+          "share_factor": 1.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 141.371
+    },
+    "511260.SH": {
+      "anchorClose": 136.248,
+      "anchorSignal": 136.248,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 1.3599999999999999,
+          "date": "2025-09-23",
+          "payment_date": "2025-09-26",
+          "record_date": "2025-09-22",
+          "share_factor": 1.0,
+          "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-09-18/511260_20250918_HDYX.pdf"
+        },
+        {
+          "cash_per_share": 0.833,
+          "date": "2025-12-26",
+          "payment_date": "2025-12-31",
+          "record_date": "2025-12-25",
+          "share_factor": 1.0,
+          "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-12-23/511260_20251223_ZED8.pdf"
+        },
+        {
+          "cash_per_share": 0.6711,
+          "date": "2026-03-25",
+          "payment_date": "2026-03-30",
+          "record_date": "2026-03-24",
+          "share_factor": 1.0,
+          "source": "https://fundf10.eastmoney.com/fhsp_511260.html"
+        },
+        {
+          "cash_per_share": 1.2686,
+          "date": "2026-06-25",
+          "payment_date": "2026-06-30",
+          "record_date": "2026-06-24",
+          "share_factor": 1.0,
+          "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2026-06-22/511260_20260622_BWI3.pdf"
+        },
+        {
+          "cash_per_share": 1.2747,
+          "date": "2026-09-18",
+          "payment_date": "2026-09-23",
+          "record_date": "2026-09-17",
+          "share_factor": 1.0,
+          "source": "https://pdf.dfcfw.com/pdf/H2_AN202609141829377960_1.pdf"
+        }
+      ],
+      "group": "bond",
+      "halts": {},
+      "name": "10年国债ETF",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2017-08-04",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.01,
+          "supported": false
+        },
+        {
+          "cash_per_share": 1.3599999999999999,
+          "date": "2025-09-23",
+          "record_date": "2025-09-23",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.833,
+          "date": "2025-12-26",
+          "record_date": "2025-12-26",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.6711,
+          "date": "2026-03-25",
+          "record_date": "2026-03-24",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 1.2686,
+          "date": "2026-06-25",
+          "record_date": "2026-06-25",
+          "share_factor": 1.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 1.2747,
+          "date": "2026-09-18",
+          "record_date": "2026-09-18",
+          "share_factor": 1.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 135.769
+    },
+    "512010.SH": {
+      "anchorClose": 0.351,
+      "anchorSignal": 1.404,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "医药ETF易方达",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2021-06-25",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 4.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.38
+    },
+    "512070.SH": {
+      "anchorClose": 0.771,
+      "anchorSignal": 2.313,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "非银金融（证券保险）",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2021-09-10",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 3.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.754
+    },
+    "512200.SH": {
+      "anchorClose": 1.438,
+      "anchorSignal": 0.5148940188,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "房地产",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2024-08-09",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.3581,
+          "supported": false
+        }
+      ],
+      "reviewedClose": 1.082
+    },
+    "512480.SH": {
+      "anchorClose": 0.964,
+      "anchorSignal": 1.928,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2026-07-03",
+          "payment_date": null,
+          "record_date": "2026-07-02",
+          "share_factor": 2.0,
+          "source": "https://notice.10jqka.com.cn/api/pdf/47db8b358e7de123.pdf"
+        }
+      ],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "半导体ETF国联安",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2021-03-26",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 2.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.0,
+          "date": "2026-07-02",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 2.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.759
+    },
+    "512660.SH": {
+      "anchorClose": 0.996,
+      "anchorSignal": 0.996,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "军工ETF国泰",
+      "provider": [],
+      "reviewedClose": 0.958
+    },
+    "512800.SH": {
+      "anchorClose": 1.451,
+      "anchorSignal": 1.451,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2025-07-07",
+          "payment_date": null,
+          "record_date": "2025-07-04",
+          "share_factor": 2.0,
+          "source": "https://static.cninfo.com.cn/finalpage/2025-07-01/1224043454.PDF"
+        }
+      ],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "银行ETF华宝",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2025-07-04",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 2.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.916
+    },
+    "513030.SH": {
+      "anchorClose": 1.446,
+      "anchorSignal": 1.446,
+      "band": 0.1,
+      "events": [],
+      "group": "overseas_equity",
+      "halts": {
+        "2025-01-23": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-01-23/513030_20250123_HU9P.pdf"
+      },
+      "name": "德国ETF",
+      "provider": [],
+      "reviewedClose": 1.833
+    },
+    "513100.SH": {
+      "anchorClose": 1.643,
+      "anchorSignal": 8.215,
+      "band": 0.1,
+      "events": [],
+      "group": "overseas_equity",
+      "halts": {},
+      "name": "纳指ETF",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2022-01-13",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 5.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 2.166
+    },
+    "513500.SH": {
+      "anchorClose": 2.183,
+      "anchorSignal": 4.366,
+      "band": 0.1,
+      "events": [],
+      "group": "overseas_equity",
+      "halts": {},
+      "name": "标普500ETF",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2022-03-29",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 2.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 2.573
+    },
+    "515790.SH": {
+      "anchorClose": 0.739,
+      "anchorSignal": 0.739,
+      "band": 0.1,
+      "events": [],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "光伏ETF华泰柏瑞",
+      "provider": [],
+      "reviewedClose": 0.666
+    },
+    "515880.SH": {
+      "anchorClose": 1.32,
+      "anchorSignal": 1.32,
+      "band": 0.1,
+      "events": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2026-02-03",
+          "payment_date": null,
+          "record_date": "2026-02-02",
+          "share_factor": 3.0,
+          "source": "https://pdf.dfcfw.com/pdf/H2_AN202602031819506989_1.pdf"
+        },
+        {
+          "cash_per_share": 0.0,
+          "date": "2026-07-06",
+          "payment_date": null,
+          "record_date": "2026-07-03",
+          "share_factor": 2.0,
+          "source": "https://vip.stock.finance.sina.com.cn/fund/go.php/vAkFundInfo_JJGKXX/q/5353201.phtml"
+        }
+      ],
+      "group": "domestic_sector",
+      "halts": {},
+      "name": "通信设备",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2026-02-02",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 3.0,
+          "supported": true
+        },
+        {
+          "cash_per_share": 0.0,
+          "date": "2026-07-03",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 2.0,
+          "supported": true
+        }
+      ],
+      "reviewedClose": 0.377
+    },
+    "518880.SH": {
+      "anchorClose": 5.977,
+      "anchorSignal": 5.977,
+      "band": 0.1,
+      "events": [],
+      "group": "commodity",
+      "halts": {},
+      "name": "黄金ETF华安",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2013-07-24",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.3776,
+          "supported": false
+        }
+      ],
+      "reviewedClose": 7.897
+    },
+    "588000.SH": {
+      "anchorClose": 1.009,
+      "anchorSignal": 1.009,
+      "band": 0.2,
+      "events": [],
+      "group": "domestic_broad",
+      "halts": {},
+      "name": "科创50ETF华夏",
+      "provider": [
+        {
+          "cash_per_share": 0.0,
+          "date": "2020-11-09",
+          "date_needs_reconciliation": true,
+          "record_date": null,
+          "share_factor": 0.6945,
+          "supported": false
+        }
+      ],
+      "reviewedClose": 1.294
+    }
+  },
+  "review159936": [
+    1.786,
+    1.769
+  ],
+  "reviewedThrough": "2026-11-17"
+}
