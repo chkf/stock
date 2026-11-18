@@ -1,0 +1,54 @@
+name: 发布已验证的股票研究台 v0.3.0
+on:
+  push:
+    branches:
+      - publish/ipa-v0.3.0-14442425180
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: github.repository == 'chkf/stock'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      actions: read
+    env:
+      GH_REPO: chkf/stock
+      GH_TOKEN: ${{ github.token }}
+      SOURCE: 979856a3bcf57013cd630e245848cc97d0cae6ff
+      BUILD: e1f65a31a02071f062a894f2b640d47947efe1af
+      EXPECTED: e58bd792fa44120f14e9e1830218d9c66055d642d07fcde6a124595e7a30d9d4
+    steps:
+      - name: 核对原设备构建和发布源码
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          ref: 979856a3bcf57013cd630e245848cc97d0cae6ff
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 核验原 IPA 并发布为最新正式版
+        shell: bash
+        run: |
+          set -euo pipefail
+          git merge-base --is-ancestor "$BUILD" "$SOURCE"
+          git diff --exit-code "$BUILD" "$SOURCE" -- . ':(exclude)docs/**' ':(exclude)releases/*.md'
+          gh api "repos/$GH_REPO/actions/runs/44335429115" |
+            jq -e --arg sha "$BUILD" '.conclusion == "success" and .head_sha == $sha'
+          gh api "repos/$GH_REPO/actions/artifacts/14442425180" |
+            jq -e --arg hash "sha256:$EXPECTED" --arg sha "$BUILD" '
+              .name == "StockResearch-unsigned.ipa" and .expired == false and
+              .digest == $hash and .workflow_run.id == 44335429115 and .workflow_run.head_sha == $sha'
+          ipa="$RUNNER_TEMP/StockResearch-unsigned.ipa"
+          gh api "repos/$GH_REPO/actions/artifacts/14442425180/zip" > "$ipa"
+          echo "$EXPECTED  $ipa" | sha256sum --check --status
+          unzip -tq "$ipa"
+          if ! gh release view v0.3.0 >/dev/null 2>&1; then
+            gh release create v0.3.0 "$ipa" --target "$SOURCE" --latest \
+              --title "股票研究台 iPhone v0.3.0" --notes-file releases/v0.3.0.md
+          fi
+          gh api "repos/$GH_REPO/releases/latest" |
+            jq -e --arg hash "sha256:$EXPECTED" '
+              .tag_name == "v0.3.0" and .draft == false and .prerelease == false and
+              any(.assets[]; .name == "StockResearch-unsigned.ipa" and .state == "uploaded" and .digest == $hash)'
