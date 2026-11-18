@@ -113,9 +113,13 @@ import SwiftUI
         if !config.strategies.contains(where: { $0.id == selectedStrategy }) { selectedStrategy = config.strategies[0].id }
     }
     func reloadWorkspace(rollback: Bool = false) {
-        guard let store else { return }
-        let m = market
+        guard let store, let vault else { return }
         start("检查工作区文件") {
+            let live = try await vault.phoneMarket()
+            let personal = try await vault.personalAccount(), saved = try await vault.reports()
+            let watch = try await vault.watchlist(), archive = try await vault.active()
+            let oldMarket = try await Task.detached { try archive?.loadMarket() }.value
+            let m = (self.preferArchive || live == nil ? oldMarket : live?.market) ?? live?.market ?? oldMarket
             let new = try await Task.detached {
                 if rollback { return try store.rollback() }
                 return try store.activate { candidate in
@@ -125,6 +129,9 @@ import SwiftUI
                     }
                 }
             }.value
+            self.handset=live; self.personal=personal; self.saved=saved; self.watch=watch
+            self.archive=archive; self.archivedMarket=oldMarket
+            self.names=oldMarket?.securities.mapValues(\.name) ?? [:]; self.sources=oldMarket?.sources.keys.sorted() ?? []
             self.workspace = new; self.widgetResults = [:]; self.normalizeSelection()
             self.progress = "已启用 "+String(new.hash.prefix(12))
         }

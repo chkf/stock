@@ -8,7 +8,7 @@ public struct TransferProgress {
 
 /// One writer per library. No downloaded path is used as a filesystem pathname.
 public actor PrivateLibrary {
-    public let root: URL
+    public nonisolated let root: URL
     private let fm = FileManager.default
     private var importing = false
     var updatingQuotes = false
