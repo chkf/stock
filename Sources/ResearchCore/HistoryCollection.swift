@@ -58,12 +58,12 @@ extension PrivateLibrary {
                 }
                 do {
                     let provider=try PublicFeed.actions(html,symbol:s,rules:rules)
-                    var events=(review?.events ?? []).filter { $0.date<rules.anchor && $0.date<=fetchEnd }
+                    var events=(review?.events ?? []).filter { ($0.date<rules.anchor || $0.date>rules.reviewedThrough) && $0.date<=fetchEnd }
                     events+=member.events.filter { $0.date<=fetchEnd }
                     for e in provider where rules.reviewedThrough<e.date && e.date<=fetchEnd {
-                        guard e.share_factor==1,e.supported,!e.needsReview,let record=e.record_date, let pay=e.payment_date,
-                              record<e.date,pay>=e.date else { throw ResearchError("\(s) \(e.date) 新事件缺审核、权益登记或到账依据") }
-                        events.append(.init(date:e.date,cash_per_share:e.cash_per_share,share_factor:1,record_date:record,source:PublicFeed.actionsURL(s).absoluteString,payment_date:pay))
+                        guard events.contains(where:{ HistoryCoverage.matchesProvider(e,reviewed:$0) }),
+                              review?.spans.contains(where:{ $0.from<=e.date && e.date<=$0.through })==true
+                        else { throw ResearchError("\(s) \(e.date) 新公司行动缺独立审核的登记、除权、到账或可卖依据") }
                     }
                     if first<rules.anchor {
                         for e in provider where base<=e.date && e.date<rules.anchor {

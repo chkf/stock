@@ -46,6 +46,25 @@ final class CollectionTests:XCTestCase {
         XCTAssertThrowsError(try decode(["2024-02-30"]))
         XCTAssertTrue(try decode(["2024-07-01"]).isEmpty)
     }
+    func testApprovedDividendDatesAndNewProviderClue() throws {
+        let rules=try PublicRules.load(),symbol="511260.SH",member=try XCTUnwrap(rules.members[symbol])
+        let dates=["2025-09-23","2025-12-26","2026-06-25","2026-09-18"]
+        for date in dates {
+            let official=try XCTUnwrap(member.provider.first { $0.date==date })
+            func revised(_ cash:Double) -> ProviderEvent {
+                .init(date:date,record_date:"2000-01-01",cash_per_share:cash,share_factor:1,supported:official.supported,date_needs_reconciliation:official.date_needs_reconciliation,payment_date:"2000-02-01")
+            }
+            XCTAssertNoThrow(try PublicFeed.validateHistory([revised(official.cash_per_share)],old:[official],through:date,symbol:symbol))
+            XCTAssertThrowsError(try PublicFeed.validateHistory([revised(official.cash_per_share+0.01)],old:[official],through:date,symbol:symbol))
+            XCTAssertThrowsError(try PublicFeed.validateHistory([revised(official.cash_per_share)],old:[official],through:date,symbol:code))
+        }
+        let calendar=try Sessions(),day=try calendar.next(rules.reviewedThrough)
+        let e=ProviderEvent(date:day,record_date:rules.reviewedThrough,cash_per_share:0.1,share_factor:1,supported:true,date_needs_reconciliation:false,payment_date:day)
+        let securities=rules.members.mapValues { MarketSecurity(name:$0.name,group:$0.group,bars:[day:bar],signal_close:[day:1],events:[],provider_events:[e]) }
+        let market=MarketSnapshot(schema:"test",as_of:day,securities:securities,sources:[:],extras:[:],limitations:[])
+        let c=try HistoryCoverage(market:market,sessions:calendar,strategies:WorkspaceVersion.bundled().design.strategies)
+        XCTAssertTrue(c.windows.isEmpty); XCTAssertTrue(c.issues.contains { $0.date==day && $0.field=="供应商行动" })
+    }
     func testImmutableRefusedReceiptsAndPausedCandidates() async throws {
         let dir=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at:dir) }

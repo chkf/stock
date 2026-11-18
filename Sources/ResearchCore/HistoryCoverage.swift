@@ -72,6 +72,10 @@ public struct HistoryCoverage {
             for (d,events) in eventDays where first<=d && d<=market.as_of {
                 if events.count>1 { flag(d,"公司行动","同日多项事件缺少已核执行次序"); continue }
                 let e=events[0], cash=e.cash_per_share ?? 0, split=e.share_factor ?? 1
+                if d>rules.reviewedThrough && (!(review?.spans.contains { $0.from<=d && d<=$0.through } ?? false) ||
+                    !(review?.events.contains { Self.sameTerms(e,$0) } ?? false)) {
+                    flag(d,"公司行动","超出原版已核日期，新事件缺公告和独立审核"); continue
+                }
                 if e.supported==false { flag(d,"公司行动","原事件标明不支持执行，缺独立复核后的可执行事件"); continue }
                 if e.date_needs_reconciliation==true { flag(d,"事件日期","待核登记、除权或执行时点"); continue }
                 if (try? sessions.index(d))==nil { throw ResearchError("\(s) \(d) 公司行动除权日期不在交易日历内") }
@@ -98,10 +102,10 @@ public struct HistoryCoverage {
                     flag(e.date,"事件清单","原始快照与审核事件不符")
                 }
             }
-            for clue in sec.provider_events ?? [] where first<=clue.date && clue.date<rules.anchor && clue.date<=market.as_of {
+            for clue in sec.provider_events ?? [] where first<=clue.date && (clue.date<rules.anchor || clue.date>rules.reviewedThrough) && clue.date<=market.as_of {
                 if let listing,clue.date<listing { continue }
                 let reviewed=review?.spans.contains { $0.from<=clue.date && clue.date<=$0.through } ?? false
-                if reviewed && !sec.events.contains(where:{ Self.matchesProvider(clue,reviewed:$0) }) {
+                if (reviewed || clue.date>rules.reviewedThrough) && !sec.events.contains(where:{ Self.matchesProvider(clue,reviewed:$0) }) {
                     flag(clue.date,"供应商行动","展示记录尚缺公告核定的除权、登记、到账或可卖安排")
                 }
             }
