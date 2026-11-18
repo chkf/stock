@@ -44,22 +44,22 @@ enum FreshCheck {
             let noImport, manualTestAccountReloaded, offlineReportReloaded, badUpdatePreservedPrior, damagedEvidenceRejected: Bool
             let securities, evidenceFilesChecked, sellableShares, deferredShares: Int
             let incrementalParityCases: Int
-            let cases: [ParityResult]
+            let cases, incrementalResults: [ParityResult]
         }
         let proof = Proof(platform: "桌面 Swift，共用本机计算及存储代码", date: date, snapshot: phone.hash, warmup: phone.usableFrom,
                           noImport: true, manualTestAccountReloaded: true, offlineReportReloaded: true, badUpdatePreservedPrior: true,
                           damagedEvidenceRejected: true, securities: market.securities.count, evidenceFilesChecked: market.sources.count,
-                          sellableShares: sell.quantity, deferredShares: sell.deferred_quantity, incrementalParityCases: incremental, cases: results)
+                          sellableShares: sell.quantity, deferredShares: sell.deferred_quantity, incrementalParityCases: incremental.count, cases: results, incrementalResults:incremental)
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         try encoder.encode(proof).write(to: output, options: .atomic)
-        let failed = results.filter { !$0.differences.isEmpty }
+        let failed = (results+incremental).filter { !$0.differences.isEmpty }
         for r in failed { print(r.name, r.differences.prefix(6)) }
         guard failed.isEmpty else { throw ResearchError("\(failed.count) 项本机新建库对账存在差异") }
         print("空库联网、账户重填、重开离线计算与 \(results.count) 项 Python 对账通过")
     }
 
-    private static func checkUpdate(vault: PrivateLibrary, phone: PhoneSnapshot) async throws -> Int {
+    private static func checkUpdate(vault: PrivateLibrary, phone: PhoneSnapshot) async throws -> [ParityResult] {
         // Replay the previously downloaded public responses. No original project or live account is used.
         let temp = FileManager.default.temporaryDirectory.appendingPathComponent("fresh-update-\(UUID())")
         defer { try? FileManager.default.removeItem(at: temp) }
@@ -92,12 +92,11 @@ enum FreshCheck {
         guard refused, try await replica.phoneMarket()?.hash == earlier.hash else { throw ResearchError("更新失败后原行情未保留") }
         let updated = try await replica.rebuildPublicMarket(through: date, fetch: captured, progress: { _ in })
         let passing = try Parity.run(phone: updated)
-        guard passing.allSatisfy({ $0.differences.isEmpty }) else { throw ResearchError("逐日增量更新与 Python 原版不一致") }
         guard let one = updated.market.sources.keys.sorted().first else { throw ResearchError("缺少校验原件") }
         try Data("损坏的测试副本".utf8).write(to: temp.appendingPathComponent("public-market/\(one)"), options: .atomic)
         var rejected = false
         do { _ = try await replica.phoneMarket() } catch { rejected = true }
         guard rejected else { throw ResearchError("打开资料库时未发现损坏原件") }
-        return passing.count
+        return passing
     }
 }

@@ -18,6 +18,20 @@ extension StrategyEngine {
                 throw ResearchError("请更新或确认本日账户；当前现金/可卖份额仍是 " + account.as_of)
             }
             let plan = try Planning.make(market: market, date: date, next: next, account: account, weights: decision.weights)
+            if decision.route == "MV" {
+                // BLAS implementations may differ by a few ulps at the active 35% constraint.
+                // Check both funding priorities when two capped holdings compete for scarce cash.
+                let capped=Set(decision.weights.filter { abs($0.value-0.35) <= 16*Double(0.35).ulp }.map(\.key))
+                if capped.count > 1 {
+                    let other=try Planning.make(market:market,date:date,next:next,account:account,weights:decision.weights,upperBoundFirst:capped)
+                    let compare=Dictionary(uniqueKeysWithValues:other.orders.map { ($0.symbol,$0) })
+                    guard plan.orders.allSatisfy({ row in
+                        guard let second=compare[row.symbol] else { return false }
+                        return row.quantity==second.quantity && row.funded_quantity==second.funded_quantity &&
+                            row.conditional_quantity==second.conditional_quantity && row.deferred_quantity==second.deferred_quantity
+                    }) else { throw ResearchError("两只 ETF 同在 35% 上限，末位精度影响现金分配，当前仅展示市场权重。") }
+                }
+            }
             return Advice(decision: decision, next: next, status: "ready", action: plan.action, plan: plan, reason: nil)
         } catch {
             return Advice(decision: decision, next: next, status: "blocked", action: "UNKNOWN", plan: nil,

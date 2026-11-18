@@ -46,7 +46,8 @@ import SwiftUI
     @Published var replayEnd = ""
     @Published var fields = [String:String]()
     @Published var widgetResults = [String:FunctionOutput]()
-    private var pendingLink: URL?
+    private var pendingLinks = [URL]()
+    private var opened = false
     var store: WorkspaceStore? { vault.map { WorkspaceStore(root:$0.root.deletingLastPathComponent()) } }
     var selectedFile: StrategyFile? { workspace?.design.strategies.first { $0.id == selectedStrategy } }
     var studyKey: String { "\(marketID ?? "")|\(workspace?.hash ?? "")" }
@@ -61,6 +62,7 @@ import SwiftUI
     private var job: Task<Void, Never>?
 
     func open() async {
+        defer { opened = true; dispatchWorkspaceLink() }
         do {
             let library = try PrivateLibrary.applicationLibrary()
             vault = library
@@ -83,7 +85,6 @@ import SwiftUI
             } catch { issues.append(error.localizedDescription) }
             do { saved = try await library.reports() } catch { issues.append(error.localizedDescription) }
             if !issues.isEmpty { self.error = issues.joined(separator: "\n") }
-            dispatchWorkspaceLink()
         } catch { self.error = error.localizedDescription }
     }
     private func display(_ active: Archive?) async throws {
@@ -122,16 +123,20 @@ import SwiftUI
     }
     func queueWorkspaceLink(_ url: URL) {
         guard url.scheme == "stockresearch", url.host == "workspace", url.query == nil, url.fragment == nil else { return }
-        pendingLink = url; dispatchWorkspaceLink()
+        pendingLinks.append(url)
+        dispatchWorkspaceLink()
     }
     func dispatchWorkspaceLink() {
-        guard !busy, vault != nil, let w=workspace, let url=pendingLink else { return }
+        guard opened, !busy, vault != nil, !pendingLinks.isEmpty else { return }
+        let url = pendingLinks.removeFirst()
         let parts = url.pathComponents.filter { $0 != "/" }
-        pendingLink=nil
         if parts == ["reload"] { reloadWorkspace() }
-        else if parts.count == 2, parts[0] == "run", w.design.actions[parts[1]] != nil { runAction(parts[1]) }
-        else if parts.count == 2, parts[0] == "strategy", w.design.strategies.contains(where:{ $0.id == parts[1] }) {
-            if selectedStrategy == parts[1] { Task { await updateDecision() } } else { selectedStrategy=parts[1] }
+        else if parts.count == 2, parts[0] == "run", workspace?.design.actions[parts[1]] != nil { runAction(parts[1]) }
+        else if parts.count == 2, parts[0] == "strategy", workspace?.design.strategies.contains(where:{ $0.id == parts[1] }) == true {
+            selectedStrategy = parts[1]
+            start("正在本机重算策略") { await self.updateDecision() }
+        } else if !pendingLinks.isEmpty {
+            Task { dispatchWorkspaceLink() }
         }
     }
     func reloadWorkspace(rollback: Bool = false) {
@@ -173,6 +178,7 @@ import SwiftUI
             today = try cal.completed()
             let d = try await Task.detached { try StrategyEngine(market:m,sessions:cal,workspace:w).decision(id,on:m.as_of) }.value
             try Task.checkCancellation()
+            guard workspace?.hash == w.hash, marketID == raw, selectedStrategy == id else { return }
             next = try cal.next(m.as_of)
             try store.writeDecision(d,market:m,snapshotID:raw,version:w.hash,next:next,current:today)
             decision = d
@@ -231,18 +237,18 @@ import SwiftUI
         }
     }
     func reconcile(phone: Bool) {
-        guard let vault else { return }
+        guard let vault, let workspace else { return }
         let archive = self.archive
         start("正在核对 Python 对照样例") {
             self.parity = []
-            self.paritySource = phone ? "手机行情库" : "旧版冻结快照"
+            self.paritySource = (phone ? "手机行情库" : "旧版冻结快照")+" · "+String(workspace.hash.prefix(10))
             let task = Task.detached(priority: .userInitiated) { () async throws -> [ParityResult] in
                 func progress(_ n: Int, _ total: Int) throws {
                     try Task.checkCancellation()
                     Task { @MainActor in self.progress = "逐项对账 \(n) / \(total)"; self.fraction = Double(n) / Double(total) }
                 }
-                if phone, let current = try await vault.phoneMarket() { return try Parity.run(phone: current, progress: progress) }
-                if !phone, let archive { return try Parity.run(archive: archive, progress: progress) }
+                if phone, let current = try await vault.phoneMarket() { return try Parity.run(phone: current, workspace:workspace, progress: progress) }
+                if !phone, let archive { return try Parity.run(archive: archive, workspace:workspace, progress: progress) }
                 throw ResearchError("当前未找到所选行情")
             }
             self.parity = try await withTaskCancellationHandler(operation: { try await task.value }, onCancel: { task.cancel() })

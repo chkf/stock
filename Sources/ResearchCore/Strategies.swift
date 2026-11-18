@@ -7,7 +7,7 @@ public struct StrengthDistance {
     public var longGap: Int { max(0, required - longVotes) }
 
     init?(_ evidence: [String: Double]) {
-        guard let n = evidence["count"], n > 0, n <= Double(MarketSnapshot.pool.count),
+        guard let n = evidence["count"], n >= 1, n.rounded() == n, n <= Double(MarketSnapshot.pool.count),
               let threshold = evidence["threshold"], threshold > 0, threshold <= 1,
               let a = evidence["up60"], let b = evidence["up200"],
               let c = evidence["down60"], let d = evidence["down200"],

@@ -25,6 +25,7 @@ struct PublicRules: Decodable {
     struct Member: Decodable {
         let name, group: String
         let band, anchorClose, anchorSignal, reviewedClose: Double
+        let bandFrom: String?
         let events: [MarketEvent]
         let provider: [ProviderEvent]
         let halts: [String: String]

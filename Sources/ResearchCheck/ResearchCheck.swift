@@ -3,7 +3,14 @@ import ResearchCore
 
 // Exercises the same import/verification/activation code and the same offline core as the app.
 @main struct ResearchCheck {
-    static func main() async throws {
+    static func main() async {
+        do { try await check() }
+        catch {
+            FileHandle.standardError.write(Data((error.localizedDescription + "\n").utf8))
+            exit(1)
+        }
+    }
+    private static func check() async throws {
         let args = Array(CommandLine.arguments.dropFirst())
         if args.count == 3 && args[0] == "--workspace-offline" {
             try WorkspaceCheck.run(directory:URL(fileURLWithPath:args[1]),output:URL(fileURLWithPath:args[2]))

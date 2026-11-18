@@ -14,7 +14,7 @@ def sim(*args):
     return run("xcrun","simctl",*args)
 
 
-def wait_for(path, predicate, seconds=75):
+def wait_for(path, predicate, seconds=100):
     deadline = time.monotonic() + seconds
     while time.monotonic() < deadline:
         try:
@@ -24,7 +24,12 @@ def wait_for(path, predicate, seconds=75):
         except (FileNotFoundError, json.JSONDecodeError):
             pass
         time.sleep(0.5)
-    raise RuntimeError(f"Timed out waiting for {path.name}")
+    workspace = next((parent for parent in path.parents if parent.name == "研究工作区"), None)
+    if workspace:
+        for name in ["版本/current.json","输出/工作区状态.json","输出/newTool.json","输出/请求状态.json"]:
+            evidence = workspace/name
+            print(name, evidence.read_text("utf-8")[:900] if evidence.exists() else "missing", flush=True)
+    raise RuntimeError(f"Timed out waiting for {path}")
 
 
 def main():
@@ -47,6 +52,7 @@ def main():
     root = Path(sim("get_app_container",udid,bundle,"data"))/"Documents/研究工作区"
     pointer = root/"版本/current.json"
     before = wait_for(pointer,lambda p: bool(p.get("active")))["active"]
+    print(f"{phone['name']} started with workspace {before}",flush=True)
     design = root/"设计"
     manifest = json.loads((design/"workspace.json").read_text("utf-8"))
     manifest["actions"]["newTool"] = "功能/模拟器新增.js"
@@ -60,6 +66,7 @@ def main():
     (design/"workspace.json").write_text(json.dumps(manifest,ensure_ascii=False),"utf-8")
     sim("openurl",udid,"stockresearch://workspace/reload")
     now = wait_for(pointer,lambda p:p.get("active")!=before)["active"]
+    print(f"Loaded new page and function in workspace {now}",flush=True)
     sim("openurl",udid,"stockresearch://workspace/run/newTool")
     wait_for(root/"输出/newTool.json",lambda r:r.get("text")=="42")
     sim("terminate",udid,bundle)

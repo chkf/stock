@@ -90,7 +90,8 @@ public enum Planning {
     }
 
     public static func make(market: MarketSnapshot, date: String, next: String, account: Account,
-                            weights: [String: Double], fixed: [String: Int]? = nil, forced: Set<String> = []) throws -> Plan {
+                            weights: [String: Double], fixed: [String: Int]? = nil, forced: Set<String> = [],
+                            upperBoundFirst: Set<String> = []) throws -> Plan {
         try account.validate()
         guard date == account.as_of else { throw ResearchError("请确认同一收盘日的账户与可卖份额") }
         guard date <= market.as_of, weights.values.allSatisfy({ $0.isFinite && $0 >= 0 }),
@@ -134,6 +135,9 @@ public enum Planning {
         }
         let buys = targets.keys.sorted {
             let a = weights[$0] ?? 0, b = weights[$1] ?? 0
+            if upperBoundFirst.contains($0) && upperBoundFirst.contains($1) {
+                return a == b ? $0 > $1 : a < b
+            }
             return a == b ? $0 < $1 : a > b
         }
         for s in buys {

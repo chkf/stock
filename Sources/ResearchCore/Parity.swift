@@ -31,15 +31,15 @@ public enum Parity {
         return ["\(field) · Python \(a.map(String.init(describing:)) ?? "缺失") · Swift \(b.map(String.init(describing:)) ?? "缺失")"]
     }
 
-    public static func run(archive: Archive, progress: (Int, Int) throws -> Void = { _, _ in }) throws -> [ParityResult] {
-        try run(market: archive.loadMarket(), originalHash: archive.manifest.snapshot.hash, from: nil, progress: progress)
+    public static func run(archive: Archive, workspace:WorkspaceVersion? = nil, progress: (Int, Int) throws -> Void = { _, _ in }) throws -> [ParityResult] {
+        try run(market: archive.loadMarket(), originalHash: archive.manifest.snapshot.hash, from: nil, workspace:workspace, progress: progress)
     }
 
-    public static func run(phone: PhoneSnapshot, progress: (Int, Int) throws -> Void = { _, _ in }) throws -> [ParityResult] {
-        try run(market: phone.market, originalHash: nil, from: phone.usableFrom, progress: progress)
+    public static func run(phone: PhoneSnapshot, workspace:WorkspaceVersion? = nil, progress: (Int, Int) throws -> Void = { _, _ in }) throws -> [ParityResult] {
+        try run(market: phone.market, originalHash: nil, from: phone.usableFrom, workspace:workspace, progress: progress)
     }
 
-    private static func run(market: MarketSnapshot, originalHash: String?, from: String?,
+    private static func run(market: MarketSnapshot, originalHash: String?, from: String?,workspace: WorkspaceVersion?,
                             progress: (Int, Int) throws -> Void) throws -> [ParityResult] {
         guard let url = Bundle.module.url(forResource: "Reference", withExtension: "json"),
               let references = try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any],
@@ -61,7 +61,7 @@ public enum Parity {
             return start >= from && finish <= market.as_of
         }
         guard !cases.isEmpty else { throw ResearchError("本机行情日期与冻结的对照用例没有交集") }
-        let engine = try StrategyEngine(market: market, sessions: Sessions())
+        let engine = try StrategyEngine(market: market, sessions: Sessions(), workspace:workspace)
         func account(_ raw: Any) throws -> Account {
             try JSONDecoder().decode(Account.self, from: JSONSerialization.data(withJSONObject: raw))
         }
@@ -70,6 +70,10 @@ public enum Parity {
         for c in cases {
             try progress(results.count, total)
             let strategy = c["strategy"] as! String, expected = c["expected"] as! [String: Any]
+            if let workspace, !workspace.design.strategies.contains(where:{ $0.id == strategy }) {
+                results.append(.init(name:"\(c["name"]!) · \(strategy)",differences:["当前工作区未包含此原版策略"]))
+                continue
+            }
             let r = try engine.advice(strategy, requested: c["requested"] as! String, account: account(c["account"]!))
             let d = r.decision
             var actual: [String: Any] = ["status": r.status, "action": r.action, "next": r.next, "selected": d.selected,
@@ -98,6 +102,10 @@ public enum Parity {
         }
         for c in tracking {
             try progress(results.count, total)
+            if let workspace, !workspace.design.strategies.contains(where:{ $0.id == "MOM20" }) {
+                results.append(.init(name:c["name"] as! String,differences:["当前工作区未包含用于该跟踪样例的 MOM20"]))
+                continue
+            }
             let prior = try engine.begin("MOM20", account: account(c["startAccount"]!))
             let final = try engine.advance(prior, account: account(c["endAccount"]!))
             let actual: [String: Any] = ["highs": final.highs, "locks": try object(final.locks),

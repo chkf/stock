@@ -170,7 +170,8 @@ extension StrategyEngine {
                 }
                 if halted, bar.volume > 0 { throw ResearchError("\(s) \(date) 停牌记录与成交量冲突") }
                 guard let q = st.pending[s], q != 0, !halted, bar.volume > 0, b.price > 0 else { continue }
-                let band = date < "2016-01-01" ? 0.1 : rules.members[s]!.band
+                let member = rules.members[s]!
+                let band = date < (member.bandFrom ?? "2016-01-01") ? 0.1 : member.band
                 let up = status?.upper_limit ?? Self.priceTick(b.price*(1+band)), down = status?.lower_limit ?? Self.priceTick(b.price*(1-band))
                 guard bar.high <= up+0.001, bar.low >= down-0.001 else { throw ResearchError("\(s) \(date) 行情越界") }
                 if q > 0 && (bar.open >= up-1e-8 || bar.open > b.price*(1+band)+1e-8) { continue }
