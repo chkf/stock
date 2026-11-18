@@ -130,6 +130,7 @@ private struct WorkspaceDataBlock: View {
             }.disabled((b.target != "job.cancel" && model.busy) || (b.target == "study.run" && model.rangeProblem != nil) || (b.target == "watch.add" && (model.fields["symbol"] ?? "").isEmpty))
         case "job":
             if model.busy { Section { ProgressView(value:model.fraction) { Text(model.progress) }; Button("暂停") { model.cancel() } } }
+            else { StudyCompletion() }
         case "accountBalance":
             if let a=model.personal { LabeledContent("收盘日",value:a.as_of); LabeledContent("可用现金",value:String(format:"%.2f 元",a.cash)) }
             else { Text("尚未录入真实账户。").foregroundStyle(.secondary) }
@@ -382,12 +383,23 @@ struct ReplayView: View {
                 StudyCoverageView()
                 StudyDateRow(start:true); StudyDateRow(start:false)
                 Button("计算或续跑") { model.runStudies() }.disabled(model.busy || model.rangeProblem != nil)
+                StudyCompletion()
                 if model.busy { ProgressView(value:model.fraction) { Text(model.progress) }; Button("暂停") { model.cancel() } }
                 Text("首次按上一交易日收盘选取，随后月末换仓，按策略检查保护退出。下一交易日以原始开盘价模拟成交，计入整手、涨跌停、分红、佣金和滑点。").font(.caption)
             }
             StudyChartBlock(title:"同区间策略对照")
             if model.market == nil { Text("请先在市场页获取行情。") }
         }.navigationTitle("策略回测")
+    }
+}
+private struct StudyCompletion:View {
+    @EnvironmentObject var model:AppModel
+    var body:some View {
+        let reports=model.studies.values.filter { $0.finished && $0.start==model.replayStart && $0.end==model.replayEnd }
+        if !reports.isEmpty {
+            Text("已完成 \(reports.count) 套回测，共 \(reports.reduce(0){$0+$1.trades.count}) 笔模拟成交")
+                .font(.subheadline).accessibilityIdentifier("replay.results")
+        }
     }
 }
 private struct StudyChartBlock: View {

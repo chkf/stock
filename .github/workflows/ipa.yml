@@ -1,10 +1,14 @@
 name: 构建 iPhone IPA
 on:
   push:
-    branches: [main]
+    branches: [main, feature/verified-etf-history]
     tags: ['v*']
   workflow_dispatch:
     inputs:
+      simulator:
+        description: 额外启动 iPhone 模拟器验收
+        type: boolean
+        default: false
       signing:
         description: unsigned 用于编译或后续签名，ad-hoc 用于已登记的 iPhone
         type: choice
@@ -37,7 +41,19 @@ jobs:
         if: github.event_name == 'push' || inputs.signing == 'unsigned'
         run: python3 .github/scripts/build_ipa.py unsigned
       - name: 在模拟 iPhone 外部修改工作区并重载验证
+        if: github.event_name == 'workflow_dispatch' && inputs.simulator
         run: python3 .github/scripts/test_workspace_simulator.py
+      - name: 在模拟 iPhone 核验长历史、日期滚轮和五套回测
+        if: github.event_name == 'workflow_dispatch' && inputs.simulator
+        run: python3 tools/test_history_simulator.py --out "$RUNNER_TEMP/history-iphone"
+      - name: 保存 iPhone 模拟器测试结果
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.simulator
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: iPhone-history-test
+          path: ${{ runner.temp }}/history-iphone/History.xcresult
+          if-no-files-found: ignore
+          retention-days: 7
       - name: 给已登记的 iPhone 构建签名 IPA
         if: github.event_name == 'workflow_dispatch' && inputs.signing == 'ad-hoc'
         env:

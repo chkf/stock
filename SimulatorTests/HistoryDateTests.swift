@@ -24,6 +24,16 @@ final class HistoryDateTests:XCTestCase {
             for _ in 0..<6 where !row.isHittable { app.swipeUp() }
             XCTAssertTrue(row.isHittable)
         }
+        let library=app.tabBars.buttons["资料库"]
+        XCTAssertTrue(library.waitForExistence(timeout:40)); library.tap()
+        button("原始资料与报告").tap()
+        button("从旧电脑导入（可选）").tap()
+        let text=app.textFields["archive.pair"]
+        XCTAssertTrue(text.exists); text.tap()
+        text.typeText(try XCTUnwrap(ProcessInfo.processInfo.environment["STOCK_TEST_PAIR"])+"\n")
+        let connect=button("archive.connect")
+        visible(connect); connect.tap()
+        XCTAssertTrue(app.descendants(matching:.any)["archive.files"].firstMatch.waitForExistence(timeout:120),"模拟 iPhone 应通过加密直传接收并核对公开行情")
         openReplay()
         XCTAssertTrue(eventually { date("replay.start","2026-01-19") })
         button("导入快照").tap()
@@ -56,5 +66,17 @@ final class HistoryDateTests:XCTestCase {
         XCTAssertTrue(app.pickerWheels.firstMatch.exists)
         button("replay.cancel").tap()
         XCTAssertTrue(date("replay.end","2026-11-17"))
+        end.tap()
+        let year=try XCTUnwrap(app.pickerWheels.allElementsBoundByIndex.first { ($0.value as? String)?.contains("2026")==true })
+        year.adjust(toPickerWheelValue:try XCTUnwrap(year.value as? String).replacingOccurrences(of:"2026",with:"2025"))
+        button("replay.confirm").tap()
+        XCTAssertTrue(date("replay.end","2025-11-17"))
+        let calculate=button("计算或续跑")
+        visible(calculate); XCTAssertTrue(calculate.isEnabled); calculate.tap()
+        let result=app.staticTexts["replay.results"].firstMatch
+        let done=XCTNSPredicateExpectation(predicate:NSPredicate { _,_ in result.exists && result.label.contains("5 套回测") },object:nil)
+        XCTAssertEqual(XCTWaiter.wait(for:[done],timeout:180),.completed)
+        let chart=app.buttons["净值"].firstMatch
+        visible(chart)
     }
 }

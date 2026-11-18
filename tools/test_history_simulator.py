@@ -1,14 +1,19 @@
 """Run the wheel and reopening checks on a newly created local iPhone simulator."""
 import argparse
 import json
+import os
+import plistlib
 from pathlib import Path
 import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from verify_history_example import ROOT, reproduce
+from transfer import identity, Pairing, manual_code, server_for
+from package_store import verify
 
 
 def output(*cmd):
@@ -18,7 +23,6 @@ def output(*cmd):
 def run(out):
     fixtures=out/"fixture"
     package=reproduce(fixtures)
-    binary=Path(output("swift","build","--show-bin-path"))/"research-check"
     inventory=json.loads(output("xcrun","simctl","list","-j"))
     runtime=max((r for r in inventory["runtimes"] if r["isAvailable"] and ".iOS-" in r["identifier"]),
                 key=lambda r:tuple(map(int,r["version"].split("."))))
@@ -46,9 +50,39 @@ def run(out):
         page["blocks"].append({"type":"replay","text":"打开独立回测"})
         replay.write_text(json.dumps(page,ensure_ascii=False),"utf-8")
         shutil.copytree(fixtures/"phone/public-market",root/"数据/public-market")
-        subprocess.run([binary,"--stage-simulator-archive",package,root/"数据"],check=True)
-        subprocess.run(build+["-resultBundlePath",str(out/"History.xcresult"),"test-without-building"],cwd=ROOT,check=True)
+        host="127.0.0.1"
+        for brew in ["/opt/homebrew/opt/openssl@3/bin","/usr/local/opt/openssl@3/bin"]:
+            if (Path(brew)/"openssl").is_file():
+                os.environ["PATH"]=brew+os.pathsep+os.environ["PATH"]
+                break
+        with tempfile.TemporaryDirectory() as cert:
+            tls,pin=identity(cert,host)
+            pairing=Pairing()
+            with server_for(package,host,0,tls,pairing,verify(package)) as server:
+                thread=threading.Thread(target=server.serve_forever,daemon=True)
+                thread.start()
+                try:
+                    plan=next((out/"build/Build/Products").glob("*.xctestrun"))
+                    contents=plistlib.loads(plan.read_bytes())
+                    targets=[t for cfg in contents.get("TestConfigurations",[]) for t in cfg["TestTargets"]]
+                    if not targets: targets=[t for t in contents.values() if isinstance(t,dict) and t.get("TestBundlePath")]
+                    target=next(t for t in targets if "HistoryUITests" in str(t.get("TestBundlePath","")))
+                    target.setdefault("EnvironmentVariables",{})["STOCK_TEST_PAIR"]=manual_code(host,server.server_port,pin,pairing.secret)
+                    with tempfile.NamedTemporaryFile(suffix=".xctestrun",dir=plan.parent) as paired:
+                        paired.write(plistlib.dumps(contents)); paired.flush()
+                        subprocess.run(["xcodebuild","-xctestrun",paired.name,"-destination",f"platform=iOS Simulator,id={udid}",
+                                        "-parallel-testing-enabled","NO","-resultBundlePath",str(out/"History.xcresult"),
+                                        "test-without-building"],cwd=ROOT,check=True)
+                finally:
+                    server.shutdown(); thread.join()
         assert "account" not in json.loads(config.read_bytes())["tabs"]
+        reports=[json.loads(p.read_bytes()) for p in (root/"数据/studies/v1").rglob("*.json")]
+        expected_ids={"BANK_ELSE_GB","MOM20","MV","GB","SECTOR_M"}
+        completed={r["strategy"] for r in reports if r.get("ledgerVersion")==2 and r["start"]=="2025-10-27"
+                   and r["end"]=="2025-11-17" and r["curve"][-1]["date"]==r["end"] and r["trades"]}
+        if completed!=expected_ids:
+            raise RuntimeError(f"模拟 iPhone 已落盘的完整回测为 {sorted(completed)}")
+        print(f"模拟 iPhone 内已实际算完并重开核验 {len(completed)} 套策略。",flush=True)
     finally:
         subprocess.run(sim+["shutdown",udid],check=False)
         subprocess.run(sim+["delete",udid],check=False)

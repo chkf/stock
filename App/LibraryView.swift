@@ -23,7 +23,9 @@ struct LibraryView: View {
                 DisclosureGroup("从旧电脑导入（可选）") {
                     Button { scanning = true } label: { Label("扫描一次性配对码", systemImage: "qrcode.viewfinder") }
                     TextField("或输入 SR1 配对码", text: $code).textInputAutocapitalization(.characters).autocorrectionDisabled()
+                        .submitLabel(.done).accessibilityIdentifier("archive.pair")
                     Button("连接并校验导入") { model.receive(code); code = "" }
+                        .accessibilityIdentifier("archive.connect")
                         .disabled(code.isEmpty || model.busy)
                     if model.busy {
                         ProgressView(value: model.fraction) { Text(model.progress) }
@@ -36,6 +38,7 @@ struct LibraryView: View {
                     Button("恢复上一代导入资料") { model.restorePreviousArchive() }.disabled(model.busy)
                     LabeledContent("范围", value: archive.manifest.profile == "snapshot" ? "快照及来源证据" : "完整原项目归档")
                     LabeledContent("文件", value: "\(archive.manifest.fileCount) 件")
+                        .accessibilityIdentifier("archive.files")
                     LabeledContent("大小", value: ByteCountFormatter.string(fromByteCount: Int64(archive.manifest.totalBytes), countStyle: .file))
                     NavigationLink("查找原件") { ArchiveBrowser(archive: archive) }
                     NavigationLink("行情来源证据") {
