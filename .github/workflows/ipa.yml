@@ -24,7 +24,7 @@ permissions:
 jobs:
   iphone:
     if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/v') || contains(github.event.head_commit.message, '[build ipa]')
-    runs-on: macos-26
+    runs-on: ${{ github.event_name == 'workflow_dispatch' && inputs.simulator && 'macos-26' || 'macos-26-intel' }}
     timeout-minutes: 35
     outputs:
       artifact_id: ${{ steps.upload.outputs.artifact-id }}
