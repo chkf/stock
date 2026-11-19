@@ -1,5 +1,7 @@
 # 沪深 ETF 研究目录
 
+**按板块挑一只**可直接查看 [84 个板块及各自的代表 ETF](sector-seats/2026-11-19/report.md)。这一视图把 748 只境内股票 ETF 压成 84 个板块席位，逐只保留专项备选。覆盖板块之外的宽基、风格、跨境和待核等产品沿用既有分组，全目录共 652 席。[代表表](sector-seats/2026-11-19/seats.csv) · [全部 1,722 只的映射](sector-seats/2026-11-19/members.csv)
+
 2026 年 11 月 19 日观测到 **1,722 只**沪深上市交易证券。严格归组后有 **784 个候选**，比逐只评估减少 **938 个（54.47%）**。七项细分方向提案若全部采用，可进一步降到 **777 个**，共减少 **945 个（54.88%）**。407 只待核产品在两套方案中各自占一席。建议第二阶段先以 **784 个组**作为资料核查和研究范围，逐项接受风险后再决定是否使用 777 组方案。交易标的和同时持仓数量须另行确定。
 
 [筛选报告](2026-11-19-c433b9a1b4f282ea/report.md) · [完整目录](2026-11-19-c433b9a1b4f282ea/catalog.json) · [主方向统计](2026-11-19-c433b9a1b4f282ea/directions.csv) · [逐只映射](2026-11-19-c433b9a1b4f282ea/members.csv) · [全部组与保留理由](2026-11-19-c433b9a1b4f282ea/groups.csv) · [待核清单](2026-11-19-c433b9a1b4f282ea/review.csv)
@@ -75,6 +77,26 @@ python tools/etf_catalog/catalog.py verify-pcf research/etf-catalog/evidence/szs
 `collect` 在校验后才输出输入文件。发布在同一文件系统暂存整代目录，成功后原子替换 `CURRENT`。并发发布有文件锁，早于当前观测的输入会被拒绝。同日相同事实只保留一代，即使交易所重新生成 XLSX 时容器字节改变。本次 13 项自动化测试全部通过，覆盖分页重复与截断、冲突和资料不足、上市范围、跨管理人同指数、不同方向与风格、五类新增匹配、改名和换指数、暂时消失与恢复、组 ID 稳定、失败保护及全员映射。实际目录还通过 `verify` 逐只重算并核对所有导出。
 
 用真实证券做留出演练。把上市日为 2026 年 11 月 19 日的天弘电网设备 ETF（562720.SH）暂时从研究视图留出，再作为新增产品加入。程序将其匹配为华夏电网设备 ETF（159326.SZ）所在 A 组的新成员，两者跟踪 931994 中证电网设备主题指数。完整目录从 1,721 增至 1,722，A 和 B 的候选数均保持原值。这次演练没有改动已发布目录。
+
+## 复算每个板块的一只代表
+
+板块的主方向指数与专项指数逐条列在配置中。只有交易所指数代码、规范名称和境内被动股票属性相符的在列 ETF 才进入板块。跨管理人的同指数产品可以竞争同一席位，新基金优先建档。新增的指数、新名称或待核证券先沿用原分组。报告同时列出每只 ETF 的严格组、方向提案组、板块身份和入选顺位。[板块规则](../../tools/etf_catalog/sector_rules.json)
+
+用已归档的成交额即可离线复现。第一条命令会逐个核对四份已发布文件，第二条运行目录及板块筛选的全部 21 项测试。
+
+```sh
+python tools/etf_catalog/sector_seats.py report research/etf-catalog/sector-seats/2026-11-19/turnover.json research/etf-catalog/sector-seats/2026-11-19
+python -m unittest discover -s tools/etf_catalog -p "test*.py" -v
+```
+
+重采时给出目录观测日之前的最近完整交易日。程序用沪、深两地基准指数确认十个相同的交易日，仅请求主方向 ETF 的短窗行情。成交额来自腾讯日线的万元字段。抽查华宝银行 ETF（512800.SH）和华夏芯片 ETF（159995.SZ）各十日，与东方财富的元口径核对，单日最大绝对差分别为 27.00 元、49.19 元，均在两个数据源显示精度允许的 50 元内。两只新上市产品的交易天数不足，继续保留在成员表。数据获取失败时采集会报错；重新采集请使用新的输出路径。[腾讯日线示例](https://proxy.finance.qq.com/ifzqgtimg/appstock/app/newfqkline/get?param=sh512800,day,2026-11-05,2026-11-18,10,) · [东方财富交叉核对示例](https://push2his.eastmoney.com/api/qt/stock/kline/get?secid=1.512800&klt=101&fqt=0&fields1=f1,f2,f3,f4&fields2=f51,f52,f53,f54,f55,f56,f57&beg=20261105&end=20261118)
+
+```sh
+python tools/etf_catalog/sector_seats.py collect 2026-11-18 sector-turnover.json
+python tools/etf_catalog/sector_seats.py report sector-turnover.json sector-report
+```
+
+交易窗口、指数配置和代表只用于本次筛选。席位按配置 ID 保持稳定，重采生成新的建议报告，不会替换现有代表或改动正式策略。
 
 ## 查询决策时点可知的研究目录
 
