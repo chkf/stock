@@ -1,0 +1,21 @@
+{
+  "A": 784,
+  "A_reduction": 938,
+  "A_reduction_pct": 54.47,
+  "B": 777,
+  "B_reduction": 945,
+  "B_reduction_pct": 54.88,
+  "absent_retained": 0,
+  "classified": 1717,
+  "classified_pct": 99.71,
+  "index_identified": 1600,
+  "index_identified_pct": 92.92,
+  "markets": {
+    "SH": 950,
+    "SZ": 772
+  },
+  "observed": 1722,
+  "products": 1722,
+  "review": 407,
+  "review_observed": 407
+}
