@@ -1,4 +1,5 @@
 import csv
+from datetime import datetime
 from pathlib import Path
 import tempfile
 import unittest
@@ -274,7 +275,8 @@ class CatalogTests(unittest.TestCase):
             pcf_headers(buf.getvalue(), "20261119")
 
     def test_atomic_failure_idempotence_and_stability(self):
-        with tempfile.TemporaryDirectory() as tmp:
+        with tempfile.TemporaryDirectory() as tmp, patch("catalog.datetime", wraps=datetime) as clock:
+            clock.now.return_value = datetime.fromisoformat("2026-11-19T17:00:00+08:00")
             root = Path(tmp)
             first = c.publish(snap(), root, RULES)
             self.assertEqual(c.publish(snap(), root, RULES), first)
@@ -303,6 +305,100 @@ class CatalogTests(unittest.TestCase):
                 {s: r["strict"] for s, r in before.items()},
                 {s: r["strict"] for s, r in after.items()},
             )
+
+
+class AvailabilityTests(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name)
+        clock = patch("catalog.datetime", wraps=datetime)
+        self.addCleanup(clock.stop)
+        self.clock = clock.start()
+
+    def at(self, timestamp):
+        self.clock.now.return_value = datetime.fromisoformat(timestamp)
+
+    def test_before_coverage_and_exact_publication(self):
+        self.assertEqual(c.as_of(self.root, "2015-01-05")["status"], "no_coverage")
+        self.at("2026-11-19T10:28:40+08:00")
+        first = c.publish(snap(), self.root, RULES)
+        for cutoff in ("2015-01-05", "2026-11-18", "2026-11-19T10:28:39+08:00"):
+            result = c.as_of(self.root, cutoff, True)
+            self.assertEqual(result["status"], "no_coverage")
+            self.assertNotIn("members", result)
+            self.assertNotIn("summary", result)
+        for cutoff in ("2026-11-19T02:28:40Z", "2026-11-19"):
+            result = c.as_of(self.root, cutoff, True)
+            self.assertEqual(result["generation"], first.name)
+            self.assertEqual(set(result["members"]), {"510300.SH", "159919.SZ"})
+        with self.assertRaisesRegex(ValueError, "UTC offset"):
+            c.as_of(self.root, "2026-11-19T10:30:00")
+
+    def test_changes_and_new_rules_are_known_only_after_each_publication(self):
+        sym = "510301.SH"
+        self.at("2026-11-19T09:00:00+08:00")
+        first = c.publish(snap({sym: product()}), self.root, RULES)
+        self.at("2026-11-19T12:00:00+08:00")
+        changed = snap({sym: product("399986", "中证银行指数", short_name="银行ETF")})
+        second = c.publish(changed, self.root, RULES)
+        self.at("2026-11-20T10:00:00+08:00")
+        revised = dict(RULES, version="new-rules")
+        third = c.publish(changed, self.root, revised)
+        self.at("2026-11-21T10:00:00+08:00")
+        fourth = c.publish(snap(day="2026-11-21"), self.root, revised)
+        results = [c.as_of(self.root, d, True) for d in (
+            "2026-11-19T11:59:59+08:00", "2026-11-19", "2026-11-20", "2026-11-21"
+        )]
+        self.assertEqual([r["generation"] for r in results], [
+            p.name for p in (first, second, third, fourth)
+        ])
+        rows = [r["members"][sym] for r in results]
+        self.assertNotEqual(rows[0]["strict"], rows[1]["strict"])
+        self.assertNotEqual(rows[0]["short_name"], rows[1]["short_name"])
+        self.assertEqual([r["rule_version"] for r in results], [
+            RULES["version"], RULES["version"], "new-rules", "new-rules"
+        ])
+        self.assertFalse(rows[-1]["present"])
+        self.assertTrue(rows[-1]["review"])
+        self.assertEqual(results[-1]["summary"]["absent_retained"], 1)
+
+    def test_failed_switch_and_retry_never_expose_an_orphan(self):
+        self.at("2026-11-18T15:00:00+08:00")
+        first = c.publish(snap(), self.root, RULES)
+        self.at("2026-11-19T11:00:00+08:00")
+        updated = snap({"510301.SH": product()}, day="2026-11-19")
+        replace = c.os.replace
+
+        def fail_pointer(source, target):
+            if target.name == "CURRENT":
+                raise OSError("pointer switch failed")
+            replace(source, target)
+
+        with patch("catalog.os.replace", side_effect=fail_pointer), self.assertRaises(OSError):
+            c.publish(updated, self.root, RULES)
+        self.assertEqual(c.as_of(self.root, "2026-11-20")["generation"], first.name)
+        self.at("2026-11-19T13:00:00+08:00")
+        retry = c.publish(updated, self.root, RULES)
+        self.assertEqual(c.as_of(self.root, "2026-11-19T12:00:00+08:00")["generation"], first.name)
+        self.assertEqual(c.as_of(self.root, "2026-11-19")["generation"], retry.name)
+        self.at("2026-11-20T14:00:00+08:00")
+        self.assertEqual(c.publish(updated, self.root, RULES), retry)
+        self.assertEqual(c.as_of(self.root, "2026-11-20")["available_at"], "2026-11-19T13:00:00+08:00")
+
+    def test_broken_chain_and_altered_snapshot_fail_closed(self):
+        self.at("2026-11-19T12:00:00+08:00")
+        first = c.publish(snap(), self.root, RULES)
+        path = first / "catalog.json"
+        state = c.read(path)
+        state["records"]["510300.SH"]["short_name"] = "altered"
+        c.write_json(path, state)
+        with self.assertRaisesRegex(ValueError, "availability evidence"):
+            c.as_of(self.root, "2026-11-19")
+        path = first / "availability.json"
+        c.write_json(path, {**c.read(path), "previous": first.name})
+        with self.assertRaisesRegex(ValueError, "publication chain"):
+            c.as_of(self.root, "2015-01-05")
 
 
 if __name__ == "__main__":

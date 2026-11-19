@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 import re
 import tempfile
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, time, timedelta, timezone
 
 from classify import classification, index_identity
 from report import render
@@ -18,6 +18,8 @@ from sources import collect, UNKNOWN as U, _codes_digest
 
 HERE = Path(__file__).resolve().parent
 DEFAULT = HERE.parents[1] / "research" / "etf-catalog"
+SHANGHAI = timezone(timedelta(hours=8))
+GENERATION = re.compile(r"\d{4}-\d{2}-\d{2}-[a-f0-9]{16}")
 FIELDS = {
     "short_name",
     "manager",
@@ -40,6 +42,23 @@ def encoded(x):
     return json.dumps(
         x, ensure_ascii=False, sort_keys=True, separators=(",", ":")
     ).encode("utf-8")
+
+
+def observation_time(stamp):
+    value = datetime.fromisoformat(stamp)
+    return value if value.tzinfo else value.replace(tzinfo=SHANGHAI)
+
+
+def decision_time(value):
+    """Date-only decisions mean end of the Shanghai civil day."""
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+        return datetime.combine(date.fromisoformat(value), time.max, SHANGHAI)
+    if value.endswith("Z"):
+        value = value[:-1] + "+00:00"
+    stamp = datetime.fromisoformat(value)
+    if stamp.tzinfo is None:
+        raise ValueError("An intraday cutoff requires a UTC offset")
+    return stamp.astimezone(SHANGHAI)
 
 
 def write_json(path, obj):
@@ -135,11 +154,9 @@ def build(snapshot, previous, rules):
     day = snapshot["observed_at"][:10]
     old = previous.get("records", {})
 
-    def instant(stamp):
-        t = datetime.fromisoformat(stamp)
-        return t if t.tzinfo else t.replace(tzinfo=timezone(timedelta(hours=8)))
-
-    if previous and instant(snapshot["observed_at"]) < instant(previous["observed_at"]):
+    if previous and observation_time(snapshot["observed_at"]) < observation_time(
+        previous["observed_at"]
+    ):
         raise ValueError("Snapshot predates current catalog")
     strict = {r["strict"] for r in old.values() if r["present"] and not r["review"]}
     dirs = {
@@ -449,14 +466,66 @@ def verify_pcf(state, receipt, archive):
     }
 
 
-def current(root):
+def current_version(root):
     pointer = root / "CURRENT"
     if not pointer.exists():
-        return {}, None
+        return None
     version = pointer.read_text(encoding="ascii").strip()
-    if not re.fullmatch(r"\d{4}-\d{2}-\d{2}-[a-f0-9]{16}", version):
+    if not GENERATION.fullmatch(version):
         raise ValueError("Invalid CURRENT")
-    return read(root / version / "catalog.json"), version
+    return version
+
+
+def current(root):
+    version = current_version(root)
+    return (read(root / version / "catalog.json"), version) if version else ({}, None)
+
+
+def as_of(root, cutoff, include_members=False):
+    decision = decision_time(cutoff)
+    result = {"as_of": decision.isoformat(), "status": "no_coverage"}
+    version = current_version(root)
+    visited = set()
+    child_time = None
+    while version is not None:
+        if not GENERATION.fullmatch(version) or version in visited:
+            raise ValueError("Invalid catalog publication chain")
+        visited.add(version)
+        receipt_file = root / version / "availability.json"
+        if not receipt_file.is_file():
+            raise ValueError(f"Missing availability evidence for {version}")
+        receipt = read(receipt_file)
+        stamp = datetime.fromisoformat(receipt["available_at"])
+        if (
+            receipt["generation"] != version
+            or stamp.tzinfo is None
+            or (child_time is not None and stamp > child_time)
+        ):
+            raise ValueError("Invalid generation or availability timestamp")
+        if stamp <= decision:
+            state = read(root / version / "catalog.json")
+            if (
+                hashlib.sha256(encoded(state)).hexdigest() != receipt["catalog_sha256"]
+                or observation_time(state["observed_at"]) > stamp
+            ):
+                raise ValueError("Catalog differs from its availability evidence")
+            result.update(
+                status="available",
+                generation=version,
+                available_at=stamp.isoformat(),
+                availability_basis=receipt["basis"],
+                observed_at=state["observed_at"],
+                rule_version=state["rule_version"],
+                rule_sha256=state["rule_sha256"],
+                summary=summary(state),
+            )
+            if include_members:
+                result["members"] = state["records"]
+            return result
+        child_time, version = stamp, receipt["previous"]
+    if child_time is not None:
+        result["earliest_available_at"] = child_time.isoformat()
+    return result
 
 
 @contextmanager
@@ -499,13 +568,14 @@ def publish(snapshot, root, rules):
             ]
 
         comparable = generation_facts(state)
+        if old and generation_facts(old) == comparable:
+            return root / version
+        # Include the parent so a return to an earlier state has its own publication.
         token = (
             state["observed_at"][:10]
             + "-"
-            + hashlib.sha256(encoded(comparable)).hexdigest()[:16]
+            + hashlib.sha256(encoded([version, comparable])).hexdigest()[:16]
         )
-        if token == version:
-            return root / token
         with tempfile.TemporaryDirectory(dir=root) as tmp:
             folder = Path(tmp) / "ready"
             folder.mkdir()
@@ -518,6 +588,29 @@ def publish(snapshot, root, rules):
                 saved = read(final / "catalog.json")
                 if generation_facts(saved) != comparable:
                     raise ValueError("Generation collision")
+                # An attempt may have stopped between building a generation and
+                # switching CURRENT. Bind the receipt to the bytes actually reused.
+                state = saved
+            available = datetime.now(SHANGHAI)
+            previous_receipt = root / version / "availability.json" if version else None
+            if observation_time(state["observed_at"]) > available:
+                raise ValueError("Clock precedes observation")
+            if previous_receipt and previous_receipt.exists():
+                previous_stamp = datetime.fromisoformat(read(previous_receipt)["available_at"])
+                if previous_stamp > available:
+                    raise ValueError("Clock precedes previous availability")
+            receipt = Path(tmp) / "availability.json"
+            write_json(
+                receipt,
+                {
+                    "generation": token,
+                    "previous": version,
+                    "available_at": available.isoformat(),
+                    "basis": "local_validated_snapshot",
+                    "catalog_sha256": hashlib.sha256(encoded(state)).hexdigest(),
+                },
+            )
+            os.replace(receipt, final / "availability.json")
             pointer = Path(tmp) / "CURRENT"
             pointer.write_text(token + "\n", encoding="ascii", newline="\n")
             os.replace(pointer, root / "CURRENT")
@@ -536,6 +629,9 @@ def main():
     )
     subs.add_parser("reclassify")
     subs.add_parser("verify")
+    at = subs.add_parser("as-of", help="Research catalog known at the decision time")
+    at.add_argument("cutoff", help="Shanghai date (end of day) or timestamp with UTC offset")
+    at.add_argument("--members", action="store_true", help="Include all original member records")
     pc = subs.add_parser("verify-pcf")
     pc.add_argument("receipt", type=Path)
     pc.add_argument("archive", type=Path)
@@ -551,6 +647,15 @@ def main():
     df.add_argument("before", type=Path)
     df.add_argument("after", type=Path)
     args = ap.parse_args()
+    if args.cmd == "as-of":
+        try:
+            result = as_of(args.root, args.cutoff, args.members)
+        except (ValueError, KeyError, OSError) as error:
+            ap.error(str(error))
+        print(json.dumps(result, ensure_ascii=False))
+        if result["status"] == "no_coverage":
+            raise SystemExit(3)
+        return
     rules = read(args.rules)
     if args.cmd in ("refresh", "apply", "reclassify"):
         if args.cmd == "refresh":
