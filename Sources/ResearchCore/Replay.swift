@@ -91,6 +91,15 @@ public struct ReplayReport: Codable {
     fileprivate var books = [String: SimBook](), pending = [String: Int](), locks = [String: String]()
     fileprivate var active: Decision?
     public private(set) var ledgerVersion:Int?
+    public fileprivate(set) var warmupFrom:String?, firstSignal:String?, waiting:[String:Int]?
+    fileprivate var contentDigest:String?
+    public fileprivate(set) var inputs:[String:String]?
+    public fileprivate(set) var firstTrade:String?
+    public static func fingerprint(market:String,workspace:String,dynamic:Bool) throws -> String {
+        guard dynamic else { return fingerprint(market:market,workspace:workspace) }
+        let calendar=Integrity.sha(try FrozenInputs.data("XSHG.txt"))
+        return Integrity.sha(Data("etf-ledger-4|contract-2|session-feed-1|\(calendar)|\(market)|\(workspace)".utf8))
+    }
     public static let currentLedgerVersion=3
     public static func fingerprint(market:String,workspace:String) -> String {
         Integrity.sha(Data(("etf-ledger-\(currentLedgerVersion)|"+market+"|"+workspace).utf8))
@@ -136,17 +145,28 @@ extension StrategyEngine {
                        checkpoint: (ReplayReport, Double) throws -> Void = { _,_ in }) throws -> ReplayReport {
         let first = try sessions.index(start), last = try sessions.index(end)
         guard first > 0, first <= last, end <= market.as_of, start >= "2006-07-01" else { throw ResearchError("回测区间超出已验证行情或交易规则") }
-        let before = sessions.days[first-1], symbols = market.securities.keys.sorted(), rules = try PublicRules.load()
+        let before = sessions.days[first-1], symbols = market.securities.keys.sorted(), rules = market.isUniverse ? nil : try PublicRules.load()
         let version=try workspace ?? Self.seed.get()
         guard let definition=version.design.strategies.first(where:{ $0.id==strategy }) else { throw ResearchError("工作区缺少策略 "+strategy) }
         let coverage=try HistoryCoverage(market:market,sessions:sessions,strategies:[definition])
         if let reason=coverage.problem(start:start,end:end) { throw ResearchError(reason) }
         let settings=version.design.study ?? StudySettings.original
+        let ledger=market.isUniverse ? 4 : ReplayReport.currentLedgerVersion
+        if let data=market.universe {
+            guard snapshot == (try ReplayReport.fingerprint(market:data.id,workspace:version.hash,dynamic:true)) else { throw ResearchError("目录回测指纹不符") }
+        }
         let ex = market.securities.mapValues { Dictionary(grouping: $0.events, by: \.date) }
-        let reg = market.securities.mapValues { Dictionary(grouping: $0.events.filter { ($0.cash_per_share ?? 0) > 0 }, by: { $0.record_date ?? "" }) }
-        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital, ledgerVersion:ReplayReport.currentLedgerVersion)
-        guard st.ledgerVersion==ReplayReport.currentLedgerVersion, st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
+        let reg = market.isUniverse ? [:] : market.securities.mapValues { Dictionary(grouping: $0.events.filter { ($0.cash_per_share ?? 0) > 0 }, by: { $0.record_date ?? "" }) }
+        var st = resume ?? ReplayReport(snapshot: snapshot, strategy: strategy, start: start, end: end, capital: settings.capital, cash: settings.capital, peak: settings.capital, ledgerVersion:ledger)
+        guard st.ledgerVersion==ledger, st.snapshot == snapshot, st.strategy == strategy, st.start == start, st.end == end, st.capital == settings.capital else {
             throw ResearchError("回测检查点的账簿版本、输入或区间不同；请以当前版本重新回测，保留旧记录")
+        }
+        if let data=market.universe {
+            let pins=["market":data.id,"workspace":version.hash,"catalog":data.catalog,"scopeEvidence":data.scopeEvidence,"contract":"2","execution":"4","calendar":Integrity.sha(try FrozenInputs.data("XSHG.txt"))]
+            if resume != nil {
+                guard st.inputs==pins,Set(st.books.keys)==Set(symbols),Set(st.pending.keys).isSubset(of:Set(symbols)),st.active != nil,
+                      st.curve.count<=last-first+1,st.curve.enumerated().allSatisfy({ $0.element.date==sessions.days[first+$0.offset] }),st.cash>=0 else { throw ResearchError("目录检查点损坏") }
+            } else { st.inputs=pins; st.warmupFrom=max(data.from,sessions.days[first-definition.history]); st.waiting=[:] }
         }
         if st.finished { return st }
         func equity(_ date: String) -> Double {
@@ -161,14 +181,17 @@ extension StrategyEngine {
             let old = st.active
             let d = try decision(strategy, on: date, previousState: old?.marketState ?? "UNKNOWN", previousSectors: old?.sectorStates ?? [:])
             let value = equity(date)
+            if market.isUniverse,d.waitReason==nil,st.firstSignal==nil { st.firstSignal=date }
             for s in symbols {
                 var b = st.books[s]!
                 if let day = st.locks[s], b.quantity == 0, day < date { st.locks.removeValue(forKey: s) }
-                if old?.route != d.route && (d.resetHighOnEntry ?? ["MOM","BANK"].contains(d.route)) { b.high = b.quantity > 0 ? b.price : nil; st.books[s] = b }
+                if old?.route != d.route && (d.resetHighOnEntry ?? (!market.isUniverse && ["MOM","BANK"].contains(d.route))) { b.high = b.quantity > 0 ? b.price : nil; st.books[s] = b }
                 guard st.locks[s] == nil else { continue }
                 let w = d.weights[s] ?? 0
                 guard w == 0 || b.price > 0 else { throw ResearchError("\(s) 缺少建仓参考价") }
-                let target = w > 0 ? Int(value*w/b.price)/100*100 : 0
+                let shares=w>0 ? value*w/b.price : 0
+                guard shares.isFinite, shares<Double(Int.max) else { throw ResearchError("\(s) 目标份额超出可表示范围") }
+                let target = Int(shares)/100*100
                 var diff = target-b.quantity
                 if b.quantity > 0, w > 0, Double(abs(diff))*b.price < settings.rebalanceBand*value { diff = 0 }
                 st.pending[s] = diff == 0 ? nil : diff
@@ -194,17 +217,27 @@ extension StrategyEngine {
         for index in position...last {
             try Task.checkCancellation()
             let date = sessions.days[index]
+            if let why=st.active?.waitReason,market.isUniverse { st.waiting?[why,default:0]+=1 }
             var executable = [String: Double]()
             var closingSplits = [String:SplitTerms]()
             for s in symbols {
                 var b = st.books[s]!
+                if let entry=market.universe?.listings[s],!entry.active(date) {
+                    guard b.quantity==0,st.pending[s]==nil else { throw ResearchError("\(s) \(date) 退市/转换存在持仓或挂单，缺结算依据") }
+                }
                 for e in ex[s]?[date] ?? [] {
                     let factor = e.share_factor ?? 1, cash = e.cash_per_share ?? 0
+                    if market.isUniverse,cash>0,b.quantity>0 {
+                        guard let pay=e.payment_date else { throw ResearchError("\(s) \(date) 缺分红到账日") }
+                        for lot in b.lots {
+                            let amount=Double(lot.shares)*cash; b.claims.append(.init(ex:date,pay:pay,amount:amount));b.firstFill?.balance+=Planning.money(amount)
+                        }
+                    }
                     if b.price > 0 { b.price = (b.price-cash)/factor }
                     if let high = b.high { b.high = (high-cash)/factor }
                     if factor != 1 && (b.quantity > 0 || st.pending[s] != nil) {
-                        let proof = e.available_date == nil ? rules.members[s]?.events.first(where: { $0.date == e.date && $0.share_factor == e.share_factor }) : nil
-                        let terms=try SplitTerms(e,symbol:s,calendar:sessions,halted:HistoryCoverage.noTrade(s,date,market,rules),fallback:proof)
+                        let proof = e.available_date == nil ? rules?.members[s]?.events.first(where: { $0.date == e.date && $0.share_factor == e.share_factor }) : nil
+                        let terms=try SplitTerms(e,symbol:s,calendar:sessions,halted:HistoryCoverage.noTrade(s,date,market,rules),fallback:proof,legacy:!market.isUniverse)
                         if terms.atClose { closingSplits[s]=terms }
                         else { try b.convert(terms,pending:&st.pending[s]) }
                     }
@@ -212,6 +245,7 @@ extension StrategyEngine {
                 for claim in b.claims where claim.pay <= date { st.cash = Planning.money(st.cash + claim.amount) }
                 b.claims.removeAll { $0.pay <= date }
                 st.books[s] = b
+                if let entry=market.universe?.listings[s],!entry.active(date) { continue }
                 let status = marketHalts[s]?[date]
                 let halted = HistoryCoverage.noTrade(s,date,market,rules)
                 guard let bar = market.securities[s]?.bars[date] else {
@@ -220,7 +254,12 @@ extension StrategyEngine {
                 }
                 if halted, bar.volume > 0 { throw ResearchError("\(s) \(date) 停牌记录与成交量冲突") }
                 guard let q = st.pending[s], q != 0, !halted, bar.volume > 0, b.price > 0 else { continue }
-                let member = rules.members[s]!
+                if market.isUniverse {
+                    guard let up=status?.upper_limit,let down=status?.lower_limit else { throw ResearchError("\(s) \(date) 缺执行日价格限制") }
+                    if q>0 && bar.open>=up-1e-8 || q<0 && bar.open<=down+1e-8 { continue }
+                    executable[s]=bar.open; continue
+                }
+                guard let member=rules?.members[s] else { throw ResearchError("\(s) 缺旧版执行规则") }
                 let band = date < (member.bandFrom ?? "2016-01-01") ? 0.1 : member.band
                 let up = status?.upper_limit ?? Self.priceTick(b.price*(1+band)), down = status?.lower_limit ?? Self.priceTick(b.price*(1-band))
                 guard bar.high <= up+0.001, bar.low >= down-0.001 else { throw ResearchError("\(s) \(date) 行情越界") }
@@ -272,6 +311,7 @@ extension StrategyEngine {
                     }
                     st.cash = Planning.money(st.cash+flow)
                     st.trades.append(.init(date: date, symbol: s, side: sell ? "SELL" : "BUY", quantity: qty, price: p, fees: cost))
+                    if market.isUniverse,st.firstTrade==nil { st.firstTrade=date }
                     remaining += sell ? qty : -qty
                 }
                 st.pending[s] = remaining == 0 ? nil : remaining
@@ -306,7 +346,7 @@ extension StrategyEngine {
             guard value.isFinite, value > 0, st.cash >= -0.001 else { throw ResearchError("回测资金校验失败") }
             st.peak = max(st.peak,value)
             st.curve.append(.init(date: date, equity: value, drawdown: value/st.peak-1))
-            if index < last, try review(strategy,on:date) { try select(date) }
+            if index < last, try (market.isUniverse && st.active?.waitReason != nil) || review(strategy,on:date) { try select(date) }
             if let observe {
                 var holdings=[String:StudyLedgerDay.Holding]()
                 for (s,b) in st.books {
@@ -328,6 +368,18 @@ extension StrategyEngine {
 }
 
 extension PrivateLibrary {
+    public nonisolated func formalReplay(market:MarketSnapshot,id:String,workspace:WorkspaceVersion,strategy:String,start:String,end:String,
+                                         progress:(ReplayReport,Double)throws->Void = { _,_ in }) throws -> ReplayReport {
+        let calendar=try Sessions()
+        guard end <= (try calendar.completed()) else { throw ResearchError("结束日期未收盘") }
+        let stamp=try ReplayReport.fingerprint(market:id,workspace:workspace.hash,dynamic:market.isUniverse)
+        let path=try replayURL(snapshot:stamp,strategy:strategy,start:start,end:end)
+        try HistoryWriters.shared.claim(path); defer { HistoryWriters.shared.release(path) }
+        let old=try savedReplay(snapshot:stamp,strategy:strategy,start:start,end:end)
+        return try StrategyEngine(market:market,sessions:calendar,workspace:workspace).replay(strategy,snapshot:stamp,start:start,end:end,resume:old) { report,value in
+            try Task.checkCancellation(); try storeReplay(report); try progress(report,value)
+        }
+    }
     public nonisolated func studyRange(market:String, workspace:String) throws -> [String]? {
         let p=try rangeURL(market:market,workspace:workspace)
         guard FileManager.default.fileExists(atPath:p.path) else { return nil }
@@ -352,13 +404,23 @@ extension PrivateLibrary {
     public nonisolated func savedReplay(snapshot: String, strategy: String, start: String, end: String) throws -> ReplayReport? {
         let url = try replayURL(snapshot: snapshot,strategy: strategy,start: start,end: end)
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
-        let report = try JSONDecoder().decode(ReplayReport.self, from: Data(contentsOf: url))
+        var report = try JSONDecoder().decode(ReplayReport.self, from: Data(contentsOf: url))
+        if report.ledgerVersion==4 {
+            let digest=report.contentDigest; report.contentDigest=nil
+            guard digest == (try Integrity.sha(AccountEncoding.encodeReplay(report))) else { throw ResearchError("目录回测检查点内容摘要不符") }
+        }
         guard report.snapshot == snapshot && report.strategy == strategy && report.start == start && report.end == end else { throw ResearchError("回测输入与记录不一致") }
         return report
     }
     public nonisolated func storeReplay(_ report: ReplayReport) throws {
         let url = try replayURL(snapshot: report.snapshot,strategy: report.strategy,start: report.start,end: report.end)
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(),withIntermediateDirectories: true)
-        try JSONEncoder().encode(report).write(to: url,options: .atomic)
+        var copy=report
+        if copy.ledgerVersion==4 { copy.contentDigest=nil; copy.contentDigest=Integrity.sha(try AccountEncoding.encodeReplay(copy)) }
+        try JSONEncoder().encode(copy).write(to: url,options: .atomic)
     }
+}
+
+private enum AccountEncoding {
+    static func encodeReplay(_ report:ReplayReport) throws -> Data { let encoder=JSONEncoder(); encoder.outputFormatting=[.sortedKeys]; return try encoder.encode(report) }
 }

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ETF workspace strategy contract 2: input, screen return, or run return",
+  "oneOf": [{"$ref":"#/$defs/input"},{"$ref":"#/$defs/screenResult"},{"$ref":"#/$defs/decision"}],
+  "$defs": {
+    "day":{"type":"string","format":"date","pattern":"^[0-9]{4}-[0-9]{2}-[0-9]{2}$"},
+    "digest":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "symbol":{"type":"string","pattern":"^[0-9]{6}\\.(SH|SZ)$"},
+    "strings":{"type":"object","additionalProperties":{"type":"string"}},
+    "numbers":{"type":"object","additionalProperties":{"type":"number"}},
+    "screenResult":{"type":"array","uniqueItems":true,"items":{"$ref":"#/$defs/symbol"}},
+    "security":{
+      "type":"object","additionalProperties":false,
+      "required":["name","assetClass","role","group","indexID","candidate","eligible","listed","listedEvidence","state","verifiedHistory","reason","effective","known","evidence","close","turnover"],
+      "properties":{
+        "name":{"type":"string"},"assetClass":{"type":"string"},"role":{"type":"string"},"group":{"type":"string"},"indexID":{"type":"string"},
+        "candidate":{"type":"boolean"},"eligible":{"type":"boolean"},"listed":{"$ref":"#/$defs/day"},"listedEvidence":{"$ref":"#/$defs/digest"},
+        "state":{"enum":["trading","halted","no_trades_confirmed"]},"verifiedHistory":{"type":"integer","minimum":1},"reason":{"enum":[null,"listingWarmup","notCandidate"]},
+        "effective":{"$ref":"#/$defs/day"},"known":{"$ref":"#/$defs/day"},"evidence":{"$ref":"#/$defs/digest"},
+        "close":{"type":"array","items":{"type":["number","null"],"exclusiveMinimum":0}},"turnover":{"type":"array","items":{"type":["number","null"],"minimum":0}}
+      }
+    },
+    "input":{
+      "type":"object","additionalProperties":false,
+      "required":["contractVersion","catalogVersion","metadataVersion","marketVersion","stage","strategy","date","dates","previousState","previousSectors","securities","turnoverUnit","config"],
+      "properties":{
+        "contractVersion":{"const":2},"catalogVersion":{"$ref":"#/$defs/digest"},"metadataVersion":{"$ref":"#/$defs/digest"},"marketVersion":{"$ref":"#/$defs/digest"},
+        "stage":{"enum":["screen","run"]},"strategy":{"type":"string"},"date":{"$ref":"#/$defs/day"},"dates":{"type":"array","minItems":1,"maxItems":6000,"items":{"$ref":"#/$defs/day"}},
+        "previousState":{"type":"string"},"previousSectors":{"$ref":"#/$defs/strings"},"securities":{"type":"object","propertyNames":{"$ref":"#/$defs/symbol"},"additionalProperties":{"$ref":"#/$defs/security"}},
+        "turnoverUnit":{"const":"CNY"},"config":{"type":"object"}
+      }
+    },
+    "decision":{
+      "type":"object","required":["strategy","route","marketState","date","selected","weights","scores","breadth"],
+      "properties":{
+        "strategy":{"type":"string"},"date":{"$ref":"#/$defs/day"},"route":{"type":"string"},"marketState":{"type":"string"},"selected":{"$ref":"#/$defs/screenResult"},
+        "weights":{"type":"object","propertyNames":{"$ref":"#/$defs/symbol"},"additionalProperties":{"type":"number","minimum":0,"maximum":1.0000000001}},"scores":{"$ref":"#/$defs/numbers"},"breadth":{"$ref":"#/$defs/numbers"},
+        "sectorStates":{"anyOf":[{"$ref":"#/$defs/strings"},{"type":"null"}]},"bankStatus":{"type":["string","null"]},"headline":{"type":["string","null"]},"rationale":{"type":["string","null"]},
+        "protection":{"type":["array","null"],"items":{"$ref":"#/$defs/symbol"}},"resetHighOnEntry":{"type":["boolean","null"]},"exitDrawdown":{"type":["number","null"],"exclusiveMinimum":0,"maximum":1},"waitReason":{"type":"null"}
+      }
+    }
+  }
+}

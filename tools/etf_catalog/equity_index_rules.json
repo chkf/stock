@@ -1,0 +1,200 @@
+{
+  "version": "2026-11-19.1",
+  "identities": [
+    {
+      "code": "000905",
+      "name": "中证500指数",
+      "publisher": "中证指数",
+      "codes": [
+        "000905",
+        "399905"
+      ],
+      "names": [
+        "中证500指数"
+      ],
+      "source": "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-03-21/512500_20250321_8P6F.pdf"
+    },
+    {
+      "code": "000903",
+      "name": "中证A100指数",
+      "publisher": "中证指数",
+      "codes": [
+        "000903",
+        "399903"
+      ],
+      "names": [
+        "中证A100指数"
+      ],
+      "source": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/000903_Index_Methodology_cn.pdf"
+    },
+    {
+      "code": "746059",
+      "name": "MSCI中国A50互联互通人民币指数",
+      "publisher": "MSCI",
+      "codes": [
+        "746059",
+        "746059.MI"
+      ],
+      "names": [
+        "MSCI中国A50互联互通人民币指数"
+      ],
+      "source": "https://www.msci.com/indexes/index/746059/msci-china-a-50-connect-rmb-index"
+    },
+    {
+      "code": "750108",
+      "name": "MSCI美国50指数",
+      "publisher": "MSCI",
+      "codes": [
+        "750108",
+        "750108.MI"
+      ],
+      "names": [
+        "MSCI USA 50 Index",
+        "MSCI美国50指数"
+      ],
+      "source": "https://www.msci.com/indexes/index/750108/msci-usa-50-index"
+    },
+    {
+      "code": "DAX",
+      "name": "德国DAX指数（欧元总收益）",
+      "publisher": "STOXX",
+      "codes": [
+        "DAX",
+        "GDAXI"
+      ],
+      "names": [
+        "法兰克福DAX指数",
+        "德国DAX指数"
+      ],
+      "source": "https://www.stoxx.com/documents/dax-indices/Documents/Resources/Guides/Factsheet_DAX%20EUR_GR.pdf"
+    },
+    {
+      "code": "HSSCAM",
+      "name": "恒生港股通汽车主题指数",
+      "publisher": "恒生指数公司",
+      "codes": [
+        "HSSCAM",
+        "HSSCAM.HI"
+      ],
+      "names": [
+        "恒生港股通汽车主题指数"
+      ],
+      "source": "https://www.hsi.com.hk/content/dam/wpb/hsil/index/methodologies/zh_cn/hsscam/IM_hsscam.pdf"
+    },
+    {
+      "code": "HSISC",
+      "name": "恒指港股通指数",
+      "publisher": "恒生指数公司",
+      "codes": [
+        "HSISC",
+        "HSISC.HK"
+      ],
+      "names": [
+        "恒指港股通指数"
+      ],
+      "source": "https://www.hsi.com.hk/zh-hk/indexes/all-indexes/index-details/?seriesCode=hsisc"
+    },
+    {
+      "code": "N225",
+      "name": "日经225指数",
+      "publisher": "日本经济新闻社",
+      "codes": [
+        "N225"
+      ],
+      "names": [
+        "东京日经225指数",
+        "日经225指数"
+      ],
+      "source": "https://indexes.nikkei.co.jp/en/nkave/factsheet?idx=nk225"
+    },
+    {
+      "code": "IBOVESPA",
+      "name": "巴西Ibovespa指数",
+      "publisher": "B3",
+      "codes": [
+        "IBOVESPA"
+      ],
+      "names": [
+        "巴西BOVESPA",
+        "巴西IBOVESPA指数"
+      ],
+      "source": "https://www.b3.com.br/en_us/market-data-and-indices/indices/broad-indices/ibovespa.htm"
+    },
+    {
+      "code": "000815",
+      "name": "中证细分食品饮料产业主题指数",
+      "publisher": "中证指数",
+      "codes": [
+        "000815"
+      ],
+      "names": [
+        "中证细分食品饮料产业主题指数",
+        "细分食品"
+      ],
+      "source": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20231208175423-000815_Index_Methodology_cn.pdf"
+    },
+    {
+      "code": "000812",
+      "name": "中证细分机械设备产业主题指数",
+      "publisher": "中证指数",
+      "codes": [
+        "000812"
+      ],
+      "names": [
+        "中证细分机械设备产业主题指数",
+        "细分机械"
+      ],
+      "source": "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/20231208175435-000812_Index_Methodology_cn.pdf"
+    },
+    {
+      "code": "399007",
+      "name": "深证300指数（价格）",
+      "publisher": "深圳证券信息",
+      "codes": [
+        "399007"
+      ],
+      "names": [
+        "深证300价格"
+      ],
+      "source": "https://www.cnindex.com.cn/html2pdf/preview/jj_399007.pdf"
+    },
+    {
+      "code": "399012",
+      "name": "创业板300指数",
+      "publisher": "深圳证券信息",
+      "codes": [
+        "399012"
+      ],
+      "names": [
+        "创业板300"
+      ],
+      "source": "https://www.cnindex.com.cn/html2pdf/preview/jj_399012.pdf"
+    },
+    {
+      "code": "SPX",
+      "name": "标普500指数（价格）",
+      "publisher": "标普道琼斯指数",
+      "codes": [
+        "SPX"
+      ],
+      "names": [
+        "标普500指数",
+        "标准普尔500指数"
+      ],
+      "source": "https://www.spglobal.com/spdji/zh/indices/equity/sp-500/"
+    },
+    {
+      "code": "SPXNTR",
+      "name": "标普500指数（净总收益）",
+      "publisher": "标普道琼斯指数",
+      "codes": [
+        "SPXNTR"
+      ],
+      "names": [
+        "标普500指数",
+        "标准普尔500指数"
+      ],
+      "source": "https://www.spglobal.com/spdji/zh/indices/equity/sp-500/"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import Foundation
 
-public enum MarketOrigin:String,Codable { case phone, archive
-    public var title:String { self == .phone ? "本机行情" : "导入快照" }
+public enum MarketOrigin:String,Codable { case phone, archive, catalog
+    public var title:String { self == .catalog ? "本机目录" : self == .phone ? "本机行情" : "导入快照" }
 }
 
 public struct TransferProgress {

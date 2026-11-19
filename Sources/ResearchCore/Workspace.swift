@@ -5,6 +5,12 @@ public struct StrategyFile: Codable, Identifiable, Hashable {
     public let id, title, short, file: String
     public let history: Int
     public let rebalance: String?
+    public var requirements:UniverseRequirements?
+}
+public struct UniverseRequirements: Codable, Hashable {
+    public let contract, screenHistory:Int
+    public let insufficient:String
+    public var config:String?
 }
 public struct StudySettings: Codable {
     public let capital, commissionRate, minimumCommission, slippageRate, rebalanceBand: Double
@@ -45,7 +51,7 @@ public struct WorkspaceVersion {
         else { throw ResearchError("工作区路径无效 \(name)") }
         return name
     }
-    fileprivate static func read(_ url: URL, under root: URL, limit: Int) throws -> Data {
+    static func read(_ url: URL, under root: URL, limit: Int) throws -> Data {
         let p = url.resolvingSymlinksInPath()
         guard p.path.hasPrefix(root.resolvingSymlinksInPath().path+"/"), try p.resourceValues(forKeys: [.isRegularFileKey,.fileSizeKey]).isRegularFile == true,
               try (p.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? Int.max) <= limit else { throw ResearchError("工作区文件位置或大小异常 \(url.lastPathComponent)") }
@@ -101,6 +107,11 @@ public struct WorkspaceVersion {
         }
         let library = try script(design.library)
         for s in design.strategies {
+            if let req=s.requirements {
+                guard req.contract==2,req.screenHistory>=1,req.screenHistory<=s.history,["cash","error"].contains(req.insufficient) else { throw ResearchError("\(s.id) 目录契约或筛选窗口无效") }
+                if let config=req.config { _=try Self.strategyConfig(file(config,"json"),on:"9999-12-31") }
+                _=try execute(library+"\n"+script(s.file)+"\n;globalThis.run=screen;",file:s.file,input:Data(),check:true)
+            }
             guard (1...6000).contains(s.history), !s.title.isEmpty, ["daily","weekly","monthly"].contains(s.rebalance ?? "monthly") else { throw ResearchError("\(s.id) 历史窗口、名称或换仓频率无效") }
             _ = try execute(library+"\n"+script(s.file),file:s.file,input:Data(),check:true)
         }
@@ -125,6 +136,11 @@ public struct WorkspaceVersion {
     }
     func evaluate(_ id: String, date: String, market: MarketSnapshot,sessions: Sessions,previous: String,sectors: [String:String]) throws -> Decision {
         guard date <= market.as_of, let s = design.strategies.first(where: { $0.id == id }), let program = files[s.file] else { throw ResearchError("策略或行情日期无效") }
+        if let req=s.requirements {
+            return try universeDecision(s,req:req,market:market,calendar:sessions,date:date,previous:previous,sectors:sectors,
+                code:library+"\n"+String(decoding:program,as:UTF8.self),config:req.config.flatMap { files[$0] })
+        }
+        guard !market.isUniverse,market.schema != UniverseManifest.format else { throw ResearchError("旧策略需要固定池行情，请选择契约 2 策略") }
         let last = try sessions.index(date), days = Array(sessions.days[max(0,last-s.history+1)...last])
         struct Security: Encodable { let name,group: String; let close: [Double?] }
         struct Input: Encodable {
@@ -172,7 +188,39 @@ public struct WorkspaceStore {
     private var versions: URL { root.appendingPathComponent("版本",isDirectory:true) }
     private var pointer: URL { versions.appendingPathComponent("current.json") }
     private var replyFile: URL { root.appendingPathComponent("输出/请求状态.json") }
-    private struct Reply: Codable { let digest,id,status,message,time:String }
+    private struct Reply: Codable { let digest,id,status,message,time:String; var process:String?, fraction:Double?, resultPath:String? }
+    private static let process=UUID().uuidString
+    public func performReplay(_ ticket:WorkspaceTicket,workspace:WorkspaceVersion,library:PrivateLibrary,phone:PhoneSnapshot?,catalog:PhoneSnapshot?,archive:MarketSnapshot?,archiveID:String?,progress:(ReplayReport,Double)->Void = { _,_ in }) throws {
+        let request=ticket.request,fields=request.fields ?? [:]
+        guard request.operation=="replay",let target=request.target,let definition=workspace.design.strategies.first(where:{ $0.id==target }),
+              let from=fields["start"],let end=fields["end"],let source=fields["marketOrigin"],Set(fields.keys)==Set(["start","end","marketOrigin"]) else { throw ResearchError("replay 需要有效策略、start、end、marketOrigin") }
+        let market:MarketSnapshot?,id:String?
+        switch source {
+        case "phone": let snapshot=definition.requirements==nil ? phone:catalog; market=snapshot?.market; id=snapshot?.hash
+        case "archive": market=archive; id=archiveID
+        default: throw ResearchError("未知回测来源")
+        }
+        guard let market,let id else { throw ResearchError("正式回测行情尚未载入") }
+        try replayStatus(ticket,status:"running",message:"核验区间",fraction:0)
+        let result=try library.formalReplay(market:market,id:id,workspace:workspace,strategy:target,start:from,end:end) { state,value in
+            try replayStatus(ticket,status:"running",message:state.outcomeDate,fraction:value);progress(state,value)
+        }
+        guard result.finished else { throw ResearchError("回测未完成") }
+        let path=try library.replayURL(snapshot:result.snapshot,strategy:target,start:from,end:end)
+        guard path.path.hasPrefix(root.path+"/") else { throw ResearchError("结果不在当前工作区") }
+        try replayStatus(ticket,status:"done",message:"正式结果已保存",fraction:1,resultPath:String(path.path.dropFirst(root.path.count+1)))
+    }
+    private func jobPath(_ id:String) -> URL { root.appendingPathComponent("输出/回测请求/"+id+".json") }
+    public func replayStatus(_ ticket:WorkspaceTicket,status:String,message:String,fraction:Double?=nil,resultPath:String?=nil) throws {
+        let record=Reply(digest:ticket.digest,id:ticket.request.id,status:status,message:message,time:ISO8601DateFormatter().string(from:Date()),process:Self.process,fraction:fraction,resultPath:resultPath)
+        let bytes=try JSONEncoder().encode(record)
+        let path=jobPath(record.id)
+        if status=="accepted" {
+            try FileManager.default.createDirectory(at:path.deletingLastPathComponent(),withIntermediateDirectories:true)
+            try bytes.write(to:path,options:.withoutOverwriting)
+        } else { try bytes.write(to:path,options:.atomic) }
+        try bytes.write(to:replyFile,options:.atomic)
+    }
     private func reply(digest:String,id:String,ok:Bool,message:String) throws {
         let reply = Reply(digest:digest,id:id,status:ok ? "done" : "error",message:message,time:ISO8601DateFormatter().string(from:Date()))
         let encoder = JSONEncoder()
@@ -180,6 +228,7 @@ public struct WorkspaceStore {
         try encoder.encode(reply).write(to:replyFile,options:.atomic)
     }
     public func finish(_ ticket:WorkspaceTicket,ok:Bool,message:String) throws {
+        if ticket.request.operation=="replay" { if !ok { try replayStatus(ticket,status:"failed",message:message) }; return }
         try reply(digest:ticket.digest,id:ticket.request.id,ok:ok,message:message)
     }
     public func nextRequest() throws -> WorkspaceTicket? {
@@ -187,16 +236,26 @@ public struct WorkspaceStore {
         guard FileManager.default.fileExists(atPath:url.path) else { return nil }
         let data = try WorkspaceVersion.read(url,under:root,limit:64*1024)
         let digest = Integrity.sha(data)
-        if let bytes = try? Data(contentsOf:replyFile), let previous = try? JSONDecoder().decode(Reply.self,from:bytes), previous.digest == digest { return nil }
+        if let bytes = try? Data(contentsOf:replyFile), let previous = try? JSONDecoder().decode(Reply.self,from:bytes), previous.digest == digest, !["accepted","running"].contains(previous.status) { return nil }
         var id = ""
         do {
             let request = try JSONDecoder().decode(WorkspaceRequest.self,from:data)
             id = request.id
-            guard WorkspaceVersion.validID(id), ["reload","run","strategy"].contains(request.operation),
+            guard WorkspaceVersion.validID(id), ["reload","run","strategy","catalog","quotes","replay"].contains(request.operation),
                   request.operation == "reload" || WorkspaceVersion.validID(request.target ?? ""),
                   request.fields?.count ?? 0 <= 64, request.fields?.allSatisfy({ WorkspaceVersion.validID($0.key) && $0.value.utf8.count <= 4096 }) ?? true
             else { throw ResearchError("请求需要有效的 id、operation 和 target") }
-            return WorkspaceTicket(request:request,digest:digest)
+            let ticket=WorkspaceTicket(request:request,digest:digest)
+            if request.operation=="replay" {
+                if FileManager.default.fileExists(atPath:jobPath(id).path) {
+                    let old=try JSONDecoder().decode(Reply.self,from:Data(contentsOf:jobPath(id)))
+                    guard old.digest==digest else { throw ResearchError("回测请求 ID 已使用，请使用新 ID") }
+                    if old.process != Self.process && ["accepted","running"].contains(old.status) { try replayStatus(ticket,status:"interrupted",message:"上次进程中断；用新 ID 继续匹配的检查点") }
+                    return nil
+                }
+                try replayStatus(ticket,status:"accepted",message:"已受理，尚未完成")
+            }
+            return ticket
         } catch {
             try reply(digest:digest,id:id,ok:false,message:error.localizedDescription)
             return nil
@@ -213,12 +272,13 @@ public struct WorkspaceStore {
             let snapshot,workspace,nextSession,latestCompleted:String
             let stale:Bool; let decision:Decision; let ranking:[Rank]
         }
-        let rows=market.securities.keys.sorted { a,b in
+        let symbols=market.securities.keys.filter { market.universe?.listings[$0]?.active(d.date) ?? true }
+        let rows=symbols.sorted { a,b in
             let x=d.weights[a] ?? 0,y=d.weights[b] ?? 0
             if x != y { return x>y }
             let sx=d.scores[a] ?? -.infinity,sy=d.scores[b] ?? -.infinity
             return sx == sy ? a<b : sx>sy
-        }.map { Rank(symbol:$0,name:market.securities[$0]!.name,target:d.weights[$0] ?? 0,score:d.scores[$0]) }
+        }.map { Rank(symbol:$0,name:market.universe?.listings[$0]?.metadata(on:d.date)?.name ?? market.securities[$0]!.name,target:d.weights[$0] ?? 0,score:d.scores[$0]) }
         let file=root.appendingPathComponent("输出/市场判断",isDirectory:true)
         try FileManager.default.createDirectory(at:file,withIntermediateDirectories:true)
         let encoder=JSONEncoder(); encoder.outputFormatting=[.sortedKeys,.prettyPrinted,.withoutEscapingSlashes]

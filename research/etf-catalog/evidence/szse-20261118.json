@@ -1,0 +1,24 @@
+{
+  "source_asof": "2026-11-18",
+  "table": "fund_etf",
+  "url": "https://fund.szse.cn/api/report/ShowReport/data?SHOWTYPE=JSON&CATALOGID=fund_etf&TABKEY=tab1&PAGENO=1",
+  "method": "深交所 ETF 专表 JSON 返回总数、首条样本；整表逐代码取自同日归档的深交所 PCF XML。",
+  "total": 772,
+  "pages": 78,
+  "page_size": 10,
+  "observed_page": 1,
+  "cap_probe": "PAGENO=2&PAGESIZE=1000 仍返回10行；后续逐页请求中断。",
+  "samples": {
+    "158076": {
+      "kzjcurl": "红利低波ETF广发",
+      "nhzs": "H30269",
+      "glrmc": "广发基金管理有限公司"
+    }
+  },
+  "archive_url": "https://github.com/y1han/china_etf_pcf/releases/download/20261118/20261118.zip",
+  "archive_sha256": "bd10631b577f501d9c1565d416b2be6a2504cea64cda535afefbf84395bfb96a",
+  "official_sample_sha256": {
+    "159919": "f4328f03d365eb6e233305d10aa1f90a6fffc24903637f334ffe4591b1a058d8"
+  },
+  "official_sample_url": "https://reportdocs.static.szse.cn/files/text/ETFDown/pcf_159919_20261118.xml"
+}

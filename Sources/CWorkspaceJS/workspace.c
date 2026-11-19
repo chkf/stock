@@ -15,19 +15,34 @@ static int interrupted(JSRuntime *rt, void *opaque) {
     (void)rt;
     return monotonic_seconds() > *(double *)opaque;
 }
+static int bounded_dimension(JSContext *ctx, JSValueConst value, int minimum, int maximum, int32_t *result) {
+    double number;
+    if (!JS_IsNumber(value) || JS_ToFloat64(ctx,&number,value) || !isfinite(number) || floor(number)!=number || number<minimum || number>maximum) return 0;
+    *result=(int32_t)number;
+    return 1;
+}
+static int sized(JSContext *ctx, JSValueConst array, int expected) {
+    JSValue count=JS_GetPropertyStr(ctx,array,"length");
+    double length;
+    int valid=JS_IsNumber(count) && !JS_ToFloat64(ctx,&length,count) && length==expected;
+    JS_FreeValue(ctx,count);
+    return valid;
+}
 static JSValue min_variance(JSContext *ctx, JSValueConst self, int argc, JSValueConst *argv) {
     int32_t n;
-    if (argc != 2 || JS_ToInt32(ctx, &n, argv[0]) || n < 3 || n > 28)
+    if (argc != 2 || !bounded_dimension(ctx,argv[0],3,28,&n))
         return JS_ThrowTypeError(ctx, "minimumVariance expects 3..28 assets");
+    if (!sized(ctx,argv[1],n*n)) return JS_ThrowTypeError(ctx,"invalid covariance dimensions");
     double c[28*28], weights[28];
     for (uint32_t i = 0; i < (uint32_t)(n*n); ++i) {
         JSValue item = JS_GetPropertyUint32(ctx, argv[1], i);
-        int fail = JS_ToFloat64(ctx, &c[i], item);
+        int fail = !JS_IsNumber(item) || JS_ToFloat64(ctx, &c[i], item);
         JS_FreeValue(ctx, item);
         if (fail || !isfinite(c[i])) return JS_ThrowTypeError(ctx, "invalid covariance matrix");
     }
     int status = sr_minimum_variance(n, c, weights);
     if (status) return JS_ThrowInternalError(ctx, "SLSQP error %d", status);
+    for (int32_t index=0;index<n;++index) if (!isfinite(weights[index])) return JS_ThrowInternalError(ctx,"nonfinite SLSQP solution");
     JSValue array = JS_NewArray(ctx);
     for (uint32_t i=0; i<(uint32_t)n; ++i) JS_SetPropertyUint32(ctx, array, i, JS_NewFloat64(ctx, weights[i]));
     return array;
@@ -35,19 +50,20 @@ static JSValue min_variance(JSContext *ctx, JSValueConst self, int argc, JSValue
 void sws_free(char *text) { free(text); }
 static JSValue gram(JSContext *ctx, JSValueConst self, int argc, JSValueConst *argv) {
     int32_t n, k;
-    if (argc != 3 || JS_ToInt32(ctx,&n,argv[0]) || JS_ToInt32(ctx,&k,argv[1]) || n<1 || n>28 || k<1 || k>6000)
+    if (argc != 3 || !bounded_dimension(ctx,argv[0],1,28,&n) || !bounded_dimension(ctx,argv[1],1,6000,&k) || !sized(ctx,argv[2],n*k))
         return JS_ThrowTypeError(ctx,"gramMatrix expects 1..28 assets and 1..6000 observations");
     double *x = calloc((size_t)n*k,sizeof(double));
     if (!x) return JS_ThrowOutOfMemory(ctx);
     for (uint32_t i=0; i<(uint32_t)(n*k); ++i) {
         JSValue v = JS_GetPropertyUint32(ctx,argv[2],i);
-        int invalid = JS_ToFloat64(ctx,&x[i],v);
+        int invalid = !JS_IsNumber(v) || JS_ToFloat64(ctx,&x[i],v);
         JS_FreeValue(ctx,v);
         if (invalid || !isfinite(x[i])) { free(x); return JS_ThrowTypeError(ctx,"invalid observation"); }
     }
     double out[28*28];
     sr_gram_matrix(n,k,x,out);
     free(x);
+    for (int index=0;index<n*n;++index) if (!isfinite(out[index])) return JS_ThrowInternalError(ctx,"nonfinite Gram matrix");
     JSValue a=JS_NewArray(ctx);
     for (uint32_t i=0; i<(uint32_t)(n*n); ++i) JS_SetPropertyUint32(ctx,a,i,JS_NewFloat64(ctx,out[i]));
     return a;

@@ -12,6 +12,7 @@ public struct MarketEvent: Codable {
     public var available_date, rounding: String?
     public var exact_factor, share_timing, settlement: String?
     public var supported, date_needs_reconciliation: Bool?
+    public var announced:String?
 }
 public struct MarketSecurity: Codable {
     public let name, group: String
@@ -30,12 +31,15 @@ public struct MarketStatus: Codable {
 public struct ExtraQuote: Codable { public let date: String; public let close: Double }
 public struct MarketSnapshot: Codable {
     public let schema: String
-    public var as_of: String
-    public var securities: [String: MarketSecurity]
-    public var sources: [String: String]
+    public var as_of: String { didSet { universe=nil } }
+    public var securities: [String: MarketSecurity] { didSet { universe=nil } }
+    public var sources: [String: String] { didSet { universe=nil } }
     public let extras: [String: ExtraQuote]
     public let limitations: [String]
     public var history: HistoryReview?
+    var universe: VerifiedUniverse?
+    private enum CodingKeys:String,CodingKey { case schema,as_of,securities,sources,extras,limitations,history }
+    public var isUniverse:Bool { universe != nil }
     public static let pool: Set<String> = [
         "159611.SZ","159919.SZ","159920.SZ","159928.SZ","159936.SZ","159939.SZ","159944.SZ",
         "159945.SZ","159952.SZ","159980.SZ","159981.SZ","159985.SZ","510880.SH","511010.SH",
