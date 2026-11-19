@@ -200,11 +200,11 @@ extension AppModel {
         let key=studyKey, strategy=studyStrategy
         do {
             let data = try await Task.detached { () throws -> (String,String,[String:ReplayReport],HistoryCoverage) in
-                let definitions=w.design.strategies.filter { strategy.isEmpty || $0.id==strategy }
+                let definitions=w.design.strategies.filter { strategy.isEmpty ? ($0.requirements != nil)==m.isUniverse : $0.id==strategy }
                 let coverage=try HistoryCoverage(market:m,sessions:Sessions(),strategies:definitions)
                 let window=coverage.windows.last
                 let range=try v.studyRange(market:raw,workspace:w.hash) ?? [window?.start ?? "",window?.end ?? ""]
-                let fingerprint=ReplayReport.fingerprint(market:raw,workspace:w.hash)
+                let fingerprint=try ReplayReport.fingerprint(market:raw,workspace:w.hash,dynamic:m.isUniverse)
                 var found=[String:ReplayReport]()
                 for s in definitions where coverage.problem(start:range[0],end:range[1])==nil {
                     found[s.id]=try v.savedReplay(snapshot:fingerprint,strategy:s.id,start:range[0],end:range[1])
@@ -223,14 +223,10 @@ extension AppModel {
                 let cal=try Sessions()
                 if let reason=coverage.problem(start:from,end:end,completed:try cal.completed()) { throw ResearchError(reason) }
                 try vault.setStudyRange([from,end],market:raw,workspace:w.hash)
-                let stamp=ReplayReport.fingerprint(market:raw,workspace:w.hash)
-                let engine=StrategyEngine(market:m,sessions:cal,workspace:w)
-                let definitions=w.design.strategies.filter { selection.isEmpty || $0.id==selection }
+                let definitions=w.design.strategies.filter { selection.isEmpty ? ($0.requirements != nil)==m.isUniverse : $0.id==selection }
                 for (i,s) in definitions.enumerated() {
                     try Task.checkCancellation()
-                    let old=try vault.savedReplay(snapshot:stamp,strategy:s.id,start:from,end:end)
-                    let r=try engine.replay(s.id,snapshot:stamp,start:from,end:end,resume:old) { state,progress in
-                        try vault.storeReplay(state)
+                    let r=try vault.formalReplay(market:m,id:raw,workspace:w,strategy:s.id,start:from,end:end) { state,progress in
                         Task { @MainActor in self.progress="\(s.short) · \(state.outcomeDate)"; self.fraction=(Double(i)+progress)/Double(definitions.count) }
                     }
                     await MainActor.run { if self.studyKey == key { self.studies[s.id]=r } }
@@ -247,6 +243,7 @@ struct MarketSourceControl:View {
     var body:some View {
         Picker("行情来源",selection:Binding(get:{ model.origin },set:{ model.selectOrigin($0) })) {
             Text("本机行情").tag(MarketOrigin.phone); Text("导入快照").tag(MarketOrigin.archive)
+            if model.catalog != nil { Text("本机目录").tag(MarketOrigin.catalog) }
         }.pickerStyle(.segmented).accessibilityIdentifier("market.origin").disabled(model.busy)
         if let id=model.marketID { Text("快照 "+id).font(.caption.monospaced()).textSelection(.enabled) }
         else { Text(model.origin.title+"尚无可读快照").foregroundStyle(.secondary) }
@@ -267,7 +264,7 @@ private struct StudyCoverageView:View {
             }
             if let w=c.windows.last { LabeledContent("最近已核区间",value:w.start+" 至 "+w.end) }
             else { Text("当前快照没有可运行的区间") }
-            Text("起日前一交易日需有合格样本，最长预热 \(c.warmup) 个交易日。选定起日合格 \(c.sampleCount(on:model.replayStart)) 只。").font(.footnote)
+            Text("信号使用起日前行情，预热窗口 \(c.warmup) 个交易日。选定起日合格 \(c.sampleCount(on:model.replayStart)) 只；目录策略按声明等待。").font(.footnote)
             NavigationLink("覆盖明细 · \(c.securities.reduce(0){$0+$1.missingDays}) 个证券缺日") {
                 List {
                     Section("连续可回测区间") { ForEach(c.windows,id:\.start) { w in Text(w.start+" 至 "+w.end) } }
@@ -398,6 +395,10 @@ private struct StudyCompletion:View {
     var body:some View {
         let reports=model.studies.values.filter { $0.finished && $0.start==model.replayStart && $0.end==model.replayEnd }
         if !reports.isEmpty {
+            ForEach(reports.filter { $0.ledgerVersion==4 }.sorted { $0.strategy<$1.strategy },id:\.strategy) { report in
+                Text("\(report.strategy) · 预热自 \(report.warmupFrom ?? "—") · 账户自 \(report.start) · 首次信号 \(report.firstSignal ?? "无") · 首次成交 \(report.firstTrade ?? "无")")
+                ForEach((report.waiting ?? [:]).keys.sorted(),id:\.self) { reason in Text("\(reason)：\(report.waiting?[reason] ?? 0) 个交易日") }
+            }
             Text("已完成 \(reports.count) 套回测，共 \(reports.reduce(0){$0+$1.trades.count}) 笔模拟成交")
                 .font(.subheadline).accessibilityIdentifier("replay.results")
         }

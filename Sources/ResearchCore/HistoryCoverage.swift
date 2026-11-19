@@ -32,14 +32,54 @@ public struct HistoryCoverage {
         for i in a...b { if let issue=problems[calendar.days[i]] { return issue.message } }
         return "\(start) 前一交易日缺少 \(warmup) 日连续已核信号"
     }
-    static func noTrade(_ s:String,_ d:String,_ market:MarketSnapshot,_ rules:PublicRules) -> Bool {
+    static func noTrade(_ s:String,_ d:String,_ market:MarketSnapshot,_ rules:PublicRules?) -> Bool {
+        if market.isUniverse { return ["halted","no_trades_confirmed"].contains(market.securities[s]?.statuses?[d]?.state ?? "") }
         if let notice=SplitNotice.published.first(where:{ $0.symbol==s && $0.ex==d }) { return notice.halted }
         if let g=market.history?.symbols[s]?.gaps[d] { return [.halted,.noTrades].contains(g.state) }
         if let status=market.securities[s]?.statuses?[d], status.assumption != true, let source=status.source, market.sources[source] != nil,
            status.state=="halted" || status.state=="no_trades_confirmed" { return true }
-        return rules.members[s]?.halts[d] != nil
+        return rules?.members[s]?.halts[d] != nil
     }
     public init(market:MarketSnapshot,sessions:Sessions,strategies:[StrategyFile]) throws {
+        if let data=market.universe { try self.init(data,market:market,sessions:sessions,strategies:strategies); return }
+        guard market.schema != UniverseManifest.format else { throw ResearchError("目录快照未核验或已修改") }
+        guard strategies.allSatisfy({ $0.requirements==nil }) else { throw ResearchError("目录策略需要已核目录行情") }
+        try self.init(legacy:market,sessions:sessions,strategies:strategies)
+    }
+    private init(_ data:VerifiedUniverse,market:MarketSnapshot,sessions:Sessions,strategies:[StrategyFile]) throws {
+        guard !strategies.isEmpty,strategies.allSatisfy({ $0.requirements?.contract==2 }) else { throw ResearchError("请选择使用目录契约的策略") }
+        calendar=sessions; from=data.from; through=market.as_of; let window=strategies.map(\.history).max()!; warmup=window
+        let start=try sessions.index(from),end=try sessions.index(through), symbols=data.listings.keys.sorted(), thresholds=Set(strategies.map(\.history))
+        var failures=[String:HistoryIssue](),counts=[String:Int](), intervals=[StudyWindow](), opened:String?
+        for index in start...end {
+            try Task.checkCancellation()
+            let date=sessions.days[index]
+            do {
+                guard index>0,index>=window,index>start,date>="2006-07-01" else { throw ResearchError("窗口或前一信号日超出真实日历、行情或执行规则范围") }
+                let signal=sessions.days[index-1]
+                var available=[Int:Int]()
+                for symbol in symbols {
+                    if let reason=data.issues[symbol]?[date] { throw ResearchError("\(symbol) \(date) · \(reason)") }
+                    guard data.listings[symbol]!.active(signal) else { continue }
+                    let (meta,length)=try data.check(symbol,day:signal,windowStart:sessions.days[index-window],history:window)
+                    if meta.candidate { for lengthNeeded in thresholds where length>=lengthNeeded { available[lengthNeeded,default:0]+=1 } }
+                }
+                counts[date]=available[window] ?? 0
+                if strategies.contains(where:{ $0.requirements?.insufficient=="error" && available[$0.history]==nil }) { throw ResearchError("无已核合格产品且未声明现金等待") }
+                if opened==nil { opened=date }
+            } catch {
+                failures[date] = .init(symbol:"目录",date:date,field:"覆盖",reason:error.localizedDescription)
+                if let first=opened { intervals.append(.init(start:first,end:sessions.days[index-1])); opened=nil }
+            }
+        }
+        if let first=opened { intervals.append(.init(start:first,end:through)) }
+        samples=counts; problems=failures; windows=intervals; issues=failures.keys.sorted().compactMap { failures[$0] }
+        securities=symbols.map { symbol in
+            let sec=market.securities[symbol]!
+            return .init(symbol:symbol,firstBar:sec.bars.keys.min(),lastBar:sec.bars.keys.max(),firstSignal:sec.signal_close.keys.min(),lastSignal:sec.signal_close.keys.max(),listed:data.listings[symbol]?.listed,missingDays:data.issues[symbol]?.count ?? 0,gaps:[])
+        }
+    }
+    private init(legacy market:MarketSnapshot,sessions:Sessions,strategies:[StrategyFile]) throws {
         let rules=try PublicRules.load()
         guard !strategies.isEmpty, Set(market.securities.keys)==MarketSnapshot.pool else { throw ResearchError("回测缺少策略或原固定 28 只 ETF") }
         try market.history?.validate(sources:market.sources,calendar:sessions)
@@ -58,7 +98,7 @@ public struct HistoryCoverage {
         var diagnostics=[HistoryIssue](), descriptions=[SecurityCoverage]()
         for s in market.securities.keys.sorted() {
             try Task.checkCancellation()
-            let sec=market.securities[s]!, member=rules.members[s]!, review=market.history?.symbols[s]
+            guard let sec=market.securities[s],let member=rules.members[s] else { throw ResearchError("\(s) 缺原固定池规则") }; let review=market.history?.symbols[s]
             let firstBar=sec.bars.keys.min(), listing=review?.listing?.date
             let eventDays=Dictionary(grouping:sec.events,by:\.date)
             var eventIssues=[String:HistoryIssue]()
@@ -228,7 +268,7 @@ public struct HistoryCoverage {
         for (s,sec) in market.securities {
             guard sec.bars.keys.allSatisfy({ (try? calendar.index($0)) != nil && $0<=market.as_of }),
                   sec.signal_close.keys.allSatisfy({ (try? calendar.index($0)) != nil && $0<=market.as_of }) else { throw ResearchError("\(s) 原价或信号日期超出快照或交易日历") }
-            let member=rules.members[s]!
+            guard let member=rules.members[s] else { throw ResearchError("\(s) 缺原固定池规则") }
             if let actual=sec.bars[rules.anchor]?.close, actual != member.anchorClose { throw ResearchError("\(s) \(rules.anchor) 原价与冻结锚点不同") }
             if let actual=sec.signal_close[rules.anchor],abs(actual-member.anchorSignal)>max(1e-10,abs(member.anchorSignal)*1e-9) { throw ResearchError("\(s) \(rules.anchor) 信号与冻结锚点不同") }
             if let actual=sec.bars[rules.reviewedThrough]?.close, actual != member.reviewedClose { throw ResearchError("\(s) \(rules.reviewedThrough) 原价与核定收盘不同") }

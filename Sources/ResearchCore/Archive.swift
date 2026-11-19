@@ -142,6 +142,11 @@ public struct Archive {
         let path = "data/advice/market/snapshots/\(info.hash).json.gz"
         let raw = try Integrity.gunzip(read(path))
         guard Integrity.sha(raw) == info.hash else { throw ResearchError("原行情快照编号不符") }
+        struct Header:Decodable { let schema:String }
+        if try JSONDecoder().decode(Header.self,from:raw).schema==UniverseManifest.format {
+            let market=try UniverseMarket.load(raw,calendar:Sessions()) { try read("data/advice/market/blobs/"+$0) }
+            guard market.as_of==info.as_of else { throw ResearchError("目录快照截止日不符") }; return market
+        }
         let market = try JSONDecoder().decode(MarketSnapshot.self, from: raw)
         guard market.schema == "advice-market-v1", market.as_of == info.as_of,
               Set(market.securities.keys) == MarketSnapshot.pool else { throw ResearchError("行情版本、日期或28只固定池异常") }
@@ -192,7 +197,8 @@ public struct Archive {
                 try ActionIdentity.verify(read(f.path), filenameID: id)
             }
         }
-        _ = try HistoryCoverage.forActivation(loadMarket(),calendar:Sessions())
+        let market=try loadMarket()
+        if !market.isUniverse { _ = try HistoryCoverage.forActivation(market,calendar:Sessions()) }
         try progress(manifest.fileCount, manifest.fileCount)
     }
 }

@@ -10,6 +10,33 @@ public struct PhoneSnapshot {
 }
 
 extension PrivateLibrary {
+    private var universeRoot:URL { root.appendingPathComponent("universe-v1") }
+    public func catalogMarket() throws -> PhoneSnapshot? {
+        let pointer=universeRoot.appendingPathComponent("current.json")
+        guard FileManager.default.fileExists(atPath:pointer.path) else { return nil }
+        let id=try JSONDecoder().decode(String.self,from:Data(contentsOf:pointer))
+        return try readUniverse(id,staged:false)
+    }
+    public func activateCatalog(_ id:String) throws -> PhoneSnapshot {
+        try HistoryWriters.shared.claim(root); defer { HistoryWriters.shared.release(root) }
+        let snapshot=try readUniverse(id,staged:true)
+        try Task.checkCancellation()
+        try JSONEncoder().encode(id).write(to:universeRoot.appendingPathComponent("current.json"),options:.atomic)
+        return snapshot
+    }
+    private func readUniverse(_ id:String,staged:Bool) throws -> PhoneSnapshot {
+        let cache=universeRoot.appendingPathComponent("blobs"), inbox=root.deletingLastPathComponent().appendingPathComponent("目录行情/blobs")
+        if staged { try FileManager.default.createDirectory(at:cache,withIntermediateDirectories:true) }
+        func read(_ hash:String) throws -> Data {
+            guard Integrity.digestID(hash) else { throw ResearchError("无效目录文件编号") }
+            let dest=cache.appendingPathComponent(hash), cached=FileManager.default.fileExists(atPath:dest.path), folder=cached || !staged ? cache : inbox
+            let bytes=try WorkspaceVersion.read(folder.appendingPathComponent(hash),under:folder,limit:16*1024*1024)
+            guard Integrity.sha(bytes)==hash else { throw ResearchError("目录原件损坏 "+hash) }
+            if !cached && staged { try bytes.write(to:dest,options:.atomic) }; return bytes
+        }
+        let market=try UniverseMarket.load(read(id),calendar:Sessions(),read:read)
+        return PhoneSnapshot(market:market,hash:id,usableFrom:market.universe?.from)
+    }
     private var quoteDirectory: URL { root.appendingPathComponent("public-market") }
     private struct QuotePointer: Codable { let id, through: String; var previous:String? }
 

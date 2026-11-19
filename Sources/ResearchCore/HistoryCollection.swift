@@ -1,6 +1,43 @@
 import Foundation
+#if canImport(FoundationNetworking)
+import FoundationNetworking
+#endif
 
 extension PrivateLibrary {
+    public func collectPartition(symbol:String,from:String,through:String) async throws -> String {
+        try await collectPartition(symbol:symbol,from:from,through:through) { url in
+            let session=URLSession(configuration:.ephemeral); defer { session.invalidateAndCancel() }
+            let (bytes,response)=try await session.data(from:url)
+            guard let http=response as? HTTPURLResponse,http.statusCode==200,http.url==url else { throw ResearchError("原价接口重定向或未成功") }; return bytes
+        }
+    }
+    func collectPartition(symbol:String,from:String,through:String,fetch:(URL) async throws -> Data) async throws -> String {
+        let calendar=try Sessions(), span=try calendar.index(through)-calendar.index(from)
+        guard symbol.range(of:#"^[0-9]{6}\.(SH|SZ)$"#,options:.regularExpression) != nil,(0..<125).contains(span),through <= (try calendar.completed()) else { throw ResearchError("采集仅接受单证券、已收盘的 1–125 个交易日") }
+        try HistoryWriters.shared.claim(root); defer { HistoryWriters.shared.release(root) }
+        let base=root.appendingPathComponent("universe-v1"), blobs=base.appendingPathComponent("blobs"), index=base.appendingPathComponent("requests")
+        for folder in [blobs,index] { try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true) }
+        let url=PublicFeed.universeURL(symbol,from,through), key=Integrity.sha(Data(url.absoluteString.utf8)), path=index.appendingPathComponent(key)
+        func checked(_ hash:String) throws -> Data {
+            guard Integrity.digestID(hash) else { throw ResearchError("缓存摘要无效") }
+            let bytes=try WorkspaceVersion.read(blobs.appendingPathComponent(hash),under:blobs,limit:16*1024*1024)
+            guard Integrity.sha(bytes)==hash else { throw ResearchError("缓存分区损坏："+hash) }; return bytes
+        }
+        if FileManager.default.fileExists(atPath:path.path) {
+            let hash=try String(contentsOf:path,encoding:.utf8), receipt=try JSONDecoder().decode(QuoteReceipt.self,from:checked(hash))
+            guard receipt.url==url.absoluteString,receipt.schema=="eastmoney-raw-1",receipt.symbol==symbol,receipt.from==from,receipt.through==through else { throw ResearchError("行情采集缓存键冲突") }
+            _=try checked(receipt.body); return hash
+        }
+        try Task.checkCancellation()
+        let bytes=try await fetch(url)
+        guard bytes.count<=16*1024*1024 else { throw ResearchError("单分区超出资源限制") }
+        let rows=try PublicFeed.universeQuotes(bytes,symbol:symbol)
+        guard rows.keys.allSatisfy({ $0>=from && $0<=through && (try? calendar.index($0)) != nil }) else { throw ResearchError("源返回意外区间") }
+        let body=Integrity.sha(bytes), encoder=JSONEncoder(); encoder.outputFormatting=[.sortedKeys]
+        let receipt=try encoder.encode(QuoteReceipt(schema:"eastmoney-raw-1",symbol:symbol,from:from,through:through,url:url.absoluteString,body:body)), hash=Integrity.sha(receipt)
+        try Task.checkCancellation(); try bytes.write(to:blobs.appendingPathComponent(body),options:.atomic)
+        try receipt.write(to:blobs.appendingPathComponent(hash),options:.atomic); try Data(hash.utf8).write(to:path,options:.atomic); return hash
+    }
     func collectHistory(from requested:String?, through:String, fetch:@escaping (URL) async throws -> Data,
                         progress:@escaping (TransferProgress)->Void) async throws -> PhoneSnapshot {
         guard !updatingQuotes else { throw ResearchError("行情候选正在收集") }
@@ -35,7 +72,7 @@ extension PrivateLibrary {
         do {
             for (index,s) in rules.members.keys.sorted().enumerated() {
                 try Task.checkCancellation()
-                let member=rules.members[s]!, review=market.history?.symbols[s], previous=old?.securities[s]
+                guard let member=rules.members[s] else { throw ResearchError("\(s) 缺原固定池规则") }; let review=market.history?.symbols[s], previous=old?.securities[s]
                 let base=review?.listing.map { max(first,$0.date) } ?? first
                 // Ask for the previous real session as context only when price events require it on day one.
                 let needsContext=review?.events.contains(where:{ $0.date==base }) == true || member.events.contains { $0.date==base }

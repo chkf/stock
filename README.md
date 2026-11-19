@@ -1,5 +1,7 @@
 # 股票研究台 · 用 GitHub 构建 iPhone IPA
 
+开发版 0.4.0（build 5）新增独立的本机动态目录、时点策略契约与正式文件回测。见[非破坏迁移与最小 JS 示例](docs/universe/README.md)、[原价和审核分区格式](docs/universe/market-format.md)及[验证范围](docs/universe/verification.md)。旧行情、设计与 ledger 3 保留，不会自动启用新目录。
+
 v0.3.1 修复回测多买单没有预留费用、现金足够却买不进整手的问题。升级后请重新运行回测；旧报告、行情与账户记录保留。[发布与下载](https://github.com/chkf/stock/releases/tag/v0.3.1) · [修复说明](docs/买单费用预算修复.md)
 
 本版本沿用 v0.3.0 的历史行情回填、可回测日期核验、分红折算结算和原生日期滚轮。[导入、复验与回滚](docs/长历史回测.md)

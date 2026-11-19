@@ -18,9 +18,9 @@ struct SplitNotice {
 
 struct SplitTerms {
     let factor:Decimal, available:String, atClose:Bool, rounding:String?
-    init(_ event:MarketEvent, symbol:String, calendar:Sessions, halted:Bool, fallback:MarketEvent?=nil) throws {
+    init(_ event:MarketEvent, symbol:String, calendar:Sessions, halted:Bool, fallback:MarketEvent?=nil,legacy:Bool=true) throws {
         func problem(_ field:String) -> ResearchError { ResearchError("\(symbol) \(event.date) 拆合 · \(field)") }
-        let notice=SplitNotice.published.first { $0.symbol==symbol && ($0.ex==event.date || $0.record==event.record_date) }
+        let notice=legacy ? SplitNotice.published.first { $0.symbol==symbol && ($0.ex==event.date || $0.record==event.record_date) } : nil
         if let n=notice, !n.matches(event) { throw problem("与公告的精确比例、登记、除权、可卖日期或舍入规则不符") }
         guard let original=event.share_factor, original.isFinite, original>0 else { throw problem("精确比例缺失") }
         let text=event.exact_factor ?? notice?.factor ?? String(original)
@@ -32,7 +32,7 @@ struct SplitTerms {
               (try? calendar.index(available)) != nil, available >= event.date else { throw problem("缺可卖日或登记日") }
         let same=record==event.date
         if same {
-            guard notice?.atClose==true, halted, available>event.date,
+            guard (legacy ? notice?.atClose==true : event.share_timing=="record_close"), halted, available>event.date,
                   event.share_timing == nil || event.share_timing=="record_close" else { throw problem("同日登记须有已核停牌、日终变更和后续上市依据") }
         } else {
             guard try calendar.next(record)==event.date, event.share_timing == nil || event.share_timing=="before_open"

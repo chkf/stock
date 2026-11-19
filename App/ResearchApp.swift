@@ -22,6 +22,7 @@ import SwiftUI
 @MainActor final class AppModel: ObservableObject {
     @Published var archive: Archive?
     @Published var handset: PhoneSnapshot?
+    @Published var catalog:PhoneSnapshot?
     @Published var personal: Account?
     @Published var saved = [SavedAdvice]()
     @Published var latest: SavedAdvice?
@@ -69,8 +70,8 @@ import SwiftUI
     var useArchive: Bool {
         origin == .archive
     }
-    var market: MarketSnapshot? { useArchive ? archivedMarket : handset?.market }
-    var marketID: String? { useArchive ? archive?.manifest.snapshot.hash : handset?.hash }
+    var market: MarketSnapshot? { origin == .catalog ? catalog?.market : useArchive ? archivedMarket : handset?.market }
+    var marketID: String? { origin == .catalog ? catalog?.hash : useArchive ? archive?.manifest.snapshot.hash : handset?.hash }
     @Published private(set) var vault: PrivateLibrary?
     private var job: Task<Void, Never>?
 
@@ -99,6 +100,7 @@ import SwiftUI
             do { watch = try await library.watchlist() } catch { issues.append(error.localizedDescription) }
             do { personal = try await library.personalAccount() } catch { issues.append(error.localizedDescription) }
             do { handset = try await library.phoneMarket() } catch { issues.append(error.localizedDescription) }
+            do { catalog = try await library.catalogMarket() } catch { issues.append(error.localizedDescription) }
             do {
                 let active = try await library.active()
                 try await display(active)
@@ -126,7 +128,10 @@ import SwiftUI
                 if let request { try store?.finish(request,ok:true,message:progress) }
             } catch {
                 let reason = error is CancellationError ? "本次任务已取消" : error.localizedDescription
-                if let request { try? store?.finish(request,ok:false,message:reason) }
+                if let request {
+                    if request.request.operation=="replay",error is CancellationError { try? store?.replayStatus(request,status:"cancelled",message:reason) }
+                    else { try? store?.finish(request,ok:false,message:reason) }
+                }
                 else if !(error is CancellationError) { self.error = reason }
                 progress = reason
             }
@@ -179,11 +184,34 @@ import SwiftUI
             guard let ticket = try store.nextRequest() else { return }
             let request = ticket.request
             if request.operation == "reload" { reloadWorkspace(request:ticket); return }
+            if request.operation == "quotes",request.target=="partition",let vault {
+                start("采集单证券原价分区",request:ticket) {
+                    let fields=request.fields ?? [:]
+                    self.progress=try await vault.collectPartition(symbol:fields["symbol"] ?? "",from:fields["start"] ?? "",through:fields["end"] ?? "")
+                }; return
+            }
+            if request.operation == "catalog",let id=request.target, let vault {
+                start("核对目录行情原件",request:ticket) {
+                    self.catalog=try await vault.activateCatalog(id); self.progress="目录行情已核载入 "+id
+                }; return
+            }
             guard let w=workspace, let target=request.target else {
                 try store.finish(ticket,ok:false,message:"请先启用工作区"); return
             }
             if request.operation == "run", w.design.actions[target] != nil {
                 runAction(target,request:ticket); return
+            }
+            if request.operation=="replay",let vault {
+                start("准备正式回测",request:ticket) {
+                    let phone=self.handset,catalog=self.catalog,archive=self.archivedMarket,id=self.archive?.manifest.snapshot.hash
+                    let task=Task.detached(priority:.userInitiated) {
+                        try store.performReplay(ticket,workspace:w,library:vault,phone:phone,catalog:catalog,archive:archive,archiveID:id) { report,fraction in
+                            Task { @MainActor in self.fraction=fraction; self.progress=report.outcomeDate }
+                        }
+                    }
+                    try await withTaskCancellationHandler(operation:{ try await task.value },onCancel:{ task.cancel() })
+                    self.progress="正式回测已保存"
+                }; return
             }
             if request.operation == "strategy", w.design.strategies.contains(where:{ $0.id == target }) {
                 selectedStrategy=target
@@ -204,13 +232,13 @@ import SwiftUI
             let personal = try await vault.personalAccount(), saved = try await vault.reports()
             let watch = try await vault.watchlist(), archive = try await vault.active()
             let oldMarket = try await Task.detached { try archive?.loadMarket() }.value
-            let m = self.useArchive ? oldMarket : live?.market
+            let m = self.origin == .catalog ? self.catalog?.market : self.useArchive ? oldMarket : live?.market
             let new = try await Task.detached {
                 if rollback { return try store.rollback() }
                 return try store.activate { candidate in
                     if let m {
                         let engine = try StrategyEngine(market:m,sessions:Sessions(),workspace:candidate)
-                        for s in candidate.design.strategies { _ = try engine.decision(s.id,on:m.as_of) }
+                        for s in candidate.design.strategies where (s.requirements != nil)==m.isUniverse { _ = try engine.decision(s.id,on:m.as_of) }
                     }
                 }
             }.value
