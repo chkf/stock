@@ -9,6 +9,7 @@ from pathlib import Path
 
 import catalog as c
 from classify import norm
+
 from sources import UNKNOWN
 
 RULES = c.HERE / "equity_index_rules.json"
@@ -99,6 +100,19 @@ def load_sectors(folder):
     return sectors
 
 
+def sector_watchlist(groups, rules, sectors):
+    watch = []
+    lookup = alias_lookup(rules)
+    for sector, raw_code, raw_name in sectors:
+        entry = lookup.get((raw_code, norm(raw_name)))
+        key = (entry["code"], entry["name"]) if entry else (raw_code, raw_name)
+        members = groups.get(key, {})
+        watch.append(
+            (sector, *key, len(members), "可观察" if members else "当前映射待核")
+        )
+    return watch
+
+
 def write_tables(state, version, rules, sectors, out):
     groups, pending, excluded = equity_universe(state, rules)
     rows = state["records"]
@@ -149,15 +163,7 @@ def write_tables(state, version, rules, sectors, out):
                 "",
             )
         )
-    watch = []
-    lookup = alias_lookup(rules)
-    for sector, raw_code, raw_name in sectors:
-        entry = lookup.get((raw_code, norm(raw_name)))
-        key = (entry["code"], entry["name"]) if entry else (raw_code, raw_name)
-        members = groups.get(key, {})
-        watch.append(
-            (sector, *key, len(members), "可观察" if members else "当前映射待核")
-        )
+    watch = sector_watchlist(groups, rules, sectors)
     n = sum(r[-1] == "可观察" for r in watch)
     if len(links) + sum(excluded.values()) != len(rows):
         raise ValueError("Catalog membership does not reconcile")
@@ -213,7 +219,7 @@ def write_tables(state, version, rules, sectors, out):
             for kind, count in sorted(excluded.items())
             if kind != "本次未见"
         )
-        + "。它们只供目录维护和新增匹配，股票观察表占用零席。",
+        + "。这些产品的日常方向见[跨资产筛选](../../README.md)。",
         "",
         "[板块观察表](watchlist.csv) · [全部股票指数](indices.csv) · [指数与基金映射、待核明细](fund-map.csv)",
         "",

@@ -12,6 +12,7 @@ from pathlib import Path
 from statistics import median
 
 import catalog as c
+
 from sources import get
 
 RULES = c.HERE / "sector_rules.json"
@@ -68,21 +69,29 @@ def quote_days(symbol, start, through, limit):
 
 
 def collect_turnover(state, version, rules, through):
+    members = sector_members(state, rules)
+    symbols = {
+        s for group in members.values() for s, role in group.items() if role == "core"
+    }
+    return collect_symbol_turnover(state, version, rules, through, symbols)
+
+
+def collect_symbol_turnover(
+    state, version, rules, through, symbols, *, latest_only=False
+):
     decision_day = date.fromisoformat(state["observed_at"][:10])
     if through >= decision_day:
         raise ValueError("Use a completed session before the catalog observation date")
-    start = through - timedelta(days=35)
+    calendar_end = decision_day - timedelta(days=1) if latest_only else through
+    start = calendar_end - timedelta(days=35)
     calendars = [
-        sorted(quote_days(s, start, through, 28))[-TEN:]
+        sorted(quote_days(s, start, calendar_end, 28))[-TEN:]
         for s in ("000001.SH", "399001.SZ")
     ]
     days = calendars[0]
     if days != calendars[1] or len(days) != TEN or days[-1] != through:
         raise ValueError("Cannot confirm the same ten sessions for both markets")
-    members = sector_members(state, rules)
-    core = sorted(
-        s for board in members.values() for s, role in board.items() if role == "core"
-    )
+    core = sorted(symbols)
 
     def fetch(symbol):
         listing = state["records"][symbol]["listing_date"]
@@ -108,12 +117,7 @@ def collect_turnover(state, version, rules, through):
     }
 
 
-def screen(state, version, rules, data):
-    members = sector_members(state, rules)
-    slots = {s: board for board, items in members.items() for s in items}
-    core = {
-        s for items in members.values() for s, role in items.items() if role == "core"
-    }
+def turnover_scores(state, version, rules, data, core):
     days = [date.fromisoformat(x) for x in data["sessions"]]
     if (
         data["generation"] != version
@@ -151,6 +155,17 @@ def screen(state, version, rules, data):
         n_traded[s] = len(values)
         if len(values) == TEN:
             scores[s] = median(values)
+    return scores, n_traded
+
+
+def screen(state, version, rules, data):
+    records = state["records"]
+    members = sector_members(state, rules)
+    slots = {s: board for board, items in members.items() for s in items}
+    core = {
+        s for items in members.values() for s, role in items.items() if role == "core"
+    }
+    scores, n_traded = turnover_scores(state, version, rules, data, core)
     ranks, chosen = {}, {}
     for board, items in members.items():
         ranked = sorted(

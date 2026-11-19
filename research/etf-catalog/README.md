@@ -1,6 +1,8 @@
 # 沪深 ETF 研究目录
 
-**只看股票板块时，打开 [84 个板块的观察指数](equity-indices/2026-11-19/report.md)。** 每个板块一行，只列指数名称、代码和已映射产品数。需要看宽基、风格或境外市场时，再查 [全部 440 条股票指数记录](equity-indices/2026-11-19/indices.csv)。选定方向后，用 [基金映射表](equity-indices/2026-11-19/fund-map.csv) 查产品。债券 53 只、货币 27 只、黄金及商品 17 只在股票观察表中占零席，完整市场目录仍可用来匹配未来新上市产品。
+**日常筛选看 [109 个观察方向](daily-assets/2026-11-19/watchlist.csv)。** 2026 年 11 月 19 日，原有 84 个境内股票板块之外，97 只场内非股票产品按用途和风险暴露归为 25 个方向。债券占 20 个，场内人民币现金管理和人民币黄金各占 1 个，商品期货占 3 个。每个非股票方向列出一只经成交数据核实的代表，原标的和全部备选可逐只查询。[归组理由与代表](daily-assets/2026-11-19/report.md) · [97 只产品映射](daily-assets/2026-11-19/members.csv)
+
+只看股票板块时，打开 [84 个板块的观察指数](equity-indices/2026-11-19/report.md)。每个板块一行，列出指数名称、代码和已映射产品数。需要看宽基、风格或境外市场时，再查 [全部 440 条股票指数记录](equity-indices/2026-11-19/indices.csv)。选定方向后，用 [基金映射表](equity-indices/2026-11-19/fund-map.csv) 查产品。
 
 **按板块挑一只**可直接查看 [84 个板块及各自的代表 ETF](sector-seats/2026-11-19/report.md)。这一视图把 748 只境内股票 ETF 压成 84 个板块席位，逐只保留专项备选。覆盖板块之外的宽基、风格、跨境和待核等产品沿用既有分组，全目录共 652 席。[代表表](sector-seats/2026-11-19/seats.csv) · [全部 1,722 只的映射](sector-seats/2026-11-19/members.csv)
 
@@ -80,6 +82,17 @@ python tools/etf_catalog/catalog.py verify-pcf research/etf-catalog/evidence/szs
 
 用真实证券做留出演练。把上市日为 2026 年 11 月 19 日的天弘电网设备 ETF（562720.SH）暂时从研究视图留出，再作为新增产品加入。程序将其匹配为华夏电网设备 ETF（159326.SZ）所在 A 组的新成员，两者跟踪 931994 中证电网设备主题指数。完整目录从 1,721 增至 1,722，A 和 B 的候选数均保持原值。这次演练没有改动已发布目录。
 
+## 复算跨资产日常观察表
+
+在仓库根目录执行。第一条命令使用归档行情离线核对跨资产报告，第二条运行全套目录和筛选测试。
+
+```sh
+python tools/etf_catalog/daily_assets.py report research/etf-catalog/daily-assets/2026-11-19/trading-evidence.json research/etf-catalog/daily-assets/2026-11-19
+python -m unittest discover -s tools/etf_catalog -p "test*.py" -v
+```
+
+后续先刷新目录。在目录日有盘中或收盘行情后，用该日前最后一个完整交易日作为 `through`，例如 `python tools/etf_catalog/daily_assets.py collect 2026-11-18 evidence.json`，再执行 `python tools/etf_catalog/daily_assets.py report evidence.json 新报告目录`。程序会从同一版目录重算股票板块，按十日成交窗口和带时间的当日盘口给出非股票代表建议。新指数或有冲突的资料先列入待核，有方向但缺少成交证据时保留全体成员并暂缺代表。历次快照分别保存，只用于相应观测时点之后的研究。
+
 ## 复算股票指数清单
 
 板块主表固定使用 2026 年 11 月 19 日板块样本对应的指数。某只基金改名、换指数或暂时消失时，原观察指数继续保留。没有可映射的在列基金时标为待核。板块主表覆盖境内行业与主题；全股票索引包括沪深上市 ETF 所跟踪的跨境股票、宽基和风格指数。
@@ -95,7 +108,7 @@ python -m unittest discover -s tools/etf_catalog -p "test*.py" -v
 
 板块的主方向指数与专项指数逐条列在配置中。只有交易所指数代码、规范名称和境内被动股票属性相符的在列 ETF 才进入板块。跨管理人的同指数产品可以竞争同一席位，新基金优先建档。新增的指数、新名称或待核证券先沿用原分组。报告同时列出每只 ETF 的严格组、方向提案组、板块身份和入选顺位。[板块规则](../../tools/etf_catalog/sector_rules.json)
 
-用已归档的成交额即可离线复现。第一条命令会逐个核对四份已发布文件，第二条运行目录、板块筛选及股票指数映射的全部 25 项测试。
+用已归档的成交额即可离线复现。第一条命令会逐个核对四份已发布文件，第二条运行目录及筛选测试。
 
 ```sh
 python tools/etf_catalog/sector_seats.py report research/etf-catalog/sector-seats/2026-11-19/turnover.json research/etf-catalog/sector-seats/2026-11-19

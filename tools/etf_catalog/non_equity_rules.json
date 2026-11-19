@@ -1,0 +1,337 @@
+{
+  "version": "2026-11-19.1",
+  "gold_evidence": {
+    "checked_on": "2026-11-19",
+    "source": "https://sge.com.cn/cpfw/hjetf",
+    "members": {
+      "518880.SH": [
+        "华安易富黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "518800.SH": [
+        "国泰黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "159934.SZ": [
+        "易方达黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "159937.SZ": [
+        "博时黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "518850.SH": [
+        "华夏黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "518660.SH": [
+        "工银瑞信黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "159812.SZ": [
+        "前海开源黄金交易型开放式证券投资基金",
+        "AU9999"
+      ],
+      "518680.SH": [
+        "富国上海金交易型开放式证券投资基金",
+        "SHAU"
+      ],
+      "518600.SH": [
+        "广发上海金交易型开放式证券投资基金",
+        "SHAU"
+      ],
+      "518860.SH": [
+        "建信上海金交易型开放式证券投资基金",
+        "SHAU"
+      ],
+      "518890.SH": [
+        "中银上海金交易型开放式证券投资基金",
+        "SHAU"
+      ],
+      "159830.SZ": [
+        "天弘上海金交易型开放式证券投资基金",
+        "SHAU"
+      ],
+      "159834.SZ": [
+        "南方上海金交易型开放式证券投资基金",
+        "SHAU"
+      ],
+      "159831.SZ": [
+        "嘉实上海金交易型开放式证券投资基金",
+        "SHAU"
+      ]
+    }
+  },
+  "directions": [
+    {
+      "id": "treasury-short",
+      "asset": "债券",
+      "name": "1–3年国债",
+      "indices": {
+        "931552": "中证1-3年国债指数"
+      },
+      "difference": "单列短期国债。"
+    },
+    {
+      "id": "treasury-five",
+      "asset": "债券",
+      "name": "5年国债",
+      "indices": {
+        "H00140": "上证5年期国债指数"
+      },
+      "difference": "保留中期利率暴露。"
+    },
+    {
+      "id": "treasury-active",
+      "asset": "债券",
+      "name": "5–10年活跃国债",
+      "indices": {
+        "931018": "中证5-10年期国债活跃券指数"
+      },
+      "difference": "期限跨度与活跃券筛选区别于单一10年期国债。"
+    },
+    {
+      "id": "treasury-ten",
+      "asset": "债券",
+      "name": "10年国债",
+      "indices": {
+        "H11077": "上证10年期国债指数"
+      },
+      "difference": "保留长端利率暴露，与30年期分开。"
+    },
+    {
+      "id": "treasury-thirty",
+      "asset": "债券",
+      "name": "30年国债",
+      "indices": {
+        "950175": "上证30年期国债指数",
+        "CBA21801": "中债-30年期国债指数"
+      },
+      "difference": "均看超长期国债。中债按发行和待偿期限选券，上证按沪市国债期货可交割条件选券。",
+      "sources": [
+        "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-05-19/511090_20250519_KMK7.pdf",
+        "https://www.sse.com.cn/market/sseindex/diclosure/c/10747724/files/bffa8c71182a4fa2af885e41dc724c3b.pdf"
+      ]
+    },
+    {
+      "id": "treasury-mm",
+      "asset": "债券",
+      "name": "基准做市国债",
+      "indices": {
+        "950243": "上证基准做市国债指数"
+      },
+      "difference": "按交易所基准做市券选择，保留跨期限暴露。"
+    },
+    {
+      "id": "treasury-policy",
+      "asset": "债券",
+      "name": "0–3年国债及政金债",
+      "indices": {
+        "932200": "中证国债及政策性金融债0-3年指数"
+      },
+      "difference": "同时含国债和政策性金融债，区别于纯国债或单一国开行。"
+    },
+    {
+      "id": "cdb-short",
+      "asset": "债券",
+      "name": "0–3年国开债",
+      "indices": {
+        "CBA11901": "中债-0-3年国开行债券全价(总值)指数",
+        "Y00198": "中债-0-3年国开行债券全价(总值)指数"
+      },
+      "difference": "均指向0–3年国开行债券；保留两种行情标识，交易时核对序列口径。",
+      "sources": [
+        "https://fund.pingan.com/main/peanutFinance/yingPeanut/fundDetailV2/159651.shtml",
+        "https://static.cninfo.com.cn/finalpage/2026-06-26/1225387886.PDF"
+      ]
+    },
+    {
+      "id": "cdb-medium",
+      "asset": "债券",
+      "name": "1–5年国开债",
+      "indices": {
+        "CBA08303": "中债-1-5年国开行债券全价(总值)指数"
+      },
+      "difference": "与0–3年国开债的期限范围不同。"
+    },
+    {
+      "id": "policy-long",
+      "asset": "债券",
+      "name": "7–10年政策性金融债",
+      "indices": {
+        "CBA08201": "中债-7-10年政策性金融债指数"
+      },
+      "difference": "发行人范围与长端期限同时保留。"
+    },
+    {
+      "id": "local-short",
+      "asset": "债券",
+      "name": "0–4年地方政府债",
+      "indices": {
+        "931161": "中证0-4年期地方政府债指数"
+      },
+      "difference": "地方政府发行，短端单列。"
+    },
+    {
+      "id": "local-five",
+      "asset": "债券",
+      "name": "5年地方政府债",
+      "indices": {
+        "930865": "中证5年期地方政府债指数",
+        "950045": "上证5年期地方政府债指数"
+      },
+      "difference": "同为约5年地方政府债。中证覆盖交易所及银行间，上证限沪市，期限边界不同。",
+      "sources": [
+        "https://static.cninfo.com.cn/finalpage/2026-08-26/1225502648.PDF",
+        "https://www.sse.com.cn/market/sseindex/diclosure/c/10770162/files/57376dfba9e449d8a14cfc54cc9124b0.pdf"
+      ]
+    },
+    {
+      "id": "local-ten",
+      "asset": "债券",
+      "name": "10年地方政府债",
+      "indices": {
+        "950109": "上证10年期地方政府债指数"
+      },
+      "difference": "与5年地方债分开。"
+    },
+    {
+      "id": "credit-mm",
+      "asset": "债券",
+      "name": "基准做市信用债",
+      "indices": {
+        "921128": "深证基准做市信用债指数",
+        "950245": "上证基准做市公司债指数"
+      },
+      "difference": "沪深各自选取基准做市债券，发行人、券种配比和实际久期可能不同。",
+      "sources": [
+        "https://www.cnindex.com.cn/docs/gz_921128.pdf",
+        "https://oss-ch.csindex.com.cn/static/html/csindex/public/uploads/indices/detail/files/zh_CN/950245factsheet.pdf"
+      ]
+    },
+    {
+      "id": "credit-spread",
+      "asset": "债券",
+      "name": "中高等级公司债利差因子",
+      "indices": {
+        "CBC00702": "中债-中高等级公司债利差因子指数"
+      },
+      "difference": "保留利差因子与评级约束。"
+    },
+    {
+      "id": "credit-short",
+      "asset": "债券",
+      "name": "短期融资券",
+      "indices": {
+        "H11014": "中证短融指数"
+      },
+      "difference": "企业短期融资，保留信用及短期限暴露。"
+    },
+    {
+      "id": "credit-lgfv",
+      "asset": "债券",
+      "name": "城投债",
+      "indices": {
+        "H11098": "上证城投债指数"
+      },
+      "difference": "发行主体为城投企业，区别于地方政府直接发行的债券。"
+    },
+    {
+      "id": "credit-scitech",
+      "asset": "债券",
+      "name": "AAA科创公司债",
+      "indices": {
+        "921130": "深证AAA科技创新公司债指数",
+        "932160": "中证AAA科技创新公司债指数",
+        "950167": "上证AAA科技创新公司债指数"
+      },
+      "difference": "保留同一信用主题。沪市、深市和跨市场样本范围不同，中证与深证的评级筛选条件也有差异。",
+      "sources": [
+        "https://static.cninfo.com.cn/finalpage/2026-06-30/1225394678.PDF",
+        "https://www.sse.com.cn/market/sseindex/diclosure/c/10648728/files/d14795f0ba9a49f0bc9e7c64f569ab45.pdf",
+        "https://www.cnindex.com.cn/zh_information/notices_news/2025/202504/P020250424592108255615.pdf"
+      ]
+    },
+    {
+      "id": "convertible",
+      "asset": "债券",
+      "name": "可转债及可交换债",
+      "indices": {
+        "931078": "中证可转债及可交换债券指数"
+      },
+      "difference": "保留普通转债与可交换债的权益敏感性。"
+    },
+    {
+      "id": "convertible-ig",
+      "asset": "债券",
+      "name": "投资级可转债及可交换债",
+      "indices": {
+        "950041": "上证投资级可转债及可交换债券指数"
+      },
+      "difference": "限定沪市及投资级，评级约束可能改变风险暴露。"
+    },
+    {
+      "id": "gold",
+      "asset": "黄金",
+      "name": "人民币黄金现货",
+      "indices": {
+        "AU9999": "黄金9999",
+        "SHAU": "上海金"
+      },
+      "difference": "Au99.99取现货合约收盘价，SHAU取上海金午盘定盘价；黄金产业股票仍属股票。",
+      "sources": [
+        "https://sge.com.cn/cpfw/hjetf"
+      ]
+    },
+    {
+      "id": "soymeal",
+      "asset": "商品期货",
+      "name": "豆粕期货",
+      "indices": {
+        "DCESMFI": "大商所豆粕期货价格指数"
+      },
+      "difference": "单独跟踪豆粕期货，换月会影响表现。",
+      "sources": [
+        "https://static.cninfo.com.cn/finalpage/2026-05-29/1225334651.PDF"
+      ]
+    },
+    {
+      "id": "base-metals",
+      "asset": "商品期货",
+      "name": "有色金属期货",
+      "indices": {
+        "IMCI": "上期有色金属指数"
+      },
+      "difference": "跟踪金属期货组合，区别于矿业或冶炼企业股票。",
+      "sources": [
+        "https://static.cninfo.com.cn/finalpage/2026-08-07/1225462056.PDF"
+      ]
+    },
+    {
+      "id": "energy-chem",
+      "asset": "商品期货",
+      "name": "能源化工期货",
+      "indices": {
+        "000201": "易盛郑商所能源化工指数A"
+      },
+      "difference": "跟踪郑商所能源化工期货组合；保留合约构成和展期影响。",
+      "sources": [
+        "https://static.cninfo.com.cn/finalpage/2025-09-25/1224678340.PDF"
+      ]
+    },
+    {
+      "id": "money",
+      "asset": "货币",
+      "name": "场内人民币现金管理",
+      "indices": {},
+      "difference": "共同用途为场内现金管理。各份额的面值和分配方式不同，比较时计入分红或已分配收益，并核对场内折溢价。银华日利 A 类按年分配。",
+      "sources": [
+        "https://www.sse.com.cn/assortment/fund/tcurrencyfund/",
+        "https://www.szse.cn/aboutus/trends/news/t20141021_518519.html",
+        "https://static.cninfo.com.cn/finalpage/2026-03-30/1225039418.PDF",
+        "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2025-06-21/511990_20250621_AG6M.pdf",
+        "https://www.sse.com.cn/disclosure/fund/announcement/c/new/2026-03-28/511880_20260328_ACKO.pdf"
+      ]
+    }
+  ]
+}
