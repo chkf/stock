@@ -1,6 +1,6 @@
 # 股票研究台 · 用 GitHub 构建 iPhone IPA
 
-v0.4.1（构建 6）更新了 iPhone 主屏幕图标。正常与深色外观均采用红色上涨折线、玻璃面积填充和五横五竖网格。[下载正式版 v0.4.1](https://github.com/chkf/stock/releases/tag/v0.4.1)
+v0.4.2（构建 7）去掉了正常和深色主屏幕图标左上角的反光。两种外观都保留红色上涨折线、玻璃面积填充和五横五竖网格。[下载正式版 v0.4.2](https://github.com/chkf/stock/releases/tag/v0.4.2)
 
 [正式版 v0.4.0（build 5）下载](https://github.com/chkf/stock/releases/tag/v0.4.0)：新增独立的本机动态目录、时点策略契约与正式文件回测。见[非破坏迁移与最小 JS 示例](docs/universe/README.md)、[原价和审核分区格式](docs/universe/market-format.md)及[验证范围](docs/universe/verification.md)。旧行情、设计与 ledger 3 保留，不会自动启用新目录。
 
